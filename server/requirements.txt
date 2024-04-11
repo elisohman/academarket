@@ -1,0 +1,4 @@
+Django==5.0.4
+django-cors-headers==4.3.1
+djangorestframework==3.15.1
+psycopg2-binary==2.9.9 # for postgres on mac, might be 'psycopg2==2.9.9' for windows
