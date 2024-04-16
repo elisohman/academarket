@@ -2,7 +2,10 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
-import SignIn from './routes/signin/signin';
+import SignIn from './routes/signin/SignIn';
+import SignUp from './routes/signup/SignUp';
+import Home from './routes/home/Home';
+
 import reportWebVitals from './reportWebVitals';
 import {createBrowserRouter, RouterProvider} from 'react-router-dom'
 
@@ -14,6 +17,14 @@ const router = createBrowserRouter([
   {
     path: '/signin',
     element: <SignIn />
+  },
+  {
+    path: '/signup',
+    element: <SignUp />
+  },
+  {
+    path: '/home',
+    element: <Home />
   }
 ])
 
