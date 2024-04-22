@@ -53,19 +53,18 @@ function SignIn() {
     
   return (
     <>
-      <div className="sign-in-container size-full bg-cyan-400 flex flex-col justify-center items-center gap-y-2">
+      <div className="sign-in-container size-full bg-slate-100 flex flex-col justify-center items-center gap-y-2">
         <img src={monkey} alt="monkey logo" width="10%" className='p-1 rounded-full'/>
-        <h1 className='text-3xl font-bold underline text-center p-1'>Sign in</h1>
         
         
         <form className="flex flex-col gap-y-1">
-          <TextField id="uname_input" type="text" label="Username:" />
-          <TextField id="password_input" type="password" label="Password:" />
-          <Button onClick={handleClick}>Sign in</Button>
+          <TextField inputClassName="placeholder-slate-600" id="uname_input" type="text" placeholder="Username" />
+          <TextField inputClassName="placeholder-slate-600" id="password_input" type="password" placeholder="Password"/>
+          <Button className='w-full mt-2 self-center text-slate-50 uppercase p-3' onClick={handleClick}>Sign in</Button>
         </form>
 
         <div className=''>
-          <Button onClick={goToSignUp} className='w-40 bg-transparent border-none'>Register new account</Button>
+          <Button onClick={goToSignUp} className='w-28 h-10 mt-1 bg-transparent text-slate-600 text-sm border-solid border rounded-3xl border-slate-600'>Sign up here →</Button>
         </div>
         
         
