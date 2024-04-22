@@ -56,7 +56,6 @@ function SignIn() {
       <div className="sign-in-container size-full bg-slate-100 flex flex-col justify-center items-center gap-y-2">
         <img src={monkey} alt="monkey logo" width="10%" className='p-1 rounded-full'/>
         
-        
         <form className="flex flex-col gap-y-1">
           <TextField inputClassName="placeholder-slate-600" id="uname_input" type="text" placeholder="Username" />
           <TextField inputClassName="placeholder-slate-600" id="password_input" type="password" placeholder="Password"/>
