@@ -2,3 +2,9 @@
 
 # misc
 .DS_Store
+academarket/__pycache__
+api/__pycache__
+api/migrations
+venv
+.venv
+db.*
