@@ -16,7 +16,7 @@ const TextField: React.FC<TextFieldProps> = ({id, inputClassName, label ="", pla
         <>
         
             <label htmlFor={id}>{label}</label>
-            <input className={`border-2 p-1 border-slate-250 rounded-md self-end ${inputClassName}`} id={id} type={type} placeholder={placeholder} />
+            <input className={`border-2 p-1 border-slate-250 rounded-md ${inputClassName}`} id={id} type={type} placeholder={placeholder} />
         </>
     );
 };

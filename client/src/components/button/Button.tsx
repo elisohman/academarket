@@ -25,7 +25,7 @@ const Button: React.FC<ButtonProps> = ({children, className, onClick }) => {
         
         <button 
             type="button"
-            className={`w-20 bg-green-600 border-4 border-double border-green-800 rounded-md self-end ${className}`}
+            className={`bg-green-400 p-2 rounded-md ${className}`}
             onClick={handleClick} // Add onClick event handler
         >
             {children}

@@ -9,7 +9,13 @@ const monkey = './assets/images/bg-monkeys.jpg';
 
 function SignUp() {
   const navigate = useNavigate(); // Get history object
+  const returnToSignIn = () => {
+    navigate("/signin");
+  }
   const handleClick = async () => {
+   
+
+
     let uname_input = document.getElementById("uname_input") as HTMLInputElement;
     let uname = uname_input.value;
     let password_input=  document.getElementById('password_input') as HTMLInputElement;
@@ -49,21 +55,21 @@ function SignUp() {
 
   return (
     <>
-      <div className="sign-in-container size-full bg-cyan-400 flex flex-col justify-center items-center gap-y-2">
+      <div className="sign-in-container size-full bg-slate-100 flex flex-col justify-center items-center gap-y-2">
         <img src={monkey} alt="monkey logo" width="10%" className='p-1 rounded-full'/>
         
-        <h1 className='text-3xl font-bold underline text-center p-1'>Sign up</h1>
         
         
         <form className="flex flex-col gap-y-1">
-            <TextField id="uname_input" type="text" label="Username:" placeholder=""/>
-            <TextField id="email_input" type="text" label="E-mail:" placeholder=""/>
-            <TextField id="password_input" type="password" label="Password:" placeholder=""/>
-            <TextField id="repeat_password_input" type="password" label="Repeat password:" placeholder=""/>
+            <TextField inputClassName="placeholder-slate-600" id="uname_input" type="text" placeholder="Username"/>
+            <TextField inputClassName="placeholder-slate-600" id="email_input" type="text" placeholder="E-mail" />
+            <TextField inputClassName="placeholder-slate-600" id="password_input" type="password" placeholder="Password" />
+            <TextField inputClassName="placeholder-slate-600" id="repeat_password_input" type="password" placeholder="Repeat password" />
 
-            <Button onClick={handleClick} className='bg-blue-700 border-blue-800'>Sign up</Button>
+            <Button onClick={handleClick} className='w-full mt-2 self-center text-slate-50 uppercase p-3'>Sign up</Button>
         </form>
         
+        <Button onClick={returnToSignIn} className='w-32 h-10 mt-1 bg-transparent text-slate-600 text-sm border-solid border rounded-3xl border-slate-600'>← Return to login</Button>
 
         
       </div>
