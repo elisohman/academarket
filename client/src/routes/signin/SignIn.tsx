@@ -59,9 +59,9 @@ function SignIn() {
         
         
         <form className="flex flex-col gap-y-1">
-          <TextField id="uname_input" type="text" label="Username:" />
-          <TextField id="password_input" type="password" label="Password:" />
-          <Button onClick={handleClick}>Sign in</Button>
+          <TextField id="uname_input" type="text" placeholder="Username" />
+          <TextField id="password_input" type="password" placeholder="Password"/>
+          <Button className='flex-col' onClick={handleClick}>Sign in</Button>
         </form>
 
         <div className=''>

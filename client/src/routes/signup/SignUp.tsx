@@ -56,10 +56,10 @@ function SignUp() {
         
         
         <form className="flex flex-col gap-y-1">
-            <TextField id="uname_input" type="text" label="Username:" />
-            <TextField id="email_input" type="text" label="E-mail:" />
-            <TextField id="password_input" type="password" label="Password:" />
-            <TextField id="repeat_password_input" type="password" label="Repeat password:" />
+            <TextField id="uname_input" type="text" label="Username:" placeholder=""/>
+            <TextField id="email_input" type="text" label="E-mail:" placeholder=""/>
+            <TextField id="password_input" type="password" label="Password:" placeholder=""/>
+            <TextField id="repeat_password_input" type="password" label="Repeat password:" placeholder=""/>
 
             <Button onClick={handleClick} className='bg-blue-700 border-blue-800'>Sign up</Button>
         </form>
