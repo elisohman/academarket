@@ -23,6 +23,7 @@ urlpatterns = [
     path('', views.test),
     path('sign_in', views.sign_in),
     path('sign_up', views.sign_up),
-
+    path('get_course_stats/<str:course_code>', views.get_course_stats),
+    path('get_local_course_data', views.get_local_course_data),
 
 ]
