@@ -1,0 +1,37 @@
+$primary-color: #4ADE80;
+$light-gray: #EEF2EF;
+$secondary-color: #1D212F;
+$lavender: #7950EE;
+$coral: #F34F81; 
+
+.text-primary-color {
+  color: $primary-color;
+}
+
+.text-secondary-color {
+  color: $secondary-color;
+}
+
+.text-light-gray {
+  color: $light-gray;
+}
+
+.bg-primary-color {
+  background-color: $primary-color;
+}
+
+.bg-secondary-color {
+  background-color: $secondary-color;
+}
+
+.bg-light-gray {
+  background-color: $light-gray;
+}
+
+.bg-lavender {
+  background-color: $lavender;
+}
+
+.bg-coral {
+  background-color: $coral;
+}

@@ -5,6 +5,9 @@ import App from './App';
 import SignIn from './routes/signin/SignIn';
 import SignUp from './routes/signup/SignUp';
 import Home from './routes/home/Home';
+import Dashboard from './routes/dashboard/Dashboard';
+import Portfolio from './routes/portfolio/Portfolio';
+import Trading from './routes/trading/Trading';
 
 import reportWebVitals from './reportWebVitals';
 import {createBrowserRouter, RouterProvider} from 'react-router-dom'
@@ -25,6 +28,18 @@ const router = createBrowserRouter([
   {
     path: '/home',
     element: <Home />
+  },
+  {
+    path: '/dashboard',
+    element: <Dashboard />
+  },
+  {
+    path: '/portfolio',
+    element: <Portfolio />
+  },
+  {
+    path: '/trading',
+    element: <Trading />
   }
 ])
 

@@ -7,7 +7,7 @@ import { Navigate, useNavigate } from 'react-router-dom';
 const monkey = './assets/images/bg-monkeys.jpg';
 //const monkey = './assets/images/minimalistic-monkey';
 
-function SignUp() {
+const SignUp: React.FC = () => {
   const navigate = useNavigate(); // Get history object
   const returnToSignIn = () => {
     navigate("/signin");
