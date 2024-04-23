@@ -8,9 +8,9 @@ interface PageWrapperProps {
 
 const PageWrapper: React.FC<PageWrapperProps> = ({children, className}) => {
     return (
-        <div className={'page-container ' + (className)}>
+        <div className={'h-screen flex flex-col ' + (className)}>
             <TopBar />
-            <div className='content-container'>{children}</div>
+            <div className='grow px-8'>{children}</div>
         </div>
     );
 }
