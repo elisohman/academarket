@@ -7,7 +7,7 @@ venv
 .venv
 db.*
 .env
-
+courses copy.json
 # academarket
 academarket/.my_pgpass
 academarket/.pg_service.conf
