@@ -6,7 +6,7 @@ import TextField from '../../components/textfield/TextField';
 import { useNavigate } from 'react-router-dom';
 const monkey = './assets/images/bg-monkeys.jpg';
 
-function SignIn() {
+const SignIn: React.FC = () => {
   const navigate = useNavigate(); // Get history object
   const goToSignUp = () => {
     navigate("/signup");
