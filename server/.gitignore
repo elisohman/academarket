@@ -10,3 +10,4 @@ venv
 db.*
 academarket/.my_pgpass
 academarket/.pg_service.conf
+.env
