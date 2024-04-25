@@ -4,7 +4,7 @@ from api.models import User
 import json
 import requests
 from api.utils.handle_local_json import read_course_data_from_code, read_all_course_data, check_if_course_exists_locally, save_course_data
-
+import traceback
 #-- Views! --#
 
 def test(request: HttpRequest) -> HttpResponse:
@@ -83,12 +83,13 @@ def get_course_stats(_request: HttpRequest, course_code: str) -> JsonResponse:
     Raises:
         JsonResponse: If there is an error retrieving or saving the course statistics.
     """
-    should_update = False # Temporary placement, for when we want to check for new exams in courses already in the database
+    should_update = True # Temporary placement, for when we want to check for new exams in courses already in the database
     api_url = f"https://ysektionen.se/student/tentastatistik/exam_stats/?course_code={course_code}&newer_than=2012&month_lb=&month_ub="
     try:
-        if check_if_course_exists_locally(course_code) and not should_update:
-            data = read_course_data_from_code(course_code)
-            return JsonResponse(data, status=200)
+        if not should_update:
+            if check_if_course_exists_locally(course_code):
+                data = read_course_data_from_code(course_code)
+                return JsonResponse(data, status=200)
         
         # Making a GET request to the API
         response = requests.get(api_url)
@@ -100,12 +101,31 @@ def get_course_stats(_request: HttpRequest, course_code: str) -> JsonResponse:
 
             return JsonResponse(data, status=200)
         else:
+            print("Blocked!")
             return JsonResponse({'error': 'Failed to fetch data from the API'}, status=500)
     except Exception as e:
+        print(e)
+        traceback.print_exc()
         return JsonResponse({'error': str(e)}, status=500)
 
+def get_local_course_stats(_request: HttpRequest, course_code: str) -> JsonResponse:
+    """
+    Retrieve local course statistics and return them as a JSON response.
 
-def get_local_course_data(_request: HttpRequest) -> JsonResponse:
+    Parameters:
+    - _request (HttpRequest): The HTTP request object. Unused.
+    - course_code (str): The code of the course for which to retrieve the statistics.
+
+    Returns:
+    - JsonResponse: The JSON response containing the course statistics.
+
+    """
+    local_course_data = read_course_data_from_code(course_code)
+    if local_course_data:
+        return JsonResponse(local_course_data, status=200)
+    return JsonResponse({'error': 'No data available'}, status=404)
+
+def get_all_local_course_data(_request: HttpRequest) -> JsonResponse:
     """
     Retrieve local course data and return it as a JSON response.
 
