@@ -83,7 +83,7 @@ def get_course_stats(_request: HttpRequest, course_code: str) -> JsonResponse:
     Raises:
         JsonResponse: If there is an error retrieving or saving the course statistics.
     """
-    should_update = True # Temporary placement, for when we want to check for new exams in courses already in the database
+    should_update = False # Temporary placement, for when we want to check for new exams in courses already in the database
     api_url = f"https://ysektionen.se/student/tentastatistik/exam_stats/?course_code={course_code}&newer_than=2012&month_lb=&month_ub="
     try:
         if not should_update:
@@ -104,7 +104,6 @@ def get_course_stats(_request: HttpRequest, course_code: str) -> JsonResponse:
             print("Blocked!")
             return JsonResponse({'error': 'Failed to fetch data from the API'}, status=500)
     except Exception as e:
-        print(e)
         traceback.print_exc()
         return JsonResponse({'error': str(e)}, status=500)
 

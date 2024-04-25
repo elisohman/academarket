@@ -65,7 +65,6 @@ def save_course_data(data):
         with open(json_file_path, 'r', encoding='utf-8') as file:
             local_courses_data = json.load(file)
     
-    
 
     # Add or update course data
     course_code = data.get('course_code')
