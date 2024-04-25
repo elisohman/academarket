@@ -87,17 +87,33 @@ WSGI_APPLICATION = 'academarket.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-DATABASES = {
-    'default' : {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'academarket',
-        'USER': '',
-        'PASSWORD': '',
+if (env_var):
+    production_env = {
+        'ENGINE': env_var["DB_ENGINE"],
+        'NAME': env_var["DB_NAME"],
+        'USER': env_var["DB_USER"],
+        'PASSWORD': env_var["DB_PASSWORD"],
+        'HOST': env_var["DB_HOST"],
+        'PORT': env_var["DB_PORT"],
     }
-    #'default': {
-    #    'ENGINE': 'django.db.backends.sqlite3',
-    #    'NAME': BASE_DIR / 'db.sqlite3',
-    #}
+
+    test_env = {
+        'ENGINE': env_var["DB_TEST_ENGINE"],
+        'NAME': env_var["DB_TEST_NAME"]
+    }
+
+    if eval(env_var["PRODUCTION_ENV"]):
+        db_env = production_env
+    else:
+        db_env = test_env
+else:
+    db_env = {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3'
+    }
+
+DATABASES = {
+    'default': db_env
 }
 
 
