@@ -1,28 +1,27 @@
-import { createChart, ColorType, ISeriesApi } from 'lightweight-charts';
+import { createChart, ColorType, ISeriesApi, IPriceScaleApi, ITimeScaleApi } from 'lightweight-charts';
 import React, { useEffect, useRef } from 'react';
 import './chart-component.scss';
 
 interface ChartProps {
-    data: { time: string; value: number }[];
+    //data: { time: string; value: number }[];
+    data: { time: string; open: number; high: number; low: number; close: number; }[];
     colors?: {
         backgroundColor?: string;
-        lineColor?: string;
         textColor?: string;
-        areaTopColor?: string;
-        areaBottomColor?: string;
+        borderColor?: string;
     };
+
     width?: number;
     height?: number;
 }
 
-const ChartComponent: React.FC<ChartProps> = ({ data, colors, width = 800, height = 400 }) => {
+const ChartComponent: React.FC<ChartProps> = ({ data, colors, width, height }) => {
     const {
-        backgroundColor = 'white',
-        lineColor = '#2962FF',
-        textColor = 'black',
-        areaTopColor = '#2962FF',
-        areaBottomColor = 'rgba(41, 98, 255, 0.28)',
+        backgroundColor = '#222',
+        textColor = '#C3BCDB',
+        borderColor = '#71649C',
     } = colors || {};
+
 
     const chartContainerRef = useRef<HTMLDivElement>(null);
     const chartInstanceRef = useRef<ReturnType<typeof createChart>>();
@@ -32,17 +31,48 @@ const ChartComponent: React.FC<ChartProps> = ({ data, colors, width = 800, heigh
 
         const chart = createChart(chartContainerRef.current, {
             layout: {
-                background: { type: ColorType.Solid, color: backgroundColor },
-                textColor,
+                background: { color: "#222" },
+                textColor: "#C3BCDB",
+            },
+            grid: {
+                vertLines: { color: "#444" },
+                horzLines: { color: "#444" },
             },
             width,
             height,
         });
+        /*
+        // Setting the border color for the vertical axis
+        chart.priceScale().applyOptions({
+        borderColor: '#71649C',
+        });
+        */
+        // Setting the border color for the horizontal axis
+        chart.timeScale().applyOptions({
+            borderColor: '#71649C',
+        });
+
+        // Get the current users primary locale
+      const currentLocale = window.navigator.languages[0];
+      // Create a number format using Intl.NumberFormat
+      const myPriceFormatter = Intl.NumberFormat(currentLocale, {
+            style: "currency",
+            currency: "APE", // Currency for data points
+          }).format;
+
+      // Apply the custom priceFormatter to the chart
+      chart.applyOptions({
+        localization: {
+          priceFormatter: myPriceFormatter,
+        },
+      });
 
         chart.timeScale().fitContent();
 
-        const newSeries: ISeriesApi<'Area'> = chart.addAreaSeries({ lineColor, topColor: areaTopColor, bottomColor: areaBottomColor });
-        newSeries.setData(data);
+        //const newSeries: ISeriesApi<'Area'> = chart.addAreaSeries({ lineColor, topColor: areaTopColor, bottomColor: areaBottomColor });
+        //newSeries.setData(data);
+        const newCandleSeries: ISeriesApi<'Candlestick'> = chart.addCandlestickSeries();
+        newCandleSeries.setData(data);
 
         const handleResize = () => {
             chart.applyOptions({ width: chartContainerRef.current!.clientWidth });
@@ -56,9 +86,9 @@ const ChartComponent: React.FC<ChartProps> = ({ data, colors, width = 800, heigh
             window.removeEventListener('resize', handleResize);
             chartInstanceRef.current?.remove();
         };
-    }, [data, backgroundColor, lineColor, textColor, areaTopColor, areaBottomColor, width, height]);
+    }, [data, backgroundColor, textColor, borderColor]);
 
-    return <div ref={chartContainerRef} />;
+    return <div ref={chartContainerRef} style={{ width: '100%', height: '100%' }} />;
 };
 
 export default ChartComponent;
