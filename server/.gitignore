@@ -3,11 +3,17 @@
 # misc
 .DS_Store
 academarket/__pycache__
-api/__pycache__
-api/migrations
 venv
 .venv
 db.*
+.env
+courses_backups
+
+# academarket
 academarket/.my_pgpass
 academarket/.pg_service.conf
-.env
+
+# api
+api/__pycache__
+api/migrations
+api/utils/__pycache__

@@ -87,6 +87,7 @@ WSGI_APPLICATION = 'academarket.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+
 if (env_var):
     production_env = {
         'ENGINE': env_var["DB_ENGINE"],
