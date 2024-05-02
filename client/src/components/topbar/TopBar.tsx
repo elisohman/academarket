@@ -1,4 +1,6 @@
 import {Link, useLocation} from "react-router-dom";
+import DefaultProfilePic from "../../style/icons/DefaultProfilePic";
+
 
 function TopBar() {
     const location = useLocation();
@@ -6,10 +8,10 @@ function TopBar() {
 
     return (
         <div className="text-secondary-color w-full h-20 flex px-8 text-base">
-            <div className="flex items-center">
-                <div className="text-lg font-bold">Logo</div>
+            <div id="logo-area" className="flex items-center">
+                <div className="text-lg font-bold">Academarket</div>
             </div>
-            <div className="flex-grow flex justify-center">
+            <div id="menu-area" className="flex-grow flex justify-center">
                 <ul className="flex gap-x-8 items-center">
                     <Link to="/dashboard">
                         <li className={`px-4 py-1.5 rounded-full ${path === '/dashboard' ? 'bg-primary-color text-white font-medium' : ''}`}>Dashboard</li>
@@ -24,8 +26,14 @@ function TopBar() {
                     </Link>
                 </ul>
             </div>
-            <div className="flex items-center">
-                <div className="w-10 h-10 rounded-full bg-light-gray"></div>
+            <div id="profile-area" className="flex items-center">
+                <div id="pfp" className="w-10 h-10 rounded-full bg-light-gray overflow-hidden">  
+                    <DefaultProfilePic />
+                </div>
+                <div id="user-details" className="ml-4 text-sm">
+                    <p className="font-semibold text-secondary-color text-sm max-w-36 overflow-hidden whitespace-nowrap overflow-ellipsis">johannespettersson</p>
+                    <p className="font-semibold text-primary-color">$69,420</p>
+                </div>
             </div>
         </div>
     );
