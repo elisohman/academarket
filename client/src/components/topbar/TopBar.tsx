@@ -32,7 +32,7 @@ function TopBar() {
                 </div>
                 <div id="user-details" className="ml-4 text-sm">
                     <p className="font-semibold text-secondary-color text-sm max-w-36 overflow-hidden whitespace-nowrap overflow-ellipsis">johannespettersson</p>
-                    <p className="font-semibold text-primary-color">$69,420</p>
+                    <p className="font-semibold text-primary-color">APE 69,420</p>
                 </div>
             </div>
         </div>

@@ -59,11 +59,11 @@ const SignIn: React.FC = () => {
         <form className="flex flex-col gap-y-1">
           <TextField inputClassName="placeholder-slate-600" id="uname_input" type="text" placeholder="Username" />
           <TextField inputClassName="placeholder-slate-600" id="password_input" type="password" placeholder="Password"/>
-          <Button className='w-full mt-2 self-center text-slate-50 uppercase p-3' onClick={handleClick}>Sign in</Button>
+          <Button className='w-full mt-2 self-center text-slate-50 uppercase p-3 rounded-md' onClick={handleClick}>Sign in</Button>
         </form>
 
         <div className=''>
-          <Button onClick={goToSignUp} className='w-28 h-10 mt-1 bg-transparent text-slate-600 text-sm border-solid border rounded-3xl border-slate-600'>Sign up here →</Button>
+          <Button onClick={goToSignUp} className='px-4 py-2 mt-1 bg-transparent text-slate-600 text-sm border-solid border rounded-full border-slate-600'>Sign up here →</Button>
         </div>
         
         
