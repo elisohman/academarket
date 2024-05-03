@@ -38,8 +38,8 @@ const SignIn: React.FC = () => {
       if (response.ok) {
         // Handle successful sign-in
         console.log('Successful sign-in:');
-        // Navigate to home or dashboard page
-        navigate("/home");
+        // Navigate to dashboard page
+        navigate("/dashboard");
       } else {
         // Handle sign-in error
         console.error('Sign-in failed:');

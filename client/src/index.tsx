@@ -1,21 +1,20 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
-import App from './App';
 import SignIn from './routes/signin/SignIn';
 import SignUp from './routes/signup/SignUp';
-import Home from './routes/home/Home';
 import Dashboard from './routes/dashboard/Dashboard';
 import Portfolio from './routes/portfolio/Portfolio';
 import Trading from './routes/trading/Trading';
+import './style/colors.scss';
 
 import reportWebVitals from './reportWebVitals';
-import {createBrowserRouter, RouterProvider} from 'react-router-dom'
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <App />
+    element: <SignIn />
   },
   {
     path: '/signin',
@@ -24,10 +23,6 @@ const router = createBrowserRouter([
   {
     path: '/signup',
     element: <SignUp />
-  },
-  {
-    path: '/home',
-    element: <Home />
   },
   {
     path: '/dashboard',
@@ -41,7 +36,7 @@ const router = createBrowserRouter([
     path: '/trading',
     element: <Trading />
   }
-])
+]);
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
