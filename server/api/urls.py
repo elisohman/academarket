@@ -28,7 +28,7 @@ urlpatterns = [
 
     path('get_all_local_data', views.get_all_local_data),
     path('dev/fill_courses_database', views.fill_courses_database),
-    path('dev/buy_course/<user>', views.buy_course_test),
+    path('dev/buy_course/<course_code>/<user>', views.buy_course_test),
     path('dev/add_course_to_database/<course_code>', views.add_course_to_database),
     path('dev/fill_course_codes_list', views.fill_course_codes_list),
 ]
