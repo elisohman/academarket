@@ -9,11 +9,15 @@ class User(models.Model):
     email = models.CharField(max_length=30)
     password = models.CharField(max_length=30)
     coins = models.IntegerField(null=True)
+    courses = models.ManyToManyField('Course', related_name='users')
+
 
 class Course(models.Model):
     class Meta:
         db_table = 'courses'  # Set the table name to 'user'
     id = models.AutoField(primary_key=True)
     course_code = models.CharField(max_length=10, unique=True)
-    course_name = models.CharField(max_length=30)
-    course_description = models.CharField(max_length=500)
+    name = models.CharField(max_length=100)
+    description = models.CharField(max_length=500)
+    price = models.IntegerField(null=True)
+    

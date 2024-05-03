@@ -19,8 +19,7 @@ def read_course_data_from_code(course_code):
 
 def read_all_course_data():
     # Define the path to the JSON file
-    json_file_path = 'courses.json'
-    
+    json_file_path = 'courses.json'    
     # Check if the JSON file exists
     if os.path.exists(json_file_path):
         # Read existing JSON data from the file

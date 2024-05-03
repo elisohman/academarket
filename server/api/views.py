@@ -1,9 +1,13 @@
 from django.shortcuts import render
 from django.http import HttpResponse, HttpRequest, JsonResponse
-from api.models import User
+from api.models import User, Course
+from api.utils.courses_json_utils import read_course_data_from_code, read_all_course_data, check_if_course_exists_locally, save_course_data
+
+from api.utils.database_utils import fill_database
+
 import json
 import requests
-from api.utils.handle_local_json import read_course_data_from_code, read_all_course_data, check_if_course_exists_locally, save_course_data
+
 import traceback
 #-- Views! --#
 
@@ -107,6 +111,8 @@ def get_course_stats(_request: HttpRequest, course_code: str) -> JsonResponse:
         traceback.print_exc()
         return JsonResponse({'error': str(e)}, status=500)
 
+# Views for retrieving local course data
+
 def get_local_course_stats(_request: HttpRequest, course_code: str) -> JsonResponse:
     """
     Retrieve local course statistics and return them as a JSON response.
@@ -124,7 +130,7 @@ def get_local_course_stats(_request: HttpRequest, course_code: str) -> JsonRespo
         return JsonResponse(local_course_data, status=200)
     return JsonResponse({'error': 'No data available'}, status=404)
 
-def get_all_local_course_data(_request: HttpRequest) -> JsonResponse:
+def get_all_local_data(_request: HttpRequest) -> JsonResponse:
     """
     Retrieve local course data and return it as a JSON response.
 
@@ -139,3 +145,65 @@ def get_all_local_course_data(_request: HttpRequest) -> JsonResponse:
     if local_courses_data:
         return JsonResponse(local_courses_data, status=200)
     return JsonResponse({'error': 'No data available'}, status=404)
+
+def add_course_to_database(_request: HttpRequest, course_code: str) -> HttpResponse:
+    """
+    Add a course to the local database.
+
+    Parameters:
+    - _request (HttpRequest): The HTTP request object.
+    - course_code (str): The code of the course to add.
+    - course_name (str): The name of the course to add.
+
+    Returns:
+    - HttpResponse: The HTTP response indicating whether the course was added successfully.
+
+    """
+    course_data = read_course_data_from_code(course_code)
+    if course_data:
+        code = course_data['course_code']
+        name = course_data['course_name']
+        description = "This is a course."
+        if Course.objects.filter(course_code=code).exists():
+            print(f"Course {code} already in the database.")
+            return HttpResponse(status=200, content="Course already in the database.")
+        new_course = Course.objects.create(course_code=code, name=name, description=description, price=1)
+        new_course.save()
+        print(f"Course {code} added!")
+        return HttpResponse(status=200, content="Course added to the database.")
+    return HttpResponse(status=404, content="Course not found.")
+
+def fill_courses_database(_request: HttpRequest) -> HttpResponse:
+    data = read_all_course_data()
+    """for course in data:
+        #print(data[course])
+        course_code = data[course]['course_code']
+        course_name = data[course]['course_name']
+        course_description = "This is a course."
+        new_course = Course.objects.create(course_code=course_code, name=course_name, description=course_description, price=1)
+        new_course.save()"""
+    fill_database(data)
+    return HttpResponse(status=200, content="Courses added to the database.")
+
+def buy_course_test(_request: HttpRequest, course_code: str, user: str) -> JsonResponse:
+    """
+    Buy a course by adding it to the user's list of courses.
+
+    Parameters:
+    - _request (HttpRequest): The HTTP request object.
+    - course_code (str): The code of the course to buy.
+
+    Returns:
+    - JsonResponse: The JSON response indicating whether the course was bought successfully.
+
+    """
+    # Temporary solution
+    current_user = User.objects.filter(username=user).first()
+    course = Course.objects.filter(course_code=course_code).first()
+    if not current_user or not course:
+        return JsonResponse({'message': 'User or course not found'}, status=404)
+    if course in current_user.courses.all():
+        return JsonResponse({'message': 'Course already bought'}, status=200)
+    current_user.courses.add(course)
+    current_user.save()
+    return JsonResponse({'message': 'Course bought successfully'}, status=200)
