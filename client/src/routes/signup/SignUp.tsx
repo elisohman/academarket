@@ -66,10 +66,10 @@ const SignUp: React.FC = () => {
             <TextField inputClassName="placeholder-slate-600" id="password_input" type="password" placeholder="Password" />
             <TextField inputClassName="placeholder-slate-600" id="repeat_password_input" type="password" placeholder="Repeat password" />
 
-            <Button onClick={handleClick} className='w-full mt-2 self-center text-slate-50 uppercase p-3'>Sign up</Button>
+            <Button onClick={handleClick} className='w-full mt-2 self-center text-slate-50 uppercase p-3 rounded-md'>Sign up</Button>
         </form>
         
-        <Button onClick={returnToSignIn} className='w-32 h-10 mt-1 bg-transparent text-slate-600 text-sm border-solid border rounded-3xl border-slate-600'>← Return to login</Button>
+        <Button onClick={returnToSignIn} className='px-4 py-2 mt-1 bg-transparent text-slate-600 text-sm border-solid border rounded-full border-slate-600'>← Return to login</Button>
 
         
       </div>
