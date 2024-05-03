@@ -1,4 +1,5 @@
-from course_retrieval import load_course_list
+
+from server.api.utils.courses_list_utils import load_course_list
 import requests
 
 
@@ -17,3 +18,5 @@ if __name__ == "__main__":
     courses = load_course_list()
     for course in courses:
         make_external_api_call(course.strip())
+        
+

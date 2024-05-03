@@ -16,7 +16,6 @@ def read_course_data_from_code(course_code):
     return None
 
 
-
 def read_all_course_data():
     # Define the path to the JSON file
     json_file_path = 'courses.json'    
@@ -63,7 +62,6 @@ def save_course_data(data):
         # Read existing JSON data from the file
         with open(json_file_path, 'r', encoding='utf-8') as file:
             local_courses_data = json.load(file)
-    
 
     # Add or update course data
     course_code = data.get('course_code')
@@ -83,7 +81,8 @@ def update_course_data(course_code, data):
     """
     Here we want to add new exams to the course code if 
     new results for that has been released that is not 
-    present in courses.json
+    present in courses.json, as well as to correct any
+    inconsistencies in the data.
     """
     # Define the path to the JSON file
     json_file_path = 'courses.json'

@@ -17,4 +17,3 @@ def fill_database(data):
     for course in data:
         make_external_api_call(course)
 
-
