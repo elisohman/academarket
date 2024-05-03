@@ -2,7 +2,7 @@
 import requests
 
 
-def make_external_api_call(course_code):
+def internal_add_course_to_database_call(course_code):
     # API endpoint URL
     external_api_url = f"http://127.0.0.1:8000/api/add_course_to_database/{course_code}"
     # Send a GET request to the API endpoint
@@ -13,7 +13,6 @@ def make_external_api_call(course_code):
 
 
 def fill_database(data):
-    print(data)
     for course in data:
-        make_external_api_call(course)
+        internal_add_course_to_database_call(course)
 

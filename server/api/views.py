@@ -1,7 +1,8 @@
 from django.shortcuts import render
 from django.http import HttpResponse, HttpRequest, JsonResponse
 from api.models import User, Course
-from api.utils.courses_json_utils import read_course_data_from_code, read_all_course_data, check_if_course_exists_locally, save_course_data
+from api.utils.courses_json_utils import read_course_data_from_code, read_all_course_data, check_if_course_exists_locally, save_course_data, fill_json_from_list
+from api.utils.courses_list_utils import save_course_list, retrieve_new_data_from_liu, load_course_list
 
 from api.utils.database_utils import fill_database
 
@@ -181,9 +182,12 @@ def fill_courses_database(_request: HttpRequest) -> HttpResponse:
         course_name = data[course]['course_name']
         course_description = "This is a course."
         new_course = Course.objects.create(course_code=course_code, name=course_name, description=course_description, price=1)
-        new_course.save()"""
+        new_course.save()
+    """
     fill_database(data)
     return HttpResponse(status=200, content="Courses added to the database.")
+
+
 
 def buy_course_test(_request: HttpRequest, course_code: str, user: str) -> JsonResponse:
     """
@@ -207,3 +211,37 @@ def buy_course_test(_request: HttpRequest, course_code: str, user: str) -> JsonR
     current_user.courses.add(course)
     current_user.save()
     return JsonResponse({'message': 'Course bought successfully'}, status=200)
+
+
+def fill_course_codes_list(_request: HttpRequest) -> HttpResponse:
+    """
+    Fill the local JSON file with course data.
+
+    Parameters:
+    - _request (HttpRequest): The HTTP request object.
+
+    Returns:
+    - HttpResponse: The HTTP response indicating whether the JSON file was filled successfully.
+
+    """
+    data_list = retrieve_new_data_from_liu()
+    # Save data_list to a local file
+    save_course_list(data_list)
+    print("Data retrieved and saved to file.")
+    return HttpResponse(status=200, content="List of courses added to the text file.")
+
+
+def fill_courses_json(_request: HttpRequest) -> HttpResponse:
+    """
+    Fill the local JSON file with course data.
+
+    Parameters:
+    - _request (HttpRequest): The HTTP request object.
+
+    Returns:
+    - HttpResponse: The HTTP response indicating whether the JSON file was filled successfully.
+
+    """
+    courses = load_course_list()
+    fill_json_from_list(courses)
+    return HttpResponse(status=200, content="List of courses added to the text file.")

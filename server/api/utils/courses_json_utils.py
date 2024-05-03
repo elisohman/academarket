@@ -2,10 +2,14 @@ import os
 import json
 import shutil
 import datetime
+import requests
+
+JSON_PATH = 'course_data/courses.json'
+BACKUP_PATH = 'course_data/courses_backups'
 
 def read_course_data_from_code(course_code):
     # Define the path to the JSON file
-    json_file_path = 'courses.json'
+    json_file_path = JSON_PATH
     
     # Check if the JSON file exists
     if os.path.exists(json_file_path):
@@ -18,7 +22,7 @@ def read_course_data_from_code(course_code):
 
 def read_all_course_data():
     # Define the path to the JSON file
-    json_file_path = 'courses.json'    
+    json_file_path = JSON_PATH    
     # Check if the JSON file exists
     if os.path.exists(json_file_path):
         # Read existing JSON data from the file
@@ -31,7 +35,7 @@ def read_all_course_data():
 
 def check_if_course_exists_locally(course_name):
     # Define the path to the JSON file
-    json_file_path = 'courses.json'
+    json_file_path = JSON_PATH
     
     # Check if the JSON file exists
     if os.path.exists(json_file_path):
@@ -44,7 +48,7 @@ def check_if_course_exists_locally(course_name):
 
 def save_course_data(data):
     # Define the path to the JSON file
-    json_file_path = 'courses.json'
+    json_file_path = JSON_PATH
     
     # Create an empty dictionary to store course data
     local_courses_data = {}
@@ -52,7 +56,7 @@ def save_course_data(data):
     # Check if the JSON file exists
     if os.path.exists(json_file_path):
         # Create a backup of the existing local_courses_data
-        backup_folder = 'courses_backups'
+        backup_folder = BACKUP_PATH
         backup_file_name = f'courses_backup_{datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}.json'
         backup_file_path = os.path.join(backup_folder, backup_file_name)
         if not os.path.exists(backup_folder):
@@ -85,7 +89,7 @@ def update_course_data(course_code, data):
     inconsistencies in the data.
     """
     # Define the path to the JSON file
-    json_file_path = 'courses.json'
+    json_file_path = JSON_PATH
     
     # Create an empty dictionary to store course data
     local_courses_data = {}
@@ -175,3 +179,19 @@ def get_module_data_dict_on_date(module_data):
         result_dict[local_date] = [(value, item["name"]) for item, value in zip(grade_data, values)]
     sorted_result_dict = dict(sorted(result_dict.items(), key=lambda x: x[0]))
     return sorted_result_dict
+
+
+def internal_get_course_api_call(course_code):
+    # API endpoint URL
+    external_api_url = f"http://127.0.0.1:8000/api/get_course_stats/{course_code}"
+    # Send a GET request to the API endpoint
+    response = requests.get(external_api_url)
+    # Check if the request was successful
+    if response.status_code == 200:
+        print("Success!")
+    else:
+        print(f"Failed to retrieve data from API. Status code: {response.status_code}")
+
+def fill_json_from_list(courses):
+    for course in courses:
+        internal_get_course_api_call(course.strip())
