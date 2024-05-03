@@ -4,11 +4,10 @@ from django.db import models
 class User(models.Model):
     class Meta:
         db_table = 'users'  # Set the table name to 'user'
-
     username = models.CharField(max_length=30)
     email = models.CharField(max_length=30)
     password = models.CharField(max_length=30)
-    coins = models.IntegerField(null=True)
+    cash = models.IntegerField(null=True)
     courses = models.ManyToManyField('Course', related_name='users')
 
 
