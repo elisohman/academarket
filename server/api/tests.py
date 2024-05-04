@@ -32,10 +32,9 @@ class ApiTest(TestCase):
         """
         response = self.client.post(SIGN_IN_PATH, {"username": "user1", "password": ""},
                                     content_type=CONTENT_TYPE_JSON)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 403)
 
         response = self.client.post(SIGN_IN_PATH, {"username": "user2", "password": "bad_password"},
                                     content_type=CONTENT_TYPE_JSON)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 403)
 
-    def test
