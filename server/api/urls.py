@@ -21,12 +21,13 @@ urlpatterns = [
     path('test', views.test),
     path('elis', views.test),
     path('', views.test),
+    # API endpoints
     path('sign_in', views.sign_in),
     path('sign_up', views.sign_up),
     path('get_course_stats/<str:course_code>', views.get_course_stats),
     path('get_local_course_stats/<str:course_code>', views.get_local_course_stats),
-
     path('get_all_local_data', views.get_all_local_data),
+    # Development endpoints
     path('dev/fill_courses_database', views.fill_courses_database),
     path('dev/buy_course/<course_code>/<user>', views.buy_course_test),
     path('dev/add_course_to_database/<course_code>', views.add_course_to_database),

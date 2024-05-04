@@ -7,6 +7,9 @@ DATA_FOLDER_PATH = 'course_data'
 DATA_BACKUP_PATH = 'course_data/courses_backups'
 
 def save_course_list(data_list):
+    """
+    Saves the course list to local text file and backs up previous iteration.
+    """
     # Create backup folder if it doesn't exist
     os.makedirs(DATA_BACKUP_PATH, exist_ok=True)
 
@@ -22,18 +25,27 @@ def save_course_list(data_list):
             file.write(f"{item}\n")
 
 def load_course_list():
+    """
+    Loads the course list from local text file.
+    """
     with open(DATA_PATH, 'r') as file:
         data_list = file.readlines()
     # Note: An extra character is somehow added to every element in the list
     return data_list
 
 def merge_two_lists(list1, list2):
+    """
+    Helper function to merge two lists while skipping duplicates.
+    """
     unique_items = list(set(list1))
     # Add items from list2 to unique_items while skipping duplicates
     unique_items.extend(item for item in list2 if item not in unique_items)
     return unique_items
 
 def retrieve_data(url):
+    """
+    Script for retrieving course codes from a certain LIU webpage.
+    """
     # URL of the website
     # Send a GET request to the URL
     response = requests.get(url)
@@ -72,6 +84,9 @@ def retrieve_data(url):
 
 
 def retrieve_new_data_from_liu():
+    """
+    Script for retrieving course codes from LIU's webpages seen in the list below.
+    """
     urls = ["https://liu.se/en/article/exchange-courses?faculty=1",
             "https://liu.se/en/article/exchange-courses?faculty=2",
             "https://liu.se/en/article/exchange-courses?faculty=3",

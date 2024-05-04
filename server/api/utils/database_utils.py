@@ -13,6 +13,9 @@ def internal_add_course_to_database_call(course_code):
 
 
 def fill_database(data):
+    """
+    Very simple script to fill the database with course data by making calls to own API.
+    """
     for course in data:
         internal_add_course_to_database_call(course)
 

@@ -1,29 +1,37 @@
-from django.shortcuts import render
 from django.http import HttpResponse, HttpRequest, JsonResponse
 from api.models import User, Course
 from api.utils.courses_json_utils import read_course_data_from_code, read_all_course_data, check_if_course_exists_locally, save_course_data, fill_json_from_list
 from api.utils.courses_list_utils import save_course_list, retrieve_new_data_from_liu, load_course_list
-
 from api.utils.database_utils import fill_database
+import json, requests, traceback
 
-import json
-import requests
 
-import traceback
 #-- Views! --#
+
 
 def test(request: HttpRequest) -> HttpResponse:
     return HttpResponse("Hello world. :)")
 
+
 # Account related views (sign in, sign out, etc).
+
 
 def sign_in(request: HttpRequest) -> HttpResponse:
     """
+    Sign in a user.
+
+    Parameters:
+    - request (HttpRequest): The HTTP request.
+
+    Returns:
+    - HttpResponse: The HTTP response indicating whether the user was signed in successfully.
+
     POST /sign_in/
         {
             "username": "<username>",
             "password": "<password>"
         }
+
     """
     json_string = request.body.decode()
     dictionary = json.loads(json_string)
@@ -48,11 +56,21 @@ def sign_in(request: HttpRequest) -> HttpResponse:
 
 def sign_up(request: HttpRequest) -> HttpResponse:
     """
+    Sign up view. Creates a new user.
+
+    Parameters:
+    - request (HttpRequest): The HTTP request.
+    - username (str): The username of the new user.
+
+    Returns:
+    - HttpResponse: The HTTP response indicating whether the user was created successfully.
+
     POST /sign_up/
         {
             "username": "<username>",
             "password": "<password>"
         }
+
     """
     json_string = request.body.decode()
     dictionary = json.loads(json_string)
@@ -69,17 +87,17 @@ def sign_up(request: HttpRequest) -> HttpResponse:
         return HttpResponse(status=403, content="No!")
     new_user = User.objects.create(username=username, password=password)
     new_user.save()
-    return HttpResponse(status=200, content="New user created!")
+    return HttpResponse(status=201, content="New user created!")
 
 
 # Views for robbing y-sektionen
+
 
 def get_course_stats(_request: HttpRequest, course_code: str) -> JsonResponse:
     """
     Stealing statistics for a given course from a certain API, saving it locally if necessary.
 
     Args:
-        _request (HttpRequest): The HTTP request object.
         course_code (str): The code of the course for which to retrieve the statistics.
 
     Returns:
@@ -104,7 +122,7 @@ def get_course_stats(_request: HttpRequest, course_code: str) -> JsonResponse:
             
             save_course_data(data)
 
-            return JsonResponse(data, status=200)
+            return JsonResponse(data, status=201)
         else:
             print("Blocked!")
             return JsonResponse({'error': 'Failed to fetch data from the API'}, status=500)
@@ -112,14 +130,44 @@ def get_course_stats(_request: HttpRequest, course_code: str) -> JsonResponse:
         traceback.print_exc()
         return JsonResponse({'error': str(e)}, status=500)
 
+
+def fill_courses_json(_request: HttpRequest) -> HttpResponse:
+    """
+    Fill the local JSON file with course data. Calls script in courses_json_utils.py.
+
+    Returns:
+    - HttpResponse: HTTP response indicating that the script has been executed.
+
+    """
+    courses = load_course_list()
+    fill_json_from_list(courses)
+    return HttpResponse(status=202, content="Script to add JSON course data from course codes in text file executed.")
+
+
+def fill_course_codes_list(_request: HttpRequest) -> HttpResponse:
+    """
+    Fill the local list (stored as a txt file) with course codes. Calls script in courses_list_utils.py.
+    Note: requires BeautifulSoup to be installed!
+
+    Returns:
+    - HttpResponse: HTTP response indicating that the script has been executed.
+
+    """
+    data_list = retrieve_new_data_from_liu()
+    # Save data_list to a local file
+    save_course_list(data_list)
+    print("Data retrieved and saved to file.")
+    return HttpResponse(status=202, content="Script to add course codes to the text file executed.")
+
+
 # Views for retrieving local course data
+
 
 def get_local_course_stats(_request: HttpRequest, course_code: str) -> JsonResponse:
     """
     Retrieve local course statistics and return them as a JSON response.
 
     Parameters:
-    - _request (HttpRequest): The HTTP request object. Unused.
     - course_code (str): The code of the course for which to retrieve the statistics.
 
     Returns:
@@ -131,12 +179,10 @@ def get_local_course_stats(_request: HttpRequest, course_code: str) -> JsonRespo
         return JsonResponse(local_course_data, status=200)
     return JsonResponse({'error': 'No data available'}, status=404)
 
+
 def get_all_local_data(_request: HttpRequest) -> JsonResponse:
     """
     Retrieve local course data and return it as a JSON response.
-
-    Parameters:
-    - _request (HttpRequest): The HTTP request object. Unused.
 
     Returns:
     - JsonResponse: The JSON response containing the local course data.
@@ -147,12 +193,15 @@ def get_all_local_data(_request: HttpRequest) -> JsonResponse:
         return JsonResponse(local_courses_data, status=200)
     return JsonResponse({'error': 'No data available'}, status=404)
 
+
+# View for handling database
+
+
 def add_course_to_database(_request: HttpRequest, course_code: str) -> HttpResponse:
     """
     Add a course to the local database.
 
     Parameters:
-    - _request (HttpRequest): The HTTP request object.
     - course_code (str): The code of the course to add.
     - course_name (str): The name of the course to add.
 
@@ -166,35 +215,31 @@ def add_course_to_database(_request: HttpRequest, course_code: str) -> HttpRespo
         name = course_data['course_name']
         description = "This is a course."
         if Course.objects.filter(course_code=code).exists():
-            print(f"Course {code} already in the database.")
-            return HttpResponse(status=200, content="Course already in the database.")
+            return HttpResponse(status=403, content="Course already in the database.")
         new_course = Course.objects.create(course_code=code, name=name, description=description, price=1)
         new_course.save()
-        print(f"Course {code} added!")
-        return HttpResponse(status=200, content="Course added to the database.")
-    return HttpResponse(status=404, content="Course not found.")
+        return HttpResponse(status=201, content="Course added to the database.")
+    return HttpResponse(status=404, content="Course not found in local JSON.")
+
 
 def fill_courses_database(_request: HttpRequest) -> HttpResponse:
-    data = read_all_course_data()
-    """for course in data:
-        #print(data[course])
-        course_code = data[course]['course_code']
-        course_name = data[course]['course_name']
-        course_description = "This is a course."
-        new_course = Course.objects.create(course_code=course_code, name=course_name, description=course_description, price=1)
-        new_course.save()
     """
-    fill_database(data)
-    return HttpResponse(status=200, content="Courses added to the database.")
+    Fill the local database with course data. Calls script in database_utils.py.
+    
+    Returns:
+    - HttpResponse: HTTP response indicating that the script has been executed.
 
+    """
+    data = read_all_course_data()
+    fill_database(data)
+    return HttpResponse(status=202, content="Script to fill database with courses executed.")
 
 
 def buy_course_test(_request: HttpRequest, course_code: str, user: str) -> JsonResponse:
     """
-    Buy a course by adding it to the user's list of courses.
+    Buy a course by adding it to the user's list of courses. Temporary implementation.
 
     Parameters:
-    - _request (HttpRequest): The HTTP request object.
     - course_code (str): The code of the course to buy.
 
     Returns:
@@ -205,43 +250,10 @@ def buy_course_test(_request: HttpRequest, course_code: str, user: str) -> JsonR
     current_user = User.objects.filter(username=user).first()
     course = Course.objects.filter(course_code=course_code).first()
     if not current_user or not course:
-        return JsonResponse({'message': 'User or course not found'}, status=404)
+        return JsonResponse({'message': 'User or course not found.'}, status=404)
     if course in current_user.courses.all():
-        return JsonResponse({'message': 'Course already bought'}, status=200)
+        return JsonResponse({'message': 'Course already bought.'}, status=200)
     current_user.courses.add(course)
     current_user.save()
-    return JsonResponse({'message': 'Course bought successfully'}, status=200)
+    return JsonResponse({'message': 'Course bought successfully!'}, status=200)
 
-
-def fill_course_codes_list(_request: HttpRequest) -> HttpResponse:
-    """
-    Fill the local JSON file with course data.
-
-    Parameters:
-    - _request (HttpRequest): The HTTP request object.
-
-    Returns:
-    - HttpResponse: The HTTP response indicating whether the JSON file was filled successfully.
-
-    """
-    data_list = retrieve_new_data_from_liu()
-    # Save data_list to a local file
-    save_course_list(data_list)
-    print("Data retrieved and saved to file.")
-    return HttpResponse(status=200, content="List of courses added to the text file.")
-
-
-def fill_courses_json(_request: HttpRequest) -> HttpResponse:
-    """
-    Fill the local JSON file with course data.
-
-    Parameters:
-    - _request (HttpRequest): The HTTP request object.
-
-    Returns:
-    - HttpResponse: The HTTP response indicating whether the JSON file was filled successfully.
-
-    """
-    courses = load_course_list()
-    fill_json_from_list(courses)
-    return HttpResponse(status=200, content="List of courses added to the text file.")

@@ -8,6 +8,9 @@ JSON_PATH = 'course_data/courses.json'
 BACKUP_PATH = 'course_data/courses_backups'
 
 def read_course_data_from_code(course_code):
+    """
+    Read course data from the local JSON file using the course code as a key.
+    """
     # Define the path to the JSON file
     json_file_path = JSON_PATH
     
@@ -21,6 +24,9 @@ def read_course_data_from_code(course_code):
 
 
 def read_all_course_data():
+    """
+    Returns all data found in the local JSON file.
+    """
     # Define the path to the JSON file
     json_file_path = JSON_PATH    
     # Check if the JSON file exists
@@ -34,6 +40,9 @@ def read_all_course_data():
 
 
 def check_if_course_exists_locally(course_name):
+    """
+    Checks if a course exists in the local JSON file.
+    """
     # Define the path to the JSON file
     json_file_path = JSON_PATH
     
@@ -47,6 +56,9 @@ def check_if_course_exists_locally(course_name):
 
 
 def save_course_data(data):
+    """
+    Save course data to the local JSON file. If the course already exists, update the data.
+    """
     # Define the path to the JSON file
     json_file_path = JSON_PATH
     
@@ -165,6 +177,9 @@ def sort_local_course_exams_data(local_courses_data, course_code):
 
 
 def get_grade_data_dict_on_date(module_data, data_index):
+    """
+    Get a dictionary with dates as keys and grades as values for a specific module dictionary.
+    """
     dates = module_data['dates']
     grade_data = module_data['data'][data_index]['data']
     result_dict = {date: grade for date, grade in zip(dates, grade_data)}
@@ -172,6 +187,9 @@ def get_grade_data_dict_on_date(module_data, data_index):
 
 
 def get_module_data_dict_on_date(module_data):
+    """
+    Get a dictionary with dates as keys and a list of tuples with grades and module names as values.
+    """
     result_dict = {}
     grade_data = module_data['data']
     dates = module_data['dates']
@@ -193,5 +211,8 @@ def internal_get_course_api_call(course_code):
         print(f"Failed to retrieve data from API. Status code: {response.status_code}")
 
 def fill_json_from_list(courses):
+    """
+    Simple script to fill the local JSON file with course data by making calls to own API.
+    """
     for course in courses:
         internal_get_course_api_call(course.strip())
