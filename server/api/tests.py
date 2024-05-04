@@ -12,7 +12,7 @@ class ApiTest(TestCase):
         user2.save()
 
     
-    def test_login_incorrect(self) -> None:
+    def test_login_correct(self) -> None:
         """
         Tests that the login endpoint returns a 200 status code and a session
         cookie when the login is successful.
@@ -24,3 +24,18 @@ class ApiTest(TestCase):
         response = self.client.post(SIGN_IN_PATH, {"username": "user2", "password": "hej"},
                                     content_type=CONTENT_TYPE_JSON)
         self.assertEqual(response.status_code, 200)
+
+    def test_login_incorrect(self) -> None:
+        """
+        Tests that the login endpoint returns a 200 status code and a session
+        cookie when the login is successful.
+        """
+        response = self.client.post(SIGN_IN_PATH, {"username": "user1", "password": ""},
+                                    content_type=CONTENT_TYPE_JSON)
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.post(SIGN_IN_PATH, {"username": "user2", "password": "bad_password"},
+                                    content_type=CONTENT_TYPE_JSON)
+        self.assertEqual(response.status_code, 200)
+
+    def test
