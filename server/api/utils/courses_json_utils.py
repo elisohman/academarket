@@ -2,10 +2,17 @@ import os
 import json
 import shutil
 import datetime
+import requests
+
+JSON_PATH = 'course_data/courses.json'
+BACKUP_PATH = 'course_data/courses_backups'
 
 def read_course_data_from_code(course_code):
+    """
+    Read course data from the local JSON file using the course code as a key.
+    """
     # Define the path to the JSON file
-    json_file_path = 'courses.json'
+    json_file_path = JSON_PATH
     
     # Check if the JSON file exists
     if os.path.exists(json_file_path):
@@ -16,11 +23,12 @@ def read_course_data_from_code(course_code):
     return None
 
 
-
 def read_all_course_data():
+    """
+    Returns all data found in the local JSON file.
+    """
     # Define the path to the JSON file
-    json_file_path = 'courses.json'
-    
+    json_file_path = JSON_PATH    
     # Check if the JSON file exists
     if os.path.exists(json_file_path):
         # Read existing JSON data from the file
@@ -32,8 +40,11 @@ def read_all_course_data():
 
 
 def check_if_course_exists_locally(course_name):
+    """
+    Checks if a course exists in the local JSON file.
+    """
     # Define the path to the JSON file
-    json_file_path = 'courses.json'
+    json_file_path = JSON_PATH
     
     # Check if the JSON file exists
     if os.path.exists(json_file_path):
@@ -45,8 +56,11 @@ def check_if_course_exists_locally(course_name):
 
 
 def save_course_data(data):
+    """
+    Save course data to the local JSON file. If the course already exists, update the data.
+    """
     # Define the path to the JSON file
-    json_file_path = 'courses.json'
+    json_file_path = JSON_PATH
     
     # Create an empty dictionary to store course data
     local_courses_data = {}
@@ -54,7 +68,7 @@ def save_course_data(data):
     # Check if the JSON file exists
     if os.path.exists(json_file_path):
         # Create a backup of the existing local_courses_data
-        backup_folder = 'courses_backups'
+        backup_folder = BACKUP_PATH
         backup_file_name = f'courses_backup_{datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}.json'
         backup_file_path = os.path.join(backup_folder, backup_file_name)
         if not os.path.exists(backup_folder):
@@ -64,7 +78,6 @@ def save_course_data(data):
         # Read existing JSON data from the file
         with open(json_file_path, 'r', encoding='utf-8') as file:
             local_courses_data = json.load(file)
-    
 
     # Add or update course data
     course_code = data.get('course_code')
@@ -84,10 +97,11 @@ def update_course_data(course_code, data):
     """
     Here we want to add new exams to the course code if 
     new results for that has been released that is not 
-    present in courses.json
+    present in courses.json, as well as to correct any
+    inconsistencies in the data.
     """
     # Define the path to the JSON file
-    json_file_path = 'courses.json'
+    json_file_path = JSON_PATH
     
     # Create an empty dictionary to store course data
     local_courses_data = {}
@@ -163,6 +177,9 @@ def sort_local_course_exams_data(local_courses_data, course_code):
 
 
 def get_grade_data_dict_on_date(module_data, data_index):
+    """
+    Get a dictionary with dates as keys and grades as values for a specific module dictionary.
+    """
     dates = module_data['dates']
     grade_data = module_data['data'][data_index]['data']
     result_dict = {date: grade for date, grade in zip(dates, grade_data)}
@@ -170,6 +187,9 @@ def get_grade_data_dict_on_date(module_data, data_index):
 
 
 def get_module_data_dict_on_date(module_data):
+    """
+    Get a dictionary with dates as keys and a list of tuples with grades and module names as values.
+    """
     result_dict = {}
     grade_data = module_data['data']
     dates = module_data['dates']
@@ -177,3 +197,22 @@ def get_module_data_dict_on_date(module_data):
         result_dict[local_date] = [(value, item["name"]) for item, value in zip(grade_data, values)]
     sorted_result_dict = dict(sorted(result_dict.items(), key=lambda x: x[0]))
     return sorted_result_dict
+
+
+def internal_get_course_api_call(course_code):
+    # API endpoint URL
+    external_api_url = f"http://127.0.0.1:8000/api/get_course_stats/{course_code}"
+    # Send a GET request to the API endpoint
+    response = requests.get(external_api_url)
+    # Check if the request was successful
+    if response.status_code == 200:
+        print("Success!")
+    else:
+        print(f"Failed to retrieve data from API. Status code: {response.status_code}")
+
+def fill_json_from_list(courses):
+    """
+    Simple script to fill the local JSON file with course data by making calls to own API.
+    """
+    for course in courses:
+        internal_get_course_api_call(course.strip())
