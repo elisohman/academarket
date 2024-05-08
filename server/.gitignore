@@ -9,7 +9,11 @@ db.*
 .env
 courses_backups
 course_data
+<<<<<<< HEAD
 courses.json
+=======
+
+>>>>>>> 4496e5e3b1cf2064062e73ddaed9d8fdc50761a1
 # academarket
 academarket/.my_pgpass
 academarket/.pg_service.conf
