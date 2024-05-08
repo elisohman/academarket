@@ -8,6 +8,7 @@ venv
 db.*
 .env
 courses_backups
+course_data
 courses.json
 # academarket
 academarket/.my_pgpass
