@@ -3,7 +3,9 @@
 import './signin.scss';
 import Button from '../../components/button/Button';
 import TextField from '../../components/textfield/TextField';
+import PopupMessage from '../../components/popupMessage/PopupMessage';
 import { useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
 const monkey = './assets/images/bg-monkeys.jpg';
 
 const SignIn: React.FC = () => {
@@ -12,11 +14,21 @@ const SignIn: React.FC = () => {
     navigate("/signup");
 
   }
-  const handleClick = async () => {
+  
+const [showPopup, setShowPopup] = useState(false);
+const [popupMessage, setPopupMessage] = useState('');
+
+const handleClick = async () => {
     let uname_input = document.getElementById("uname_input") as HTMLInputElement;
     let uname = uname_input.value;
     let password_input=  document.getElementById('password_input') as HTMLInputElement;
     let password = password_input.value;
+    
+    if (password === '') {
+      setPopupMessage('Please enter a password');
+      setShowPopup(true);
+      return;
+    }
 
     const data = {
       username: uname,
@@ -43,10 +55,15 @@ const SignIn: React.FC = () => {
       } else {
         // Handle sign-in error
         console.error('Sign-in failed:');
+        console.log(response.status);
+        setPopupMessage('Incorrect password');
+        setShowPopup(true);
+        //return;
         // You can display an error message to the user if needed
       }
     } catch (error) {
       console.error('Error during sign-in:', error);
+
       // You can display an error message to the user if needed
     }
   };
@@ -65,8 +82,7 @@ const SignIn: React.FC = () => {
         <div className=''>
           <Button onClick={goToSignUp} className='px-4 py-2 mt-1 bg-transparent text-slate-600 text-sm border-solid border rounded-full border-slate-600'>Sign up here →</Button>
         </div>
-        
-        
+        <PopupMessage message={popupMessage} show={showPopup} onClose={() => setShowPopup(false)} />
       </div>
     </>
   );
