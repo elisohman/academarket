@@ -3,6 +3,7 @@ from api.models import User, Course
 from api.utils.courses_json_utils import read_course_data_from_code, read_all_course_data, check_if_course_exists_locally, save_course_data, fill_json_from_list
 from api.utils.courses_list_utils import save_course_list, retrieve_new_data_from_liu, load_course_list
 from api.utils.database_utils import fill_database
+from api.utils.ipo_calculation import calculate_price
 import json, requests, traceback
 
 
@@ -210,13 +211,15 @@ def add_course_to_database(_request: HttpRequest, course_code: str) -> HttpRespo
 
     """
     course_data = read_course_data_from_code(course_code)
+    
     if course_data:
+        ipo_prize = calculate_price(course_data)
         code = course_data['course_code']
         name = course_data['course_name']
         description = "This is a course."
         if Course.objects.filter(course_code=code).exists():
             return HttpResponse(status=403, content="Course already in the database.")
-        new_course = Course.objects.create(course_code=code, name=name, description=description, price=1)
+        new_course = Course.objects.create(course_code=code, name=name, description=description, price=ipo_prize)
         new_course.save()
         return HttpResponse(status=201, content="Course added to the database.")
     return HttpResponse(status=404, content="Course not found in local JSON.")
