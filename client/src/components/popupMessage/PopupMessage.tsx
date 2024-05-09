@@ -10,7 +10,7 @@ interface PopupMessageProps {
     className?: string;
 }
 
-const PopupMessage: React.FC<PopupMessageProps> = ({ message, show, onClose, duration=1000, className }) => {
+const PopupMessage: React.FC<PopupMessageProps> = ({ message, show, onClose, duration=2000, className }) => {
     const [isVisible, setIsVisible] = useState(true);
     useEffect(() => {
       const timeout = setTimeout(() => {
