@@ -8,7 +8,8 @@ class User(models.Model):
     class Meta:
         db_table = 'users'  # Set the table name to 'user'
     username = models.CharField(max_length=30)
-    email = models.CharField(max_length=30)
+    id = models.AutoField(primary_key=True)
+    email = models.CharField(max_length=30, unique=True)
     password = models.CharField(max_length=30)
     cash = models.IntegerField(null=True)
     courses = models.ManyToManyField('Course', related_name='users')
@@ -16,10 +17,10 @@ class User(models.Model):
 
 class Course(models.Model):
     class Meta:
-        db_table = 'courses'  # Set the table name to 'user'
+        db_table = 'courses'  # Set the table name to 'courses'
     id = models.AutoField(primary_key=True)
     course_code = models.CharField(max_length=10, unique=True)
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, null=True) # accepts null but shouldn't be possible
     description = models.CharField(max_length=500)
     price = models.IntegerField(null=True)
 
