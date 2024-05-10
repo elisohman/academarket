@@ -24,6 +24,11 @@ const handleClick = async () => {
     let password_input=  document.getElementById('password_input') as HTMLInputElement;
     let password = password_input.value;
     
+    if (uname === '') {
+      setPopupMessage('Please enter a username');
+      setShowPopup(true);
+      return;
+    }
     if (password === '') {
       setPopupMessage('Please enter a password');
       setShowPopup(true);
@@ -43,23 +48,14 @@ const handleClick = async () => {
         },
         body: JSON.stringify(data)
       });
-      console.log('We sending!');
-      console.log(response);
-      //const responseData = await response.json();
 
       if (response.ok) {
-        // Handle successful sign-in
-        console.log('Successful sign-in:');
-        // Navigate to dashboard page
         navigate("/dashboard");
       } else {
-        // Handle sign-in error
         console.error('Sign-in failed:');
         console.log(response.status);
-        setPopupMessage('Incorrect password');
+        setPopupMessage('Please enter valid credentials');
         setShowPopup(true);
-        //return;
-        // You can display an error message to the user if needed
       }
     } catch (error) {
       console.error('Error during sign-in:', error);
@@ -82,7 +78,7 @@ const handleClick = async () => {
         <div className=''>
           <Button onClick={goToSignUp} className='px-4 py-2 mt-1 bg-transparent text-slate-600 text-sm border-solid border rounded-full border-slate-600'>Sign up here →</Button>
         </div>
-        <PopupMessage message={popupMessage} show={showPopup} onClose={() => setShowPopup(false)} className="text-red-500"/>
+        <PopupMessage message={popupMessage} show={showPopup} onClose={() => setShowPopup(false)} classColor='text-red-500'/>
       </div>
     </>
   );

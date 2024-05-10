@@ -23,7 +23,7 @@ const SignUp: React.FC = () => {
 
   const handleClick = async () => {
 
-    setPopupMessageClassName('text-red-500');
+    setPopupMessageClassName("text-red-500");
 
     let uname_input = document.getElementById("uname_input") as HTMLInputElement;
     let uname = uname_input.value;
@@ -38,6 +38,7 @@ const SignUp: React.FC = () => {
     let repeat_password = repeat_password_input.value;
     
     if (uname === '' ){
+      setShowPopup(false);
       setPopupMessage('Please enter a valid username');
       setShowPopup(true);
       return;
@@ -56,6 +57,7 @@ const SignUp: React.FC = () => {
     }
 
     if (password !== repeat_password) {
+      setShowPopup(false);
       setPopupMessage('Passwords do not match');
       setShowPopup(true);
       return;
@@ -76,27 +78,24 @@ const SignUp: React.FC = () => {
         body: JSON.stringify(data)
       });
 
-      //const responseData = await response.json();
 
       if (response.ok) {
-        // Handle successful sign-in
         console.log('Successful sign-up:');
         setPopupMessageClassName('text-green-500')
         setPopupMessage('Successfully signed up! Redirecting to login page...');
         setShowPopup(true);  
-        // Navigate to home or dashboard page
         setTimeout(() => {
           navigate("/signin");
         }, 1500);
-        //navigate("/signin");
       } else {
-        // Handle sign-in error
+        setPopupMessage('Unsuccesful sign-up. Perhaps the user already exists?');
+        setShowPopup(true); 
         console.error('Sign-up failed:');
-        // You can display an error message to the user if needed
       }
     } catch (error) {
+      setPopupMessage('Bip bop something went wrong!');
+      setShowPopup(true); 
       console.error('Error during sign-up:', error);
-      // You can display an error message to the user if needed
     }
   };
   return (
@@ -114,7 +113,7 @@ const SignUp: React.FC = () => {
         </form>
         
         <Button onClick={returnToSignIn} className='px-4 py-2 mt-1 bg-transparent text-slate-600 text-sm border-solid border rounded-full border-slate-600'>← Return to login</Button>
-        <PopupMessage message={popupMessage} show={showPopup} onClose={() => setShowPopup(false)} className={popupMessageClassName}/>
+        <PopupMessage message={popupMessage} show={showPopup} onClose={() => setShowPopup(false)} classColor={popupMessageClassName}/>
 
         
    
