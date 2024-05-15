@@ -216,10 +216,9 @@ def add_course_to_database(_request: HttpRequest, course_code: str) -> HttpRespo
         ipo_prize = calculate_price(course_data)
         code = course_data['course_code']
         name = course_data['course_name']
-        description = "This is a course."
         if Course.objects.filter(course_code=code).exists():
             return HttpResponse(status=403, content="Course already in the database.")
-        new_course = Course.objects.create(course_code=code, name=name, description=description, price=ipo_prize)
+        new_course = Course.objects.create(course_code=code, name=name, price=ipo_prize)
         new_course.save()
         return HttpResponse(status=201, content="Course added to the database.")
     return HttpResponse(status=404, content="Course not found in local JSON.")
