@@ -3,9 +3,11 @@ import Button from '../../components/button/Button';
 import ChartComponent from "../../components/chart/ChartComponent";
 import { useState, useEffect } from "react";
 import { generateCandlestickData } from "./DataGenerator";
+import Switch from "../../components/switch/Switch";
+import TextField from "../../components/textfield/TextField";
 
 
-const Trading: React.FC = () => {
+const Trading = () => {
 
     const [data, setData] = useState<any>(null);
     const dataURL = './assets/data/temp-data.json' // file in public directory
@@ -30,29 +32,36 @@ const Trading: React.FC = () => {
     }, []);
     return (
         <PageWrapper>
-            <div className="size-full bg-coral flex flex-row gap-0.5 justify-center items-center gap-y-2 rounded-3xl">
-                <div id="flex_parent" className="flex flex-row gap-10 p-10 size-full">
-                    <div id="graph_window" className="bg-coral grow shrink rounded-3xl flex flex-col justify-center items-center">
-                        <div className="p-5 self-start flex flex-row gap-5">
-                            <p className="font-medium text-light-gray">{data}</p>
-                        </div>
-                        <div className="flex grow w-full">
-                            <ChartComponent data={candlestickData}/>
-                        </div>
-                        
+            <div className="size-full flex flex-row gap-5 rounded-3xl">
+                <div id="graph_window" className="bg-light-gray grow shrink rounded-3xl flex flex-col justify-center items-center">
+                    <div className="p-5 self-start flex flex-row gap-5">
+                        <p className="font-medium text-secondary-color">{data}</p>     
                     </div>
-                    <div id="trade_window" className="bg-primary-color max-w-fit rounded-3xl">
-                        <div className="p-5 text-light-gray font-medium">Make a trade</div>
-                        <div className="flex flex-row gap-5 p-10">
-                            <Button className='w-full mt-2 self-center text-slate-50 uppercase py-4 px-8 bg-primary-color border-2'>Buy</Button>
-                            <Button className='w-full mt-2 self-center text-slate-50 uppercase py-4 px-8 bg-red-400 border-2'>Sell</Button>
-                        </div>
-                        
+                    <div className="flex grow w-full px-5 pb-5">
+                        <ChartComponent data={candlestickData}/>
                     </div>
-
                 </div>
 
-                
+                <div id="trade_window" className="p-5 bg-primary-color max-w-fit rounded-3xl">
+                    <div className="flex flex-col h-full">
+                        <h1 className="text-white mb-8 font-medium">Make a trade</h1>
+                        <Switch/>
+                        {/*<div id="button-container" className="flex gap-4">
+                            <Button className='w-full mt-8 self-center text-slate-50 uppercase py-2 px-8 bg-primary-color border-2'>Buy</Button>
+                            <Button className='w-full mt-8 self-center text-slate-50 uppercase py-2 px-8 bg-red-400 border-2'>Sell</Button>
+                        </div>*/}
+                        <div className="mt-8">
+                            <p className="text-light-gray font-medium">Amount</p>
+                            <TextField inputClassName="w-full p-2 rounded-md border-2 bg-transparent text-white" id="amount-field" type="text"/>
+                        </div>
+                        <div className="mt-8">
+                            <p className="text-light-gray font-medium">How often?</p>
+                            <TextField inputClassName="w-full p-2 rounded-md border-2 bg-transparent text-white" id="price-field" type="text"/>
+                        </div>
+                        <Button className="mt-auto font-semibold text-secondary-color mt-8 bg-white rounded-full py-4">CONTINUE</Button>
+
+                    </div>
+                </div>
             </div>
         </PageWrapper>
     );

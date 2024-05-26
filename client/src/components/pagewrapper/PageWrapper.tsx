@@ -10,7 +10,7 @@ const PageWrapper: React.FC<PageWrapperProps> = ({children, className}) => {
     return (
         <div className={'h-screen flex flex-col ' + (className)}>
             <TopBar />
-            <div className='grow px-8'>{children}</div>
+            <div className='grow px-8 pb-8'>{children}</div>
         </div>
     );
 }
