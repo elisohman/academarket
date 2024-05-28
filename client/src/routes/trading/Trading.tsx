@@ -13,6 +13,22 @@ const Trading = () => {
     const dataURL = './assets/data/temp-data.json' // file in public directory
     const candlestickData = generateCandlestickData();
 
+    const predefinedValues = [50, 100, 500, 1000];
+
+    const [amount, setAmount] = useState<number | string>('');
+
+    const handleButtonClick = (value: number) => {
+        setAmount(value);
+      };
+
+      const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        if (/^\d*$/.test(value)) {
+          const numValue = value === '' ? '' : parseInt(value);
+          setAmount(numValue);
+        }
+      };
+
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -52,13 +68,28 @@ const Trading = () => {
                         </div>*/}
                         <div className="mt-8">
                             <p className="text-light-gray font-medium">Amount</p>
-                            <TextField inputClassName="w-full p-2 rounded-md border-2 bg-transparent text-white" id="amount-field" type="text"/>
+                            <TextField 
+                                inputClassName="w-full p-3 rounded-md border-2 bg-transparent text-white" 
+                                id="amount-field" 
+                                type="text" 
+                                onChange={handleInputChange} 
+                                value={amount}
+                            />
                         </div>
-                        <div className="mt-8">
-                            <p className="text-light-gray font-medium">How often?</p>
-                            <TextField inputClassName="w-full p-2 rounded-md border-2 bg-transparent text-white" id="price-field" type="text"/>
+                        <div className="mt-2 gap-3 flex">
+                            {predefinedValues.map((value) => {
+                                return (
+                                    <div 
+                                        key={value} 
+                                        className="flex px-3 rounded-full border-2 border-light-gray text-xs text-light-gray cursor-pointer hover:bg-white hover:text-[#4ADE80] transition duration-300 ease-in-out"
+                                        onClick={() => handleButtonClick(value)}
+                                    >
+                                        {value}
+                                    </div>
+                                )
+                            })}
                         </div>
-                        <Button className="mt-auto font-semibold text-secondary-color mt-8 bg-white rounded-full py-4">CONTINUE</Button>
+                        <Button className="mt-auto font-semibold text-secondary-color mt-8 bg-white rounded-full py-4 hover:bg-black hover:text-white transition duration-300 ease-in-out">CONTINUE</Button>
 
                     </div>
                 </div>

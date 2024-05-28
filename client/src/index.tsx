@@ -6,7 +6,6 @@ import SignUp from './routes/signup/SignUp';
 import Dashboard from './routes/dashboard/Dashboard';
 import Portfolio from './routes/portfolio/Portfolio';
 import Trading from './routes/trading/Trading';
-import './style/colors.scss';
 
 import reportWebVitals from './reportWebVitals';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
