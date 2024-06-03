@@ -17,6 +17,7 @@ Including another URLconf
 from django.urls import path
 from . import views
 from .views import SignUpView, SignInView
+from rest_framework_simplejwt.views import TokenRefreshView
 
 urlpatterns = [
     path('test', views.test),
@@ -28,6 +29,8 @@ urlpatterns = [
     path('get_course_stats/<str:course_code>', views.get_course_stats),
     path('get_local_course_stats/<str:course_code>', views.get_local_course_stats),
     path('get_all_local_data', views.get_all_local_data),
+    # Auth endpoints
+    path('token/refresh', TokenRefreshView.as_view(), name='token_refresh'),
     # Development endpoints
     path('dev/fill_courses_database', views.fill_courses_database),
     path('dev/buy_course/<course_code>/<user>', views.buy_course_test),
