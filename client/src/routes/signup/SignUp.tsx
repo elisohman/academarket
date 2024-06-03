@@ -20,24 +20,16 @@ const SignUp: React.FC = () => {
   const [popupMessage, setPopupMessage] = useState('');    
   //var popupMessageClassName = '';
   const [popupMessageClassName, setPopupMessageClassName] = useState('');
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [repeatPassword, setRepeatPassword] = useState('');
 
   const handleClick = async () => {
 
     setPopupMessageClassName("text-red-500");
-
-    let uname_input = document.getElementById("uname_input") as HTMLInputElement;
-    let uname = uname_input.value;
     
-    let email_input = document.getElementById("email_input") as HTMLInputElement;
-    let email = email_input.value;
-
-    let password_input=  document.getElementById('password_input') as HTMLInputElement;
-    let password = password_input.value;
-
-    let repeat_password_input = document.getElementById('repeat_password_input') as HTMLInputElement;
-    let repeat_password = repeat_password_input.value;
-    
-    if (uname === '' ){
+    if (username === '' ){
       setShowPopup(false);
       setPopupMessage('Please enter a valid username');
       setShowPopup(true);
@@ -50,13 +42,13 @@ const SignUp: React.FC = () => {
       return;
     }
 
-    if (password === '' || repeat_password === ''){
+    if (password === '' || repeatPassword === ''){
       setPopupMessage('Please enter a valid password');
       setShowPopup(true);
       return;
     }
 
-    if (password !== repeat_password) {
+    if (password !== repeatPassword) {
       setShowPopup(false);
       setPopupMessage('Passwords do not match');
       setShowPopup(true);
@@ -64,9 +56,10 @@ const SignUp: React.FC = () => {
     }
 
     const data = {
-      username: uname,
-      email: email,
-      password: password
+      'username': username,
+      'email': email,
+      'password': password,
+      'rpt_password': repeatPassword
     };
 
     try {
@@ -80,6 +73,7 @@ const SignUp: React.FC = () => {
 
 
       if (response.ok) {
+
         console.log('Successful sign-up:');
         setPopupMessageClassName('text-green-500')
         setPopupMessage('Successfully signed up! Redirecting to login page...');
@@ -88,6 +82,7 @@ const SignUp: React.FC = () => {
           navigate("/signin");
         }, 1500);
       } else {
+        console.log(response)
         setPopupMessage('Unsuccesful sign-up. Perhaps the user already exists?');
         setShowPopup(true); 
         console.error('Sign-up failed:');

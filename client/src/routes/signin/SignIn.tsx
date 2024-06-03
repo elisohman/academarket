@@ -51,6 +51,7 @@ const handleClick = async () => {
 
       if (response.ok) {
         navigate("/dashboard");
+        console.log(await response.json());
       } else {
         console.error('Sign-in failed:');
         console.log(response.status);
