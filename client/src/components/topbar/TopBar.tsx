@@ -18,11 +18,11 @@ function TopBar() {
                     </Link>
 
                     <Link to="/portfolio">
-                        <li className={`px-4 py-1.5 rounded-full ${path === '/portfolio' ? 'bg-lavender text-white font-medium' : ''}`}>Portfolio</li>
+                        <li className={`px-4 py-1.5 rounded-full ${path === '/portfolio' ? 'bg-primary-color text-white font-medium' : ''}`}>Portfolio</li>
                     </Link>
 
                     <Link to="/trading">
-                        <li className={`px-4 py-1.5 rounded-full ${path === '/trading' ? 'bg-coral text-white font-medium' : ''}`}>Trading</li>
+                        <li className={`px-4 py-1.5 rounded-full ${path === '/trading' ? 'bg-primary-color text-white font-medium' : ''}`}>Trading</li>
                     </Link>
                 </ul>
             </div>

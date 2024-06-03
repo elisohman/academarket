@@ -17,7 +17,7 @@ interface ChartProps {
 
 const ChartComponent: React.FC<ChartProps> = ({ data, colors, width, height }) => {
     const {
-        backgroundColor = '#222',
+        //backgroundColor = '#222',
         textColor = '#C3BCDB',
         borderColor = '#71649C',
     } = colors || {};
@@ -31,7 +31,7 @@ const ChartComponent: React.FC<ChartProps> = ({ data, colors, width, height }) =
 
         const chart = createChart(chartContainerRef.current, {
             layout: {
-                background: { color: "#222" },
+                background: { color: "transparent" },
                 textColor: "#C3BCDB",
             },
             grid: {
@@ -71,7 +71,7 @@ const ChartComponent: React.FC<ChartProps> = ({ data, colors, width, height }) =
 
         //const newSeries: ISeriesApi<'Area'> = chart.addAreaSeries({ lineColor, topColor: areaTopColor, bottomColor: areaBottomColor });
         //newSeries.setData(data);
-        const newCandleSeries: ISeriesApi<'Candlestick'> = chart.addCandlestickSeries();
+        const newCandleSeries = chart.addCandlestickSeries();
         newCandleSeries.setData(data);
 
         const handleResize = () => {
@@ -86,7 +86,7 @@ const ChartComponent: React.FC<ChartProps> = ({ data, colors, width, height }) =
             window.removeEventListener('resize', handleResize);
             chartInstanceRef.current?.remove();
         };
-    }, [data, backgroundColor, textColor, borderColor]);
+    }, [data, textColor, borderColor]);
 
     return <div ref={chartContainerRef} style={{ width: '100%', height: '100%' }} />;
 };

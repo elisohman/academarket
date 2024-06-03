@@ -1,6 +1,6 @@
 
 // Function to format a date string
-export const generateCandlestickData = (): any => {
+export const generateCandlestickData = () => {
     return [
         {
           time: "2018-10-19",
