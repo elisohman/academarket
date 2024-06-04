@@ -6,6 +6,7 @@ import TextField from '../../components/textfield/TextField';
 import { useNavigate } from 'react-router-dom';
 import PopupMessage from '../../components/popupMessage/PopupMessage';
 import React, { useState } from 'react';
+import sendRequest from '../../utils/request';
 
 const monkey = './assets/images/bg-monkeys.jpg';
 //const monkey = './assets/images/minimalistic-monkey';
@@ -25,7 +26,7 @@ const SignUp: React.FC = () => {
   const [password, setPassword] = useState('');
   const [repeatPassword, setRepeatPassword] = useState('');
 
-  const handleClick = async () => {
+  const handleSignup = async () => {
 
     setPopupMessageClassName("text-red-500");
     
@@ -63,17 +64,10 @@ const SignUp: React.FC = () => {
     };
 
     try {
-      const response = await fetch('http://localhost:8000/api/sign_up', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-      });
+      const response = await sendRequest('/sign_up', 'POST', data);
 
 
       if (response.ok) {
-
         console.log('Successful sign-up:');
         setPopupMessageClassName('text-green-500')
         setPopupMessage('Successfully signed up! Redirecting to login page...');
@@ -99,12 +93,12 @@ const SignUp: React.FC = () => {
         <img src={monkey} alt="monkey logo" width="10%" className='p-1 rounded-full'/>
 
         <form className="flex flex-col gap-y-1">
-            <TextField inputClassName="placeholder-slate-600" id="uname_input" type="text" placeholder="Username"/>
-            <TextField inputClassName="placeholder-slate-600" id="email_input" type="text" placeholder="E-mail" />
-            <TextField inputClassName="placeholder-slate-600" id="password_input" type="password" placeholder="Password" />
-            <TextField inputClassName="placeholder-slate-600" id="repeat_password_input" type="password" placeholder="Repeat password" />
+            <TextField inputClassName="placeholder-slate-600" id="uname_input" type="text" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)}/>
+            <TextField inputClassName="placeholder-slate-600" id="email_input" type="text" placeholder="E-mail" value={email} onChange={(e) => setEmail(e.target.value)}/>
+            <TextField inputClassName="placeholder-slate-600" id="password_input" type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)}/>
+            <TextField inputClassName="placeholder-slate-600" id="repeat_password_input" type="password" placeholder="Repeat password" value={repeatPassword} onChange={(e) => setRepeatPassword(e.target.value)}/>
 
-            <Button onClick={handleClick} className='w-full mt-2 self-center text-slate-50 uppercase p-3 rounded-md'>Sign up</Button>
+            <Button onClick={handleSignup} className='w-full mt-2 self-center text-slate-50 uppercase p-3 rounded-md'>Sign up</Button>
         </form>
         
         <Button onClick={returnToSignIn} className='px-4 py-2 mt-1 bg-transparent text-slate-600 text-sm border-solid border rounded-full border-slate-600'>← Return to login</Button>
