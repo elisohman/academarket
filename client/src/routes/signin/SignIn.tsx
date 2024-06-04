@@ -43,10 +43,10 @@ const handleSignin = async () => {
       const response = await sendRequest('/sign_in', 'POST', data);
 
       if (response.ok) {
-        navigate("/dashboard");
         const responseData = await response.json();
         localStorage.setItem('access_token', responseData.access);
         localStorage.setItem('refresh_token', responseData.refresh);
+        navigate("/dashboard");
       } else {
         console.error('Sign-in failed:');
         console.log(response.status);

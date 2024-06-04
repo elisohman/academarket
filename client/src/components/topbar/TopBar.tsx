@@ -1,10 +1,25 @@
-import {Link, useLocation} from "react-router-dom";
+import {Link, useNavigate, useLocation} from "react-router-dom";
 import DefaultProfilePic from "../../style/icons/DefaultProfilePic";
+import Button from "../button/Button";
+import { ACCESS_TOKEN, REFRESH_TOKEN } from "../../utils/constants";
+import sendRequest from "../../utils/request";
 
 
 function TopBar() {
     const location = useLocation();
+    const navigate = useNavigate();
     const path = location.pathname;
+
+    const handleLogout = async () => {
+        const refresh_token = localStorage.getItem(REFRESH_TOKEN);
+        const response = await sendRequest('/token/blacklist/', 'POST', {refresh: refresh_token});
+
+        if (response.ok) {
+            localStorage.removeItem(ACCESS_TOKEN);
+            localStorage.removeItem(REFRESH_TOKEN);
+            navigate('/signin');
+        }
+    }
 
     return (
         <div className="text-secondary-color w-full h-20 flex px-8 text-base">
@@ -34,6 +49,7 @@ function TopBar() {
                     <p className="font-semibold text-secondary-color text-sm max-w-36 overflow-hidden whitespace-nowrap overflow-ellipsis">johannespettersson</p>
                     <p className="font-semibold text-primary-color">APE 69,420</p>
                 </div>
+                <Button className="ml-4 text-white bg-coral px-2 py-1 rounded-md font-medium" onClick={handleLogout}>Log out</Button>
             </div>
         </div>
     );
