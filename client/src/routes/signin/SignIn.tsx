@@ -6,6 +6,7 @@ import TextField from '../../components/textfield/TextField';
 import PopupMessage from '../../components/popupMessage/PopupMessage';
 import { useNavigate } from 'react-router-dom';
 import React, { useState } from 'react';
+import sendRequest from '../../utils/request';
 const monkey = './assets/images/bg-monkeys.jpg';
 
 const SignIn: React.FC = () => {
@@ -17,14 +18,12 @@ const SignIn: React.FC = () => {
   
 const [showPopup, setShowPopup] = useState(false);
 const [popupMessage, setPopupMessage] = useState('');
+const [username, setUsername] = useState('');
+const [password, setPassword] = useState('');
 
-const handleClick = async () => {
-    let uname_input = document.getElementById("uname_input") as HTMLInputElement;
-    let uname = uname_input.value;
-    let password_input=  document.getElementById('password_input') as HTMLInputElement;
-    let password = password_input.value;
+const handleSignin = async () => {
     
-    if (uname === '') {
+    if (username === '') {
       setPopupMessage('Please enter a username');
       setShowPopup(true);
       return;
@@ -36,20 +35,17 @@ const handleClick = async () => {
     }
 
     const data = {
-      username: uname,
+      username: username,
       password: password
     };
 
     try {
-      const response = await fetch('http://localhost:8000/api/sign_in', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data)
-      });
+      const response = await sendRequest('/sign_in', 'POST', data);
 
       if (response.ok) {
+        const responseData = await response.json();
+        localStorage.setItem('access_token', responseData.access);
+        localStorage.setItem('refresh_token', responseData.refresh);
         navigate("/dashboard");
       } else {
         console.error('Sign-in failed:');
@@ -70,9 +66,9 @@ const handleClick = async () => {
         <img src={monkey} alt="monkey logo" width="10%" className='p-1 rounded-full'/>
         
         <form className="flex flex-col gap-y-1">
-          <TextField inputClassName="placeholder-slate-600" id="uname_input" type="text" placeholder="Username" />
-          <TextField inputClassName="placeholder-slate-600" id="password_input" type="password" placeholder="Password"/>
-          <Button className='w-full mt-2 self-center text-slate-50 uppercase p-3 rounded-md' onClick={handleClick}>Sign in</Button>
+          <TextField inputClassName="placeholder-slate-600" id="uname_input" type="text" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)}/>
+          <TextField inputClassName="placeholder-slate-600" id="password_input" type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)}/>
+          <Button className='bg-primary-color w-full mt-2 self-center text-slate-50 uppercase p-3 rounded-md' onClick={handleSignin}>Sign in</Button>
         </form>
 
         <div className=''>

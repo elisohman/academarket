@@ -6,6 +6,15 @@ from api.utils.database_utils import fill_database
 from api.utils.ipo_calculation import calculate_price
 import json, requests, traceback
 
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework import status
+
+from .serializers import RegisterSerializer, LoginSerializer
+from django.contrib.auth import authenticate
+
 
 #-- Views! --#
 
@@ -16,79 +25,57 @@ def test(request: HttpRequest) -> HttpResponse:
 
 # Account related views (sign in, sign out, etc).
 
-
-def sign_in(request: HttpRequest) -> HttpResponse:
+class SignUpView(APIView):
     """
-    Sign in a user.
+    API view for user sign up.
 
-    Parameters:
-    - request (HttpRequest): The HTTP request.
+    This view handles the HTTP POST request for user sign up and 
+    expects a JSON payload with user registration data.
+
+    Methods:
+        post(request): Handles the POST request for user sign up.
 
     Returns:
-    - HttpResponse: The HTTP response indicating whether the user was signed in successfully.
+        A response with the serialized user data and HTTP status code 201 if the registration is successful.
+        A response with the validation errors and HTTP status code 400 if the registration is unsuccessful.
+    """
+    def post(self, request):
+        serializer = RegisterSerializer(data=request.data)
+        if(serializer.is_valid()):
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    POST /sign_in/
-        {
-            "username": "<username>",
-            "password": "<password>"
-        }
+class SignInView(APIView):
+    """
+    API view for user sign-in, handles POST request for user sign-in. Expects a JSON payload
+    with username and password fields.
+
+    Methods:
+        post(request): Handles the POST request for user sign-in.
+
+    Returns: 
+        If provided credentials are valid, returns a response with a refresh token
+        and an access token. Otherwise, returns an error response.
 
     """
-    json_string = request.body.decode()
-    dictionary = json.loads(json_string)
-    if "username" in dictionary:
-        username = dictionary['username']
-    else:
-        raise ValueError("Missing username.")
-    if "password" in dictionary:
-        password = dictionary['password']
-    else:
-        # Use an empty password if none is provided
 
-        password = ""
-    user = User.objects.filter(username=username).first()
-    if user:
-        if user.password == password:
-            return HttpResponse(status=200, content="User logged in!")
-        return HttpResponse(status=403, content="Wrong password.")
-
-    return HttpResponse(status=404, content="User does not exist.")
-
-
-def sign_up(request: HttpRequest) -> HttpResponse:
-    """
-    Sign up view. Creates a new user.
-
-    Parameters:
-    - request (HttpRequest): The HTTP request.
-    - username (str): The username of the new user.
-
-    Returns:
-    - HttpResponse: The HTTP response indicating whether the user was created successfully.
-
-    POST /sign_up/
-        {
-            "username": "<username>",
-            "password": "<password>"
-        }
-
-    """
-    json_string = request.body.decode()
-    dictionary = json.loads(json_string)
-    if "username" in dictionary:
-        username = dictionary['username']
-    else:
-        raise ValueError("Missing username.")
-    if "password" in dictionary:
-        password = dictionary['password']
-    else:
-        # Use an empty password if none is provided. Temporary solution!
-        password = ""
-    if User.objects.filter(username=username).exists():
-        return HttpResponse(status=403, content="No!")
-    new_user = User.objects.create(username=username, password=password)
-    new_user.save()
-    return HttpResponse(status=201, content="New user created!")
+    def post(self, request):
+        serializer = LoginSerializer(data=request.data)
+        if serializer.is_valid():
+            user = authenticate(
+                username=serializer.validated_data['username'],
+                password=serializer.validated_data['password']
+            )
+            
+            if user is not None:
+                refresh = RefreshToken.for_user(user)
+                return Response({
+                    'refresh': str(refresh),
+                    'access': str(refresh.access_token),
+                }, status=status.HTTP_200_OK)
+            return Response({'error': 'Invalid Credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 # Views for robbing y-sektionen

@@ -15,3 +15,5 @@ soupsieve==2.5
 sqlparse==0.4.4
 tzdata==2024.1
 urllib3==2.2.1
+djangorestframework-simplejwt==5.3.1
+pyJWT==2.8.0

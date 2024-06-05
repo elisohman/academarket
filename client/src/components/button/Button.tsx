@@ -25,7 +25,7 @@ const Button: React.FC<ButtonProps> = ({children, className, onClick }) => {
         
         <button 
             type="button"
-            className={`bg-green-400 p-2 ${className}`}
+            className={`${className}`}
             onClick={handleClick} // Add onClick event handler
         >
             {children}

@@ -1,16 +1,13 @@
+from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 
 # Create your models here.
 
-class User(models.Model):
-    class Meta:
-        db_table = 'users'  # Set the table name to 'user'
-    id = models.AutoField(primary_key=True)
-    username = models.CharField(max_length=30)
-    email = models.CharField(max_length=30, unique=True)
-    password = models.CharField(max_length=30)
-    cash = models.IntegerField(null=True)
+
+class User(AbstractUser):
+    balance = models.IntegerField(null=True, default=10000)
+    courses = models.ManyToManyField('Course', related_name='users')
 
 
 class Course(models.Model):
