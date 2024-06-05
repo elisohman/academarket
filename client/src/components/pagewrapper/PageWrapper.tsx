@@ -8,7 +8,6 @@ import sendRequest from '../../utils/request';
 interface PageWrapperProps {
     children: React.ReactNode;
     className?: string;
-    onClick?: () => void;
 }
 
 const PageWrapper: React.FC<PageWrapperProps> = ({children, className}) => {
@@ -69,7 +68,11 @@ const PageWrapper: React.FC<PageWrapperProps> = ({children, className}) => {
     }, [auth]);
 
     if (loading) {
-        return <div>Loading...</div>;
+        return(
+            <div className='h-screen flex justify-center items-center'>
+                <div className='text-2xl font-semibold'>Loading...</div>
+            </div>
+        );
     }
 
     return isAuthenticated ? (

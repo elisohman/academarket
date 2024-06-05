@@ -68,7 +68,7 @@ const handleSignin = async () => {
         <form className="flex flex-col gap-y-1">
           <TextField inputClassName="placeholder-slate-600" id="uname_input" type="text" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)}/>
           <TextField inputClassName="placeholder-slate-600" id="password_input" type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)}/>
-          <Button className='w-full mt-2 self-center text-slate-50 uppercase p-3 rounded-md' onClick={handleSignin}>Sign in</Button>
+          <Button className='bg-primary-color w-full mt-2 self-center text-slate-50 uppercase p-3 rounded-md' onClick={handleSignin}>Sign in</Button>
         </form>
 
         <div className=''>

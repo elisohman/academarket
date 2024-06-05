@@ -98,7 +98,7 @@ const SignUp: React.FC = () => {
             <TextField inputClassName="placeholder-slate-600" id="password_input" type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)}/>
             <TextField inputClassName="placeholder-slate-600" id="repeat_password_input" type="password" placeholder="Repeat password" value={repeatPassword} onChange={(e) => setRepeatPassword(e.target.value)}/>
 
-            <Button onClick={handleSignup} className='w-full mt-2 self-center text-slate-50 uppercase p-3 rounded-md'>Sign up</Button>
+            <Button onClick={handleSignup} className='bg-primary-color w-full mt-2 self-center text-slate-50 uppercase p-3 rounded-md'>Sign up</Button>
         </form>
         
         <Button onClick={returnToSignIn} className='px-4 py-2 mt-1 bg-transparent text-slate-600 text-sm border-solid border rounded-full border-slate-600'>← Return to login</Button>
