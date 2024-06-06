@@ -21,3 +21,4 @@ api/migrations
 api/utils/__pycache__
 
 # pycache
+**/__pycache__/
