@@ -1,5 +1,5 @@
 from django.http import HttpResponse
-from api.utils.courses_json_utils import read_course_data_from_code, get_grade_data_dict_on_date, get_module_data_dict_on_date
+from data_pipeline.utils.courses_json_utils import read_course_data_from_code, get_grade_data_dict_on_date, get_module_data_dict_on_date
 
 def calculate_price(course_data):
     if course_data:
