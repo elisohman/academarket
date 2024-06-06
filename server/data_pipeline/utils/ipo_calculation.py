@@ -52,9 +52,6 @@ def calculate_price(course_data):
             print(f"KeyError: {e}")
 
             return 1
-    
-    
-        
 
     return HttpResponse(status=404, content="Course not found in local JSON.")
 
@@ -79,3 +76,4 @@ Example of course_data:
             , {'data': [5, 1, 4, 2], 'name': '4', 'color': '#3390BB'}
             , {'data': [4, 0, 5, 9], 'name': '3', 'color': '#C0D4E4'}]}}, 'success': True}
 '''
+

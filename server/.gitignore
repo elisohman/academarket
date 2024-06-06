@@ -19,3 +19,5 @@ academarket/.pg_service.conf
 api/__pycache__
 api/migrations
 api/utils/__pycache__
+
+# pycache
