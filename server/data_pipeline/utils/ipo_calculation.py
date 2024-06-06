@@ -44,12 +44,13 @@ def calculate_price(course_data):
                 total_price += (exam_points / num_of_failed_students) * total_students
             # Få average price från tentorna
             total_price = total_price / exam_amount
-            print(total_price)
 
             return total_price
 
         except KeyError as e:
-            print(e)
+            print(f"\nSomething went wrong, setting price of {course_data['course_code']} to 1.")
+            print(f"KeyError: {e}")
+
             return 1
     
     
@@ -58,8 +59,11 @@ def calculate_price(course_data):
     return HttpResponse(status=404, content="Course not found in local JSON.")
 
 
-'''
-{'course_name': 'Grafteori', 
+''' 
+Example of course_data:
+
+{
+'course_name': 'Grafteori', 
 'course_code': 'TATA64', 
 'exam_codes': ['TEN1', 'UPG1'], 
 'prio_code': None, 
