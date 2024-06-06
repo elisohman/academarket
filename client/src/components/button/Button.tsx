@@ -7,11 +7,6 @@ interface ButtonProps {
     onClick?: () => void;
 }
 
-
-function clickMe() {
-    alert("You clicked me!");
-  }
-
 const Button: React.FC<ButtonProps> = ({children, className, onClick }) => {
     
     const handleClick = () => {
