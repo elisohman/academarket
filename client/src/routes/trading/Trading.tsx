@@ -64,7 +64,6 @@ const Trading = () => {
     } else {
         return (
             <PageWrapper>
-                
                 <div className="size-full flex flex-row gap-5 rounded-3xl">
                     <div id="graph_window" className="bg-light-gray grow shrink rounded-3xl flex flex-col justify-center items-center">
                         <div className="self-start pt-4">
