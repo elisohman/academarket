@@ -26,16 +26,7 @@ urlpatterns = [
     # API endpoints
     path('sign_up', SignUpView.as_view(), name='sign_up'),
     path('sign_in', SignInView.as_view(), name='sign_in'),
-    path('get_course_stats/<str:course_code>', views.get_course_stats),
-    path('get_local_course_stats/<str:course_code>', views.get_local_course_stats),
-    path('get_all_local_data', views.get_all_local_data),
     # Auth endpoints
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'), # Needs trailing slash, don't remove
     path('token/blacklist/', TokenBlacklistView.as_view(), name='token_blacklist'), # Needs trailing slash, don't remove
-    # Development endpoints
-    path('dev/fill_courses_database', views.fill_courses_database),
-    path('dev/buy_course/<course_code>/<user>', views.buy_course_test),
-    path('dev/add_course_to_database/<course_code>', views.add_course_to_database),
-    path('dev/fill_course_codes_list', views.fill_course_codes_list),
-    path('dev/fill_courses_json', views.fill_courses_json),
 ]

@@ -1,5 +1,5 @@
 from django.http import HttpResponse
-from api.utils.courses_json_utils import read_course_data_from_code, get_grade_data_dict_on_date, get_module_data_dict_on_date
+from data_pipeline.utils.courses_json_utils import read_course_data_from_code, get_grade_data_dict_on_date, get_module_data_dict_on_date
 
 def calculate_price(course_data):
     if course_data:
@@ -44,22 +44,23 @@ def calculate_price(course_data):
                 total_price += (exam_points / num_of_failed_students) * total_students
             # Få average price från tentorna
             total_price = total_price / exam_amount
-            print(total_price)
 
             return total_price
 
         except KeyError as e:
-            print(e)
+            print(f"\nSomething went wrong, setting price of {course_data['course_code']} to 1.")
+            print(f"KeyError: {e}")
+
             return 1
-    
-    
-        
 
     return HttpResponse(status=404, content="Course not found in local JSON.")
 
 
-'''
-{'course_name': 'Grafteori', 
+''' 
+Example of course_data:
+
+{
+'course_name': 'Grafteori', 
 'course_code': 'TATA64', 
 'exam_codes': ['TEN1', 'UPG1'], 
 'prio_code': None, 
@@ -75,3 +76,4 @@ def calculate_price(course_data):
             , {'data': [5, 1, 4, 2], 'name': '4', 'color': '#3390BB'}
             , {'data': [4, 0, 5, 9], 'name': '3', 'color': '#C0D4E4'}]}}, 'success': True}
 '''
+
