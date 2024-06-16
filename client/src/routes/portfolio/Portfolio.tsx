@@ -71,7 +71,6 @@ const Portfolio: React.FC = () => {
                     <p className="">THIS IS A SEARCH BAR</p>
                 </div>
             </div>
-
             <div className="py-4">
                 <div className="">
                     <div className="size-full bg-transparent">
