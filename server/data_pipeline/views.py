@@ -4,7 +4,7 @@ from django.http import HttpResponse, HttpRequest, JsonResponse
 from api.models import User, Course
 from data_pipeline.utils.courses_json_utils import read_course_data_from_code, read_all_course_data, check_if_course_exists_locally, save_course_data, fill_json_from_list
 from data_pipeline.utils.courses_list_utils import save_course_list, retrieve_new_data_from_liu, load_course_list
-from data_pipeline.utils.database_utils import fill_database
+from data_pipeline.utils.database_utils import fill_database, validate_database
 from data_pipeline.utils.ipo_calculation import calculate_price
 import json, requests, traceback
 
@@ -130,7 +130,7 @@ def add_course_to_database(_request: HttpRequest, course_code: str) -> HttpRespo
     """
     course_data = read_course_data_from_code(course_code)
     
-    if course_data:
+    if validate_database(True) and course_data:
         ipo_prize = calculate_price(course_data)
         code = course_data['course_code']
         name = course_data['course_name']
