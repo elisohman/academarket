@@ -1,4 +1,4 @@
-const BASE_API_URL = 'http://localhost:8000/api';
+const BASE_API_URL = 'http://192.168.50.63:8000/api';
 
 async function sendRequest(path: string, method: string, body?: any, token?: string) {
     try {
