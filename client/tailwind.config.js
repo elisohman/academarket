@@ -21,7 +21,6 @@ module.exports = {
       screens: {
         'vscreen': { 'raw': '(max-aspect-ratio: 1/1)' },
         'hscreen': { 'raw': '(min-aspect-ratio: 1/1)' },
-        // Add more aspect ratio breakpoints as needed
       },
     },
   },

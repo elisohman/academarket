@@ -28,17 +28,3 @@
 }
 
 
-
-@mixin adjust-text-size-based-on-dimensions {
-  // Use the CSS @media query to apply styles based on the aspect ratio
-  @media screen and (min-aspect-ratio: 1/1) {
-    font-size: 0.8em; // Adjust the text size as needed
-  }
-}
-
-// Apply the mixin to the div and all its children
-.my-div,
-.my-div * {
-  @include adjust-text-size-based-on-dimensions;
-}
-
