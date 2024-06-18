@@ -50,20 +50,21 @@ const Portfolio: React.FC = () => {
             return "text-green-500";
         }
     };
-
+    //className="sm:text-smaller md:text-small lg:text-medium xl:text-large 2xl:text-larger"
+    //
     return (
         <PageWrapper>
-        <div className="master-container">
+        <div className="vscreen:text-smaller">            
             <div className="overflow-auto bg-slate-100 rounded flex flex-col p-4 ">
                 <div className="flex flex-row">  
                     <div className="flex flex-col">
                         
-                        <p className="text-sm">Available funds</p>
+                        <p className="vscreen:text-small ">Available funds</p>
                         <div className="flex flex-row py-1.5">  
-                            <p className="text-4xl font-extralight decoration-0">APE</p>
-                            <p className="text-4xl font-medium ml-2">32,210</p>
+                            <p className="text-4xl vscreen:text-large font-extralight decoration-0">APE</p>
+                            <p className="text-4xl vscreen:text-large font-medium ml-2">32,210</p>
                         </div>
-                        <div className="flex flex-row">  
+                        <div className="flex flex-row vscreen:text-small">  
                             <p className="font-semibold text-green-400">+42</p>
                             <p className="px-1.5 "> since yesterday</p>
                         </div>
@@ -76,25 +77,25 @@ const Portfolio: React.FC = () => {
                 <div className="py-4">
                     <div className="">
                         <div className="bg-transparent">
-                            <div className="grid grid-cols-5 font-bold mb-2 px-2 font-medium">
-                                <div className="col-span-1">Course Code</div>
-                                <div className="col-span-1">Course Name</div>
-                                <div className="col-span-1">Amount</div>
-                                <div className="col-span-1">Total Value</div>
-                                <div className="col-span-1">Price Change (24h)</div>
+                            <div className="grid grid-cols-5 vscreen:grid-cols-5 font-bold mb-2 px-2 font-medium vscreen:text-smaller items-center content-center">
+                                <div className="col-span-1 justify-self-start mx-2 text-center">Course Code</div>
+                                <div className="col-span-1 justify-self-start mx-2 text-center">Course Name</div>
+                                <div className="col-span-1 justify-self-end ml-2 text-center">Amount</div>
+                                <div className="col-span-1 justify-self-end ml-2 text-center">Total Value</div>
+                                <div className="col-span-1 justify-self-end ml-2 justify-end text-center">Price Change (24h)</div>
                             </div>
                             <div className="bg-white rounded-lg shadow-md border">
                                 {courses.map((item) => (
                                 <div
                                     key={item.id}
-                                    className="grid grid-cols-5 py-2 px-2 border-b last:border-none cursor-pointer hover:bg-gray-100"
+                                    className="grid grid-cols-5 grid-flow-row py-2 px-2 border-b last:border-none cursor-pointer hover:bg-gray-100 vscreen:text-smaller "
                                     onClick={() => handleRowClick(item)}
                                 >
-                                    <div className="col-span-1 pl-2.5 ">{item.code}</div>
-                                    <div className="col-span-1 pl-0.5 italic font-light text-ellipsis overflow-hidden mr-8">{item.name}</div>
-                                    <div className="col-span-1 pl-1 font-light">{item.amount}</div>
-                                    <div className="col-span-1 pl-1 font-light">APE {item.totalValue}</div>
-                                    <div className={`col-span-1 pl-1 font-light ${priceChangeColor(item)}`}>{item.valueChange}</div>
+                                    <div className="col-span-1 pl-2.5  vscreen:pl-0.5 justify-self-start mr-8">{item.code}</div>
+                                    <div className="col-span-1 pl-0.5 justify-self-start italic font-light line-clamp-2 text-ellipsis overflow-hidden mr-8 ">{item.name}</div>
+                                    <div className="col-span-1 pl-1 justify-self-end font-light text-slate-400">{item.amount}</div>
+                                    <div className="col-span-1 justify-self-end font-light text-sky-400">{item.totalValue} APE</div>
+                                    <div className={`col-span-1 justify-self-end ml-4 pr-10 vscreen:pr-2 font-light ${priceChangeColor(item)}`}>{item.valueChange}</div>
                                 </div>
                                 ))}
                             </div>

@@ -1,5 +1,44 @@
 
 // Apply scaling to text within .master-container
-.master-container {
-  I am very confused
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  @media screen and (min-aspect-ratio: 1/1) {
+    .text-smaller {
+      @apply text-smaller; /* Apply the custom smaller text size */
+    }
+    .text-small {
+      @apply text-small; /* Apply the custom small text size */
+    }
+    .text-medium {
+      @apply text-medium; /* Apply the custom medium text size */
+    }
+    .text-large {
+      @apply text-large; /* Apply the custom large text size */
+    }
+    .text-larger {
+      @apply text-larger; /* Apply the custom larger text size */
+    }
+    .text-largest {
+      @apply text-largest; /* Apply the custom largest text size */
+    }
+  }
 }
+
+
+
+@mixin adjust-text-size-based-on-dimensions {
+  // Use the CSS @media query to apply styles based on the aspect ratio
+  @media screen and (min-aspect-ratio: 1/1) {
+    font-size: 0.8em; // Adjust the text size as needed
+  }
+}
+
+// Apply the mixin to the div and all its children
+.my-div,
+.my-div * {
+  @include adjust-text-size-based-on-dimensions;
+}
+
