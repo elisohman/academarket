@@ -3,18 +3,30 @@ import DefaultProfilePic from "../../style/icons/DefaultProfilePic";
 import Button from "../button/Button";
 import { ACCESS_TOKEN, REFRESH_TOKEN } from "../../utils/constants";
 import sendRequest from "../../utils/request";
+import { jwtDecode, JwtPayload } from "jwt-decode";
 
+// Define a custom interface that extends JwtPayload
+interface CustomJwtPayload extends JwtPayload {
+    user_id: string;
+  }
 
 function TopBar() {
     const location = useLocation();
     const navigate = useNavigate();
     const path = location.pathname;
 
+    //const userID = localStorage.getItem(ACCESS_TOKEN).
+
     const handleLogout = async () => {
         const refresh_token = localStorage.getItem(REFRESH_TOKEN);
         const response = await sendRequest('/token/blacklist/', 'POST', {refresh: refresh_token});
 
         if (response.ok) {
+            if (refresh_token){
+                const test = jwtDecode<CustomJwtPayload>(refresh_token);
+                console.log(test.user_id);
+            }
+           
             localStorage.removeItem(ACCESS_TOKEN);
             localStorage.removeItem(REFRESH_TOKEN);
             navigate('/signin');

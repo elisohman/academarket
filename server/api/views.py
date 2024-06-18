@@ -9,6 +9,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import status
 
 from .serializers import SignUpSerializer, SignInSerializer
+from rest_framework_simplejwt.views import TokenObtainPairView
 from django.contrib.auth import authenticate
 
 

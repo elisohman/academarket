@@ -2,6 +2,7 @@ const BASE_API_URL = 'http://localhost:8000/api';
 
 async function sendRequest(path: string, method: string, body?: any, token?: string) {
     try {
+        console.log('From sendRequets: ', body);
         const headers: Record<string, string> = {
             'Content-Type': 'application/json',
         };
