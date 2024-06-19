@@ -1,5 +1,5 @@
 import TopBar from '../topbar/TopBar';
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 import {REFRESH_TOKEN, ACCESS_TOKEN} from '../../utils/constants';
 import {jwtDecode} from 'jwt-decode'
@@ -30,7 +30,7 @@ const PageWrapper: React.FC<PageWrapperProps> = ({children, className}) => {
                     const responseData = await response.json();
                     localStorage.setItem(ACCESS_TOKEN, responseData.access);
                     localStorage.setItem(REFRESH_TOKEN, responseData.refresh);
-                    console.log(responseData);
+                    //console.log(responseData);
                     setIsAuthenticated(true);
                     setLoading(false);  
                 } else {

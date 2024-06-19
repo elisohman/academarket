@@ -2,7 +2,7 @@ const BASE_API_URL = 'http://localhost:8000/api';
 
 async function sendRequest(path: string, method: string, body?: any, token?: string) {
     try {
-        console.log('From sendRequets: ', body);
+        //console.log('From sendRequets: ', body);
         const headers: Record<string, string> = {
             'Content-Type': 'application/json',
         };
@@ -11,11 +11,17 @@ async function sendRequest(path: string, method: string, body?: any, token?: str
             headers['Authorization'] = `Bearer ${token}`;
         }
 
-        const response = await fetch(BASE_API_URL + path, {
+        const options: RequestInit = {
             method: method,
             headers: headers,
-            body: JSON.stringify(body),
-        });
+        };
+
+        // if not GET request, then body can be part of response
+        if (method !== 'GET' && method !== 'HEAD' && body !== undefined) {
+            options.body = JSON.stringify(body);
+        }
+
+        const response = await fetch(BASE_API_URL + path, options);
 
         console.log('Response:', response);
 

@@ -22,3 +22,8 @@ api/utils/__pycache__
 
 # pycache
 **/__pycache__/
+
+# data_pipeline
+data_pipeline/__pycache__
+data_pipeline/migrations
+data_pipeline/utils/__pycache__
