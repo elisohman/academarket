@@ -5,11 +5,10 @@ import json, requests, traceback
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import permissions, status
-from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import status
 
-from .serializers import SignUpSerializer, SignInSerializer, UserSerializer
+from .serializers import SignUpSerializer, SignInSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from django.contrib.auth import authenticate
 
@@ -37,6 +36,7 @@ class SignUpView(APIView):
         A response with the serialized user data and HTTP status code 201 if the registration is successful.
         A response with the validation errors and HTTP status code 400 if the registration is unsuccessful.
     """
+    permission_classes = [permissions.AllowAny]
     def post(self, request):
         serializer = SignUpSerializer(data=request.data)
         if(serializer.is_valid()):
@@ -57,7 +57,7 @@ class SignInView(APIView):
         and an access token. Otherwise, returns an error response.
 
     """
-
+    permission_classes = [permissions.AllowAny]
     def post(self, request):
         serializer = SignInSerializer(data=request.data)
         if serializer.is_valid():
@@ -87,6 +87,7 @@ class GetUserInfoView(APIView):
                 'email' : str(user.email),
                 'balance' : str(user.balance),
             }
-        serializer = UserSerializer(user)
-        print(user_info)
-        return Response(user_info, status=status.HTTP_200_OK)
+
+            return Response(user_info, status=status.HTTP_200_OK)
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)

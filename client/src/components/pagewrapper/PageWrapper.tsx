@@ -24,13 +24,14 @@ const PageWrapper: React.FC<PageWrapperProps> = ({children, className}) => {
     
     const refreshToken = async () => {
         try {
+            // token refresh uses mutex to avoid race condition
             await mutex.runExclusive(async () => {
                 const response = await sendRequest('/token/refresh/', 'POST', {refresh: localStorage.getItem(REFRESH_TOKEN)});
                 if (response.ok) {
                     const responseData = await response.json();
                     localStorage.setItem(ACCESS_TOKEN, responseData.access);
                     localStorage.setItem(REFRESH_TOKEN, responseData.refresh);
-                    //console.log(responseData);
+                    
                     setIsAuthenticated(true);
                     setLoading(false);  
                 } else {

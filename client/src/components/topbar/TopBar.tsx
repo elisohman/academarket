@@ -21,32 +21,29 @@ function TopBar() {
 
 
 
-    const getUserInfo = async (access_token : string) => {
+    const updateUserInfo = async (access_token : string) => {
         const response = await sendRequest('/user_info', 'GET', undefined, access_token);
 
         if (response.ok) {
             const responseData = await response.json();
             setUsername(responseData.username);
             setBalance(responseData.balance);
-            console.log(responseData.username);
         } else {
-            console.log("Error user info");
+            console.log("Error when getting user info");
         }
 
     }
 
+    // When topbar loads, access token is fetched and userinfo updated
     useEffect(() => {
         const access_token = localStorage.getItem(ACCESS_TOKEN);
         if (access_token){
-            //const user_id = jwtDecode<CustomJwtPayload>(access_token).user_id
-            //setUsername();
-            getUserInfo(access_token);
+            updateUserInfo(access_token);
         } else {
             console.log("No access token");
         }
     },[]);
-
-
+    
     
     const handleLogout = async () => {
         const refresh_token = localStorage.getItem(REFRESH_TOKEN);

@@ -45,7 +45,6 @@ const handleSignin = async () => {
 
       if (response.ok) {
         const responseData = await response.json();
-        console.log(responseData);
         localStorage.setItem('access_token', responseData.access);
         localStorage.setItem('refresh_token', responseData.refresh);
         navigate("/dashboard");

@@ -30,9 +30,3 @@ class SignInSerializer(serializers.Serializer):
     class Meta:
         model = User
         fields = ['username', 'password']
-
-class UserSerializer(serializers.Serializer):
-
-    class Meta:
-        model = User
-        fields = ['username', 'balance']
