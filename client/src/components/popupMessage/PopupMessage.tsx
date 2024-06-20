@@ -25,7 +25,7 @@ const PopupMessage: React.FC<PopupMessageProps> = ({ message, show, onClose, dur
     return (
         <div className="flex justify-center items-center p-5">
             <div className={`${show ? 'opacity-100' : 'opacity-0'} transition-opacity duration-1000 ease-in-out absolute self-center ${classColor} ${className}`}>
-                <p>
+                <p className = "select-none">
                     {message}
                 </p>
             </div>

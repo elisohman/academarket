@@ -60,14 +60,14 @@ const Trading = () => {
 
                 <div id="trade_window" className="p-5 bg-primary-color max-w-fit rounded-3xl">
                     <div className="flex flex-col h-full">
-                        <h1 className="text-white mb-8 font-medium">Make a trade</h1>
+                        <h1 className="text-white mb-8 font-medium select-none">Make a trade</h1>
                         <Switch/>
                         {/*<div id="button-container" className="flex gap-4">
                             <Button className='w-full mt-8 self-center text-slate-50 uppercase py-2 px-8 bg-primary-color border-2'>Buy</Button>
                             <Button className='w-full mt-8 self-center text-slate-50 uppercase py-2 px-8 bg-red-400 border-2'>Sell</Button>
                         </div>*/}
                         <div className="mt-8">
-                            <p className="text-light-gray font-medium">Amount</p>
+                            <p className="text-light-gray font-medium select-none">Amount</p>
                             <TextField 
                                 inputClassName="w-full p-3 rounded-md border-2 bg-transparent text-white" 
                                 id="amount-field" 
@@ -76,7 +76,7 @@ const Trading = () => {
                                 value={amount}
                             />
                         </div>
-                        <div className="mt-2 gap-3 flex">
+                        <div className="mt-2 gap-3 flex select-none">
                             {predefinedValues.map((value) => {
                                 return (
                                     <div 
