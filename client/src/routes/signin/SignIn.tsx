@@ -5,31 +5,44 @@ import Button from '../../components/button/Button';
 import TextField from '../../components/textfield/TextField';
 import PopupMessage from '../../components/popupMessage/PopupMessage';
 import { useNavigate } from 'react-router-dom';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import sendRequest from '../../utils/request';
 
 const monkey = './assets/images/bg-monkeys.jpg';
 
 const SignIn: React.FC = () => {
-  const navigate = useNavigate(); // Get history object
+  const navigate = useNavigate();
+
   const goToSignUp = () => {
     navigate("/signup");
-
   }
   
-const [showPopup, setShowPopup] = useState(false);
-const [popupMessage, setPopupMessage] = useState('');
-const [username, setUsername] = useState('');
-const [password, setPassword] = useState('');
+  const [showPopup, setShowPopup] = useState(false);
+  const [popupMessage, setPopupMessage] = useState('');
+  const [popupMessageColor, setPopupMessageColor] = useState('');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  
+  // This useEffect part is to correctly show the message (once!) after a new successful sign up has redirected the user here // Jack
+  useEffect(() => {
+    if (localStorage.getItem('signupSuccess') === 'true') {
+      
+        setPopupMessageColor('text-green-500');
+        setPopupMessage('Successfully signed up!');
+        localStorage.removeItem('signupSuccess');
+        return () =>  setShowPopup(true);
+    }
+  }, [showPopup]); 
 
-const handleSignin = async () => {
-    
+  const handleSignin = async () => {
     if (username === '') {
+      setPopupMessageColor('text-red-500');
       setPopupMessage('Please enter a username');
       setShowPopup(true);
       return;
     }
     if (password === '') {
+      setPopupMessageColor('text-red-500');
       setPopupMessage('Please enter a password');
       setShowPopup(true);
       return;
@@ -42,25 +55,25 @@ const handleSignin = async () => {
 
     try {
       const response = await sendRequest('/token/', 'POST', data);
-
       if (response.ok) {
         const responseData = await response.json();
         localStorage.setItem('access_token', responseData.access);
         localStorage.setItem('refresh_token', responseData.refresh);
+        setShowPopup(false);
         navigate("/dashboard");
       } else {
         console.error('Sign-in failed:');
         console.log(response.status);
+        setPopupMessageColor('text-red-500');
         setPopupMessage('Please enter valid credentials');
         setShowPopup(true);
       }
     } catch (error) {
       console.error('Error during sign-in:', error);
-
-      // You can display an error message to the user if needed
     }
   };
-    
+
+
   return (
     <>
       <div className="sign-in-container size-full bg-slate-100 flex flex-col justify-center items-center gap-y-2">
@@ -75,7 +88,7 @@ const handleSignin = async () => {
         <div className=''>
           <Button onClick={goToSignUp} className='px-4 py-2 mt-1 bg-transparent text-slate-600 text-sm border-solid border rounded-full border-slate-600'>Sign up here →</Button>
         </div>
-        <PopupMessage message={popupMessage} show={showPopup} onClose={() => setShowPopup(false)} classColor='text-red-500'/>
+        <PopupMessage message={popupMessage} show={showPopup} onClose={() => setShowPopup(false)} classColor={popupMessageColor}/>
       </div>
     </>
   );

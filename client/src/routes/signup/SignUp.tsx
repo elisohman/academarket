@@ -69,12 +69,9 @@ const SignUp: React.FC = () => {
 
       if (response.ok) {
         console.log('Successful sign-up:');
-        setPopupMessageClassName('text-green-500')
-        setPopupMessage('Successfully signed up! Redirecting to login page...');
-        setShowPopup(true);  
-        setTimeout(() => {
-          navigate("/signin");
-        }, 1500);
+        localStorage.setItem('signupSuccess', 'true');
+        navigate("/signin");  
+        
       } else {
         console.log(response)
         setPopupMessage('Unsuccesful sign-up. Perhaps the user already exists?');

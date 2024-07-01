@@ -22,6 +22,7 @@ api/utils/__pycache__
 
 # pycache
 **/__pycache__/
+**/*.pyc
 
 # data_pipeline
 data_pipeline/__pycache__

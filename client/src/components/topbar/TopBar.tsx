@@ -59,20 +59,20 @@ function TopBar() {
     return (
         <div className="text-secondary-color w-full h-20 flex px-8 text-base">
             <div id="logo-area" className="flex items-center">
-                <div className="text-lg font-bold">Academarket</div>
+                <div className="text-lg font-bold select-none">Academarket</div>
             </div>
             <div id="menu-area" className="flex-grow flex justify-center">
                 <ul className="flex gap-x-8 items-center">
                     <Link to="/dashboard">
-                        <li className={`px-4 py-1.5 rounded-full ${path === '/dashboard' ? 'bg-primary-color text-white font-medium' : ''}`}>Dashboard</li>
+                        <li className={`px-4 py-1.5 rounded-full select-none ${path === '/dashboard' ? 'bg-primary-color text-white font-medium' : ''}`}>Dashboard</li>
                     </Link>
 
                     <Link to="/portfolio">
-                        <li className={`px-4 py-1.5 rounded-full ${path === '/portfolio' ? 'bg-primary-color text-white font-medium' : ''}`}>Portfolio</li>
+                        <li className={`px-4 py-1.5 rounded-full select-none ${path === '/portfolio' ? 'bg-primary-color text-white font-medium' : ''}`}>Portfolio</li>
                     </Link>
 
                     <Link to="/trading">
-                        <li className={`px-4 py-1.5 rounded-full ${path === '/trading' ? 'bg-primary-color text-white font-medium' : ''}`}>Trading</li>
+                        <li className={`px-4 py-1.5 rounded-full select-none ${path === '/trading' ? 'bg-primary-color text-white font-medium' : ''}`}>Trading</li>
                     </Link>
                 </ul>
             </div>
