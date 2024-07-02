@@ -23,3 +23,6 @@ api/utils/__pycache__
 # pycache
 **/__pycache__/
 **/*.pyc
+
+# misc
+macbook.py
