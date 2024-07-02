@@ -54,9 +54,9 @@ const Portfolio: React.FC = () => {
     //
     return (
         <PageWrapper>
-        <div className="vscreen:text-smaller">            
+        <div className="vscreen:text-smaller">
             <div className="overflow-auto bg-slate-100 rounded flex flex-col p-4 ">
-                <div className="flex flex-row">  
+                <div className="flex flex-row">
                     <div className="flex flex-col">
                         
                         <p className="vscreen:text-small ">Available funds</p>
@@ -84,7 +84,7 @@ const Portfolio: React.FC = () => {
                                 <div className="col-span-1 justify-self-end ml-2 text-center">Total Value</div>
                                 <div className="col-span-1 justify-self-end ml-2 justify-end text-center">Price Change (24h)</div>
                             </div>
-                            <div className="bg-white rounded-lg shadow-md border">
+                            <div className="bg-white rounded-lg shadow-md border overflow-hidden">
                                 {courses.map((item) => (
                                 <div
                                     key={item.id}
