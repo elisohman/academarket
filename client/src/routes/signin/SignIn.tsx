@@ -7,6 +7,7 @@ import PopupMessage from '../../components/popupMessage/PopupMessage';
 import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
 import sendRequest from '../../utils/request';
+
 const monkey = './assets/images/bg-monkeys.jpg';
 
 const SignIn: React.FC = () => {
@@ -53,8 +54,7 @@ const SignIn: React.FC = () => {
     };
 
     try {
-      const response = await sendRequest('/sign_in', 'POST', data);
-      
+      const response = await sendRequest('/token/', 'POST', data);
       if (response.ok) {
         const responseData = await response.json();
         localStorage.setItem('access_token', responseData.access);

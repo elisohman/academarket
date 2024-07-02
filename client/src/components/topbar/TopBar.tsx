@@ -1,15 +1,50 @@
-import {Link, useNavigate, useLocation} from "react-router-dom";
+import {Link, useNavigate, useLocation } from "react-router-dom";
+import { useState, useEffect, useCallback, useRef } from 'react';
 import DefaultProfilePic from "../../style/icons/DefaultProfilePic";
 import Button from "../button/Button";
 import { ACCESS_TOKEN, REFRESH_TOKEN } from "../../utils/constants";
 import sendRequest from "../../utils/request";
+import { jwtDecode, JwtPayload } from "jwt-decode";
+import { Exception } from "sass";
 
+// Define a custom interface that extends JwtPayload
+interface CustomJwtPayload extends JwtPayload {
+    user_id: string;
+  }
 
 function TopBar() {
     const location = useLocation();
     const navigate = useNavigate();
     const path = location.pathname;
+    const [username, setUsername] = useState<string | null>(null);
+    const [balance, setBalance] = useState<string | null>(null);
 
+
+
+    const updateUserInfo = async (access_token : string) => {
+        const response = await sendRequest('/user_info', 'GET', undefined, access_token);
+
+        if (response.ok) {
+            const responseData = await response.json();
+            setUsername(responseData.username);
+            setBalance(responseData.balance);
+        } else {
+            console.log("Error when getting user info");
+        }
+
+    }
+
+    // When topbar loads, access token is fetched and userinfo updated
+    useEffect(() => {
+        const access_token = localStorage.getItem(ACCESS_TOKEN);
+        if (access_token){
+            updateUserInfo(access_token);
+        } else {
+            console.log("No access token");
+        }
+    },[]);
+    
+    
     const handleLogout = async () => {
         const refresh_token = localStorage.getItem(REFRESH_TOKEN);
         const response = await sendRequest('/token/blacklist/', 'POST', {refresh: refresh_token});
@@ -46,8 +81,8 @@ function TopBar() {
                     <DefaultProfilePic />
                 </div>
                 <div id="user-details" className="ml-4 text-sm">
-                    <p className="font-semibold text-secondary-color text-sm max-w-36 overflow-hidden whitespace-nowrap overflow-ellipsis">johannespettersson</p>
-                    <p className="font-semibold text-primary-color">APE 69,420</p>
+                    <p className="font-semibold text-secondary-color text-sm max-w-36 overflow-hidden whitespace-nowrap overflow-ellipsis">{username ? username : "Loading..."}</p>
+                    <p className="font-semibold text-primary-color">APE {balance}</p>
                 </div>
                 <Button className="ml-4 text-white bg-coral px-2 py-1 rounded-md font-medium" onClick={handleLogout}>Log out</Button>
             </div>

@@ -1,71 +1,70 @@
 import TopBar from '../topbar/TopBar';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 import {REFRESH_TOKEN, ACCESS_TOKEN} from '../../utils/constants';
 import {jwtDecode} from 'jwt-decode'
 import sendRequest from '../../utils/request';
+import {Mutex, MutexInterface} from 'async-mutex';
 
 interface PageWrapperProps {
     children: React.ReactNode;
     className?: string;
 }
 
+const mutex = new Mutex();
+
 const PageWrapper: React.FC<PageWrapperProps> = ({children, className}) => {
 
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [loading, setLoading] = useState(true);
 
-    const refreshToken = useCallback(async () => {
-        const refresh_token = localStorage.getItem(REFRESH_TOKEN);
-        if (!refresh_token) {
-            setIsAuthenticated(false);
-            setLoading(false);
-            return;
-        }
+    useEffect(() => {
+        auth().catch(() => setIsAuthenticated(false))
+    })
+    
+    const refreshToken = async () => {
         try {
-            const response = await sendRequest('/token/refresh/', 'POST', {refresh: refresh_token});
-            if (response.ok) {
-                const responseData = await response.json();
-                localStorage.setItem(ACCESS_TOKEN, responseData.access);
-                setIsAuthenticated(true);
-            } else {
-                setIsAuthenticated(false);
-            }
+            // token refresh uses mutex to avoid race condition
+            await mutex.runExclusive(async () => {
+                const response = await sendRequest('/token/refresh/', 'POST', {refresh: localStorage.getItem(REFRESH_TOKEN)});
+                if (response.ok) {
+                    const responseData = await response.json();
+                    localStorage.setItem(ACCESS_TOKEN, responseData.access);
+                    localStorage.setItem(REFRESH_TOKEN, responseData.refresh);
+                    
+                    setIsAuthenticated(true);
+                    setLoading(false);  
+                } else {
+                    setIsAuthenticated(false);
+                    setLoading(false);
+                }
+            });
         } catch (error) {
             console.log('Error during token refresh:', error);
             setIsAuthenticated(false);
+            setLoading(false);
         }
-        setLoading(false);
-    }, []);
+    };
 
-    const auth = useCallback(async () => {
+    const auth = async () => {
         const token = localStorage.getItem(ACCESS_TOKEN);
         if (!token) {
             setIsAuthenticated(false);
             setLoading(false);
             return;
         }
-
-        try {
-            const decoded_token = jwtDecode(token);
-            const expiration = decoded_token.exp;
-            const now = Date.now() / 1000;
+        
+        const decoded_token = jwtDecode(token);
+        const expiration = decoded_token.exp;
+        const now = Date.now() / 1000;
             
-            if (expiration && expiration < now) {
-                await refreshToken();
-            } else {
-                setIsAuthenticated(true);
-            }
-        } catch (error) {
-            console.log('Error during token validation:', error);
-            setIsAuthenticated(false);
+        if (expiration && expiration < now) {
+            await refreshToken();
+        } else {
+            setIsAuthenticated(true);
+            setLoading(false);
         }
-        setLoading(false);
-    }, [refreshToken]);
-
-    useEffect(() => {
-        auth();
-    }, [auth]);
+    };
 
     if (loading) {
         return(

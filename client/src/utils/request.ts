@@ -12,13 +12,19 @@ async function sendRequest(path: string, method: string, body?: any, token?: str
             headers['Authorization'] = `Bearer ${token}`;
         }
 
-        const response = await fetch(apiUrl + path, {
+        const options: RequestInit = { // RequestInit allows for later additions of new options
             method: method,
             headers: headers,
-            body: JSON.stringify(body),
-        });
+        };
 
-        console.log('Response:', response);
+        // if not GET request, then body can be part of response
+        if (method !== 'GET' && method !== 'HEAD' && body !== undefined) {
+            options.body = JSON.stringify(body);
+        }
+
+        const response = await fetch(apiUrl + path, options);
+
+        //console.log('Response:', response);
 
         return response;
     } catch (error) {
