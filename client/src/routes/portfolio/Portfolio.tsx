@@ -1,6 +1,8 @@
 
 import PageWrapper from "../../components/pagewrapper/PageWrapper";
 import { useNavigate  } from 'react-router-dom';
+import CourseList from "../../components/courselist/CourseList";
+
 const courses = [
     {
         id: 1,
@@ -103,6 +105,10 @@ const Portfolio: React.FC = () => {
                     </div>
                 </div>
             </div>
+
+        </div>
+        <div>
+            <CourseList courses={courses} className="" ></CourseList>   
         </div>
         </PageWrapper>
     );

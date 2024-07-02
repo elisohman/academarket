@@ -1,0 +1,30 @@
+
+// Apply scaling to text within .master-container
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  @media screen and (min-aspect-ratio: 1/1) {
+    .text-smaller {
+      @apply text-smaller; /* Apply the custom smaller text size */
+    }
+    .text-small {
+      @apply text-small; /* Apply the custom small text size */
+    }
+    .text-medium {
+      @apply text-medium; /* Apply the custom medium text size */
+    }
+    .text-large {
+      @apply text-large; /* Apply the custom large text size */
+    }
+    .text-larger {
+      @apply text-larger; /* Apply the custom larger text size */
+    }
+    .text-largest {
+      @apply text-largest; /* Apply the custom largest text size */
+    }
+  }
+}
+
+

@@ -17,4 +17,3 @@ tzdata==2024.1
 urllib3==2.2.1
 djangorestframework-simplejwt==5.3.1
 pyJWT==2.8.0
-async-mutex==9.5.0
