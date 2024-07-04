@@ -1,5 +1,5 @@
 import React from 'react';
-import './courselist.scss';
+
 import { useNavigate  } from 'react-router-dom';
 
 interface CourseListProps {
@@ -46,24 +46,6 @@ const CourseList: React.FC<CourseListProps> = ({courses=courses_example, classNa
     return(
         <div className="vscreen:text-smaller">
             <div className="overflow-auto bg-slate-100 rounded flex flex-col p-4 ">
-            <div className="flex flex-row">
-                    <div className="flex flex-col">
-                        
-                        <p className="vscreen:text-small ">Available funds</p>
-                        <div className="flex flex-row py-1.5">  
-                            <p className="text-4xl vscreen:text-large font-extralight decoration-0">APE</p>
-                            <p className="text-4xl vscreen:text-large font-medium ml-2">32,210</p>
-                        </div>
-                        <div className="flex flex-row vscreen:text-small">  
-                            <p className="font-semibold text-green-400">+42</p>
-                            <p className="px-1.5 "> since yesterday</p>
-                        </div>
-
-                    </div>
-                    <div className="flex flex-col self-end mx-8">  
-                        <p className="">THIS IS A SEARCH BAR</p>
-                    </div>
-                </div>
 
             <div className="py-4">
                 <div className="">
