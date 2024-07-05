@@ -59,11 +59,11 @@ const Portfolio: React.FC = () => {
     };
     // Can I make this function check the content of the div of which class it is part of?
     const columnHeaderClasses = {
-        0: "col-span-1 justify-self-start text-center",
-        1: "col-span-1 justify-self-start text-center",
-        2: "col-span-1 justify-self-end text-center",
-        3: "col-span-1 justify-self-end text-center",
-        4: "col-span-1 justify-self-end text-center"
+        0: "col-span-1 justify-self-start text-center font-medium",
+        1: "col-span-1 justify-self-start text-center font-medium",
+        2: "col-span-1 justify-self-end text-center font-medium",
+        3: "col-span-1 justify-self-end text-center font-medium",
+        4: "col-span-1 justify-self-end text-center font-medium"
     } as { [key: number]: string };  
 
 
