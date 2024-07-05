@@ -11,6 +11,7 @@ module.exports = {
         'coral': '#F34F81', 
       },
       fontSize: {
+        'smallerer': '0.4em',
         'smaller': '0.6em',
         'small': '0.8em',
         'medium': '1.0em',
