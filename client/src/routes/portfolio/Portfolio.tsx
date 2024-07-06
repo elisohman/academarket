@@ -103,14 +103,6 @@ const Portfolio: React.FC = () => {
                             //onKeyDown={(e: any) => { handleSearch() }}
                             //value={searchText}/>
                         }
-                        <SearchBar input={searchText} setInput={setSearchText} onButtonClick={handleSearch} placeholder="Search course..."></SearchBar>
-                        {
-                            //<TestSearchBar
-                            //placeholder='Sök på ärendenummer...'
-                            //onChange={(e: any) => { setSearchText(e.target.value) }}
-                            //onKeyDown={(e: any) => { handleSearch() }}
-                            //value={searchText}/>
-                        }
                     </div>
                 </div>
                 <div className="py-4">
