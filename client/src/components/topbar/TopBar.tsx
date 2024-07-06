@@ -82,7 +82,7 @@ function TopBar() {
                 </div>
                 <div id="user-details" className="ml-4 text-sm">
                     <p className="font-semibold text-secondary-color text-sm max-w-36 overflow-hidden whitespace-nowrap overflow-ellipsis">{username ? username : "Loading..."}</p>
-                    <p className="font-semibold text-primary-color">APE {balance}</p>
+                    <p className="font-semibold text-sky-400">APE {balance}</p>
                 </div>
                 <Button className="ml-4 text-white bg-coral px-2 py-1 rounded-md font-medium" onClick={handleLogout}>Log out</Button>
             </div>

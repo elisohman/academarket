@@ -4,6 +4,8 @@ import SearchBar from "../../components/searchBar/SearchBar";
 import ModularList from "../../components/modularList/ModularList";
 
 import { useState, useEffect, useRef } from "react";
+import sendRequest from "../../utils/request";
+import { ACCESS_TOKEN } from "../../utils/constants";
 
 
 const coursesExampleData = { // Proposed structure for courses (backend should return in a similar format) -Jack
@@ -18,7 +20,6 @@ const Portfolio: React.FC = () => {
     const coursesBase = coursesExampleData;
     const [courses, setCourses] = useState<any>(coursesBase);
     const navigate = useNavigate();
-
     
     const [searchText, setSearchText] = useState<string>('');
     const searchTextRef = useRef<string>(searchText);
@@ -26,10 +27,24 @@ const Portfolio: React.FC = () => {
         setSearchText(text);
         searchTextRef.current = text;
     }
+    const [balance, setBalance] = useState<string>('');
+
+    const fetchEconomics = async (access_token : string) => {
+        const response = await sendRequest('/user_info', 'GET', undefined, access_token);
+
+        if (response.ok) {
+            const responseData = await response.json();
+            setBalance(responseData.balance);
+        } else {
+            console.log("Error when getting user info");
+        }
+
+    }
+
 
 
     const handleRowClick = (course: any) => {
-        navigate(`/trading?course=${course[0]}`, { state: { course } });
+        navigate(`/trading?course=${course[0]}&fromPortfolio=true`, { state: { course } });
     };
     
     function handleSearch () {
@@ -70,7 +85,7 @@ const Portfolio: React.FC = () => {
             return "";
         }
     };
-    // Can I make this function check the content of the div of which class it is part of?
+
     const columnHeaderClasses = {
         0: "col-span-1 justify-self-start text-center font-medium",
         1: "col-span-1 justify-self-start text-center font-medium",
@@ -80,8 +95,14 @@ const Portfolio: React.FC = () => {
     } as { [key: number]: string };  
 
 
-    //className="sm:text-smaller md:text-small lg:text-medium xl:text-large 2xl:text-larger"
-    //
+    useEffect(() => {
+        let token = localStorage.getItem(ACCESS_TOKEN);
+        if (token){
+            fetchEconomics(token);
+        }
+    }, []);
+
+   
     return (
         <PageWrapper>
         <div className="vscreen:text-smaller">
@@ -92,7 +113,7 @@ const Portfolio: React.FC = () => {
                         <p className="vscreen:text-small ">Available funds</p>
                         <div className="flex flex-row py-1.5">  
                             <p className="text-4xl vscreen:text-large font-extralight decoration-0">APE</p>
-                            <p className="text-4xl vscreen:text-large font-medium ml-2">32,210</p>
+                            <p className="text-4xl vscreen:text-large font-medium ml-2">{balance}</p>
                         </div>
                         <div className="flex flex-row vscreen:text-small">  
                             <p className="font-semibold text-green-400">+42</p>
