@@ -30,6 +30,7 @@ const Trading = () => {
             setAmount(numValue);
         }
     };
+    
 
     useEffect(() => {
         const fetchData = async () => {
