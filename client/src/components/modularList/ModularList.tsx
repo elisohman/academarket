@@ -92,7 +92,7 @@ const ModularList: React.FC<ModularListProps> = ({content, itemsColumnClassFunc 
                 {items.map((item: any) => (
                 <div
                     key={item.id}
-                    className="grid px-2 py-2 border-b last:border-none cursor-pointer hover:bg-gray-100 items-center content-center vscreen:text-smaller vscreen:truncate"
+                    className="grid px-2 py-2 border-b last:border-none cursor-pointer hover:bg-gray-100 items-center content-center vscreen:text-smaller vscreen:truncate transition duration-200 ease-in-out"
                     style={{ gridTemplateColumns: `repeat(${headers.length}, minmax(0, 1fr))` }} 
                     onClick={() => onItemClick(item)}
                 >

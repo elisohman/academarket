@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import SearchBar from "../../components/searchBar/SearchBar";
 import ModularList from "../../components/modularList/ModularList";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 
 const coursesExampleData = { // Proposed structure for courses (backend should return in a similar format) -Jack
@@ -16,17 +16,29 @@ const coursesExampleData = { // Proposed structure for courses (backend should r
 
 const Portfolio: React.FC = () => {
     const coursesBase = coursesExampleData;
-    const [searchText, setSearchText] = useState<string>('');
     const [courses, setCourses] = useState<any>(coursesBase);
-      
     const navigate = useNavigate();
+
+    
+    const [searchText, setSearchText] = useState<string>('');
+    const searchTextRef = useRef<string>(searchText);
+    const updateSearchText = (text: string) => {
+        setSearchText(text);
+        searchTextRef.current = text;
+    }
+
 
     const handleRowClick = (course: any) => {
         navigate(`/trading?course=${course[0]}`, { state: { course } });
     };
-
-    const handleSearch = () => {
-        alert(`Searching for: ${searchText}`);
+    
+    function handleSearch () {
+        //alert(`Searching for: ${searchText}`);
+        const filteredItems = coursesBase.items.filter((item: any) => {
+            const courseCode = item[0];
+            return courseCode.includes(searchTextRef.current.toUpperCase());
+        });
+        setCourses({ headers: coursesBase["headers"], items: filteredItems });
     };
     const priceChangeColor = (content: string) => {
         if (content.charAt(0) === "-") {
@@ -35,6 +47,12 @@ const Portfolio: React.FC = () => {
             return "text-green-500";
         }
     };
+    
+    const onSearchTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        handleSearch();
+    };
+
+    
 
     const checkColumnContent = (index: number, content: any) => {
         const columnClassArguments = {
@@ -83,8 +101,7 @@ const Portfolio: React.FC = () => {
 
                     </div>
                     <div className="flex flex-col self-end mx-8">  
-                        <p className="">THIS IS A SEARCH BAR</p>
-                        <SearchBar input={searchText} setInput={setSearchText} onButtonClick={handleSearch} placeholder="Search course..."></SearchBar>
+                        <SearchBar input={searchText} setInput={updateSearchText} onButtonClick={handleSearch} placeholder="Search course code..." onChange={onSearchTextChange}></SearchBar>
                         {
                             //<TestSearchBar
                             //placeholder='Sök på ärendenummer...'
@@ -95,7 +112,7 @@ const Portfolio: React.FC = () => {
                     </div>
                 </div>
                 <div className="py-4">
-                 <ModularList content={courses} itemsColumnClassFunc={checkColumnContent} headerColumnClassName={columnHeaderClasses} onItemClick={handleRowClick}></ModularList>
+                 <ModularList content={courses} itemsColumnClassFunc={checkColumnContent} headerColumnClassName={columnHeaderClasses} onItemClick={handleRowClick} ></ModularList>
                 </div>
             </div>
              
