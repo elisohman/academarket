@@ -6,7 +6,7 @@ import ModularList from "../../components/modularList/ModularList";
 import { useState, useEffect } from "react";
 
 
-const coursesBase = { // Proposed structure for courses (backend should return in a similar format) -Jack
+const coursesExampleData = { // Proposed structure for courses (backend should return in a similar format) -Jack
     headers: ['Course Code', 'Course Name', 'Amount', 'Total Value', 'Price Change (24h)'],
     items: [
         ['LNCH01', 'Lunchföreläsning med Dr. Göran Östlund', 12, 1000, '+5%'],
@@ -15,27 +15,16 @@ const coursesBase = { // Proposed structure for courses (backend should return i
 }
 
 const Portfolio: React.FC = () => {
-
+    const coursesBase = coursesExampleData;
     const [searchText, setSearchText] = useState<string>('');
     const [courses, setCourses] = useState<any>(coursesBase);
-    const generateTradingSiteUrl = (course: any) => {
-        const baseUrl = "https://trading-site.com/trade"; // Replace with your trading site URL
-        const queryParams = new URLSearchParams({
-            code: course.code,
-            name: course.name,
-            amount: course.amount.toString(),
-            totalValue: course.totalValue.toString(),
-            valueChange: course.valueChange,
-        }).toString();
-
-        return `${baseUrl}?${queryParams}`;
-    };
       
     const navigate = useNavigate();
 
     const handleRowClick = (course: any) => {
         navigate(`/trading?course=${course[0]}`, { state: { course } });
     };
+
     const handleSearch = () => {
         alert(`Searching for: ${searchText}`);
     };
