@@ -57,7 +57,9 @@ const Trading = () => {
                             onClick={() => setActiveSection('')} // Switch to trading (not browse)
                     >(temp) goto trading
                     </Button>
-                    <SearchBar input = "" placeholder="Search course..."></SearchBar>
+                    {
+                        // </div><SearchBar input?=placeholder="Search course..."></SearchBar>
+                    }
                 </div>
                 
             </PageWrapper>
