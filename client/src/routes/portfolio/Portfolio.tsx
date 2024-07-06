@@ -1,10 +1,12 @@
-
 import PageWrapper from "../../components/pagewrapper/PageWrapper";
-import { useNavigate  } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import SearchBar from "../../components/searchBar/SearchBar";
 import ModularList from "../../components/modularList/ModularList";
 
+import { useState, useEffect } from "react";
 
-const courses = { // Proposed structure for courses (backend should return in a similar format) -Jack
+
+const coursesBase = { // Proposed structure for courses (backend should return in a similar format) -Jack
     headers: ['Course Code', 'Course Name', 'Amount', 'Total Value', 'Price Change (24h)'],
     items: [
         ['LNCH01', 'Lunchföreläsning med Dr. Göran Östlund', 12, 1000, '+5%'],
@@ -14,6 +16,8 @@ const courses = { // Proposed structure for courses (backend should return in a 
 
 const Portfolio: React.FC = () => {
 
+    const [searchText, setSearchText] = useState<string>('');
+    const [courses, setCourses] = useState<any>(coursesBase);
     const generateTradingSiteUrl = (course: any) => {
         const baseUrl = "https://trading-site.com/trade"; // Replace with your trading site URL
         const queryParams = new URLSearchParams({
@@ -31,6 +35,9 @@ const Portfolio: React.FC = () => {
 
     const handleRowClick = (course: any) => {
         navigate(`/trading?course=${course[0]}`, { state: { course } });
+    };
+    const handleSearch = () => {
+        alert(`Searching for: ${searchText}`);
     };
     const priceChangeColor = (content: string) => {
         if (content.charAt(0) === "-") {
@@ -88,6 +95,14 @@ const Portfolio: React.FC = () => {
                     </div>
                     <div className="flex flex-col self-end mx-8">  
                         <p className="">THIS IS A SEARCH BAR</p>
+                        <SearchBar input={searchText} setInput={setSearchText} onButtonClick={handleSearch} placeholder="Search course..."></SearchBar>
+                        {
+                            //<TestSearchBar
+                            //placeholder='Sök på ärendenummer...'
+                            //onChange={(e: any) => { setSearchText(e.target.value) }}
+                            //onKeyDown={(e: any) => { handleSearch() }}
+                            //value={searchText}/>
+                        }
                     </div>
                 </div>
                 <div className="py-4">
