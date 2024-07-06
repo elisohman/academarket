@@ -1,26 +1,16 @@
 
 import PageWrapper from "../../components/pagewrapper/PageWrapper";
 import { useNavigate  } from 'react-router-dom';
-const courses = [
-    {
-        id: 1,
-        code: 'LNCH01',
-        name: 'Lunchföreläsning med Dr. Göran Östlund',
-        amount: 12,
-        totalValue: 1000,
-        valueChange: '+5%',
-    },
-    {
-        id: 2,
-        code: 'TÄTÄ24',
-        name: "Urbans linjär algebra crash course",
-        amount: 5,
-        totalValue: 750,
-        valueChange: '-2%',
-    },
-    
-    // Example courses, backend should return in a similar format
-];
+import ModularList from "../../components/modularList/ModularList";
+
+
+const courses = { // Proposed structure for courses (backend should return in a similar format) -Jack
+    headers: ['Course Code', 'Course Name', 'Amount', 'Total Value', 'Price Change (24h)'],
+    items: [
+        ['LNCH01', 'Lunchföreläsning med Dr. Göran Östlund', 12, 1000, '+5%'],
+        ['TÄTÄ24', "Urbans linjär algebra crash course", 5, 750, '-2%'],
+    ]
+}
 
 const Portfolio: React.FC = () => {
 
@@ -40,16 +30,42 @@ const Portfolio: React.FC = () => {
     const navigate = useNavigate();
 
     const handleRowClick = (course: any) => {
-        navigate(`/trading?course=${course.code}`, { state: { course } });
+        navigate(`/trading?course=${course[0]}`, { state: { course } });
     };
-
-    const priceChangeColor = (course: any) => {
-        if (course.valueChange.charAt(0) == "-" ) {
+    const priceChangeColor = (content: string) => {
+        if (content.charAt(0) === "-") {
             return "text-red-500";
         } else {
             return "text-green-500";
         }
     };
+
+    const checkColumnContent = (index: number, content: any) => {
+        const columnClassArguments = {
+            0: "col-span-1 justify-self-start text-ellipsis overflow-hidden",
+            1: "col-span-1 justify-self-start italic font-light line-clamp-2 mr-8 text-ellipsis overflow-hidden",
+            2: "col-span-1 justify-self-end text-slate-400",
+            3: "col-span-1 justify-self-end text-sky-400 font-light",
+            4: "col-span-1 justify-self-end pr-16 vscreen:pr-3 " + priceChangeColor(content.toString())
+        } as { [key: number]: string };  
+
+        if (index in columnClassArguments){
+            return columnClassArguments[index];
+        }
+        else{
+            return "";
+        }
+    };
+    // Can I make this function check the content of the div of which class it is part of?
+    const columnHeaderClasses = {
+        0: "col-span-1 justify-self-start text-center font-medium",
+        1: "col-span-1 justify-self-start text-center font-medium",
+        2: "col-span-1 justify-self-end text-center font-medium",
+        3: "col-span-1 justify-self-end text-center font-medium",
+        4: "col-span-1 justify-self-end text-center font-medium"
+    } as { [key: number]: string };  
+
+
     //className="sm:text-smaller md:text-small lg:text-medium xl:text-large 2xl:text-larger"
     //
     return (
@@ -75,34 +91,10 @@ const Portfolio: React.FC = () => {
                     </div>
                 </div>
                 <div className="py-4">
-                    <div className="">
-                        <div className="bg-transparent">
-                            <div className="grid grid-cols-5 vscreen:grid-cols-5 font-bold mb-2 px-2 font-medium vscreen:text-smaller items-center content-center">
-                                <div className="col-span-1 justify-self-start mx-2 text-center">Course Code</div>
-                                <div className="col-span-1 justify-self-start mx-2 text-center">Course Name</div>
-                                <div className="col-span-1 justify-self-end ml-2 text-center">Amount</div>
-                                <div className="col-span-1 justify-self-end ml-2 text-center">Total Value</div>
-                                <div className="col-span-1 justify-self-end ml-2 justify-end text-center">Price Change (24h)</div>
-                            </div>
-                            <div className="bg-white rounded-lg shadow-md border overflow-hidden">
-                                {courses.map((item) => (
-                                <div
-                                    key={item.id}
-                                    className="grid grid-cols-5 grid-flow-row py-2 px-2 border-b last:border-none cursor-pointer hover:bg-gray-100 vscreen:text-smaller "
-                                    onClick={() => handleRowClick(item)}
-                                >
-                                    <div className="col-span-1 pl-2.5  vscreen:pl-0.5 justify-self-start mr-8">{item.code}</div>
-                                    <div className="col-span-1 pl-0.5 justify-self-start italic font-light line-clamp-2 text-ellipsis overflow-hidden mr-8 ">{item.name}</div>
-                                    <div className="col-span-1 pl-1 justify-self-end font-light text-slate-400">{item.amount}</div>
-                                    <div className="col-span-1 justify-self-end font-light text-sky-400">{item.totalValue} APE</div>
-                                    <div className={`col-span-1 justify-self-end ml-4 pr-10 vscreen:pr-2 font-light ${priceChangeColor(item)}`}>{item.valueChange}</div>
-                                </div>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
+                 <ModularList content={courses} itemsColumnClassFunc={checkColumnContent} headerColumnClassName={columnHeaderClasses} onItemClick={handleRowClick}></ModularList>
                 </div>
             </div>
+             
         </div>
         </PageWrapper>
     );
