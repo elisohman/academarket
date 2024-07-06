@@ -6,9 +6,11 @@ import { generateCandlestickData } from "./DataGenerator";
 import Switch from "../../components/switch/Switch";
 import TextField from "../../components/textfield/TextField";
 import SearchBar from "../../components/searchBar/SearchBar";
+import SearchBar from "../../components/searchBar/SearchBar";
 
 
 const Trading = () => {
+    const [activeSection, setActiveSection] = useState<string>('browse'); // State to switch sections
     const [activeSection, setActiveSection] = useState<string>('browse'); // State to switch sections
 
     const [data, setData] = useState<any>(null);
@@ -24,11 +26,15 @@ const Trading = () => {
       };
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
         if (/^\d*$/.test(value)) {
             const numValue = value === '' ? '' : parseInt(value);
             setAmount(numValue);
+            const numValue = value === '' ? '' : parseInt(value);
+            setAmount(numValue);
         }
+    };
     };
 
     useEffect(() => {
