@@ -31,7 +31,7 @@ const Portfolio: React.FC = () => {
     const navigate = useNavigate();
 
     const handleRowClick = (course: any) => {
-        navigate(`/trading?course=${course.code}`, { state: { course } });
+        navigate(`/trading?course=${course[0]}`, { state: { course } });
     };
     const priceChangeColor = (content: string) => {
         if (content.charAt(0) === "-") {
@@ -92,7 +92,7 @@ const Portfolio: React.FC = () => {
                     </div>
                 </div>
                 <div className="py-4">
-                 <ModularList content={courses} itemsColumnClassFunc={checkColumnContent} headerColumnClassName={columnHeaderClasses} ></ModularList>
+                 <ModularList content={courses} itemsColumnClassFunc={checkColumnContent} headerColumnClassName={columnHeaderClasses} onItemClick={handleRowClick}></ModularList>
                 </div>
             </div>
              
