@@ -1,7 +1,6 @@
 
 import PageWrapper from "../../components/pagewrapper/PageWrapper";
 import { useNavigate  } from 'react-router-dom';
-import Switch from "../../components/switch/Switch";
 import ModularList from "../../components/modularList/ModularList";
 
 
