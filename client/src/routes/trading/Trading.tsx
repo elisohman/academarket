@@ -6,11 +6,9 @@ import { generateCandlestickData } from "./DataGenerator";
 import Switch from "../../components/switch/Switch";
 import TextField from "../../components/textfield/TextField";
 import SearchBar from "../../components/searchBar/SearchBar";
-import SearchBar from "../../components/searchBar/SearchBar";
 
 
 const Trading = () => {
-    const [activeSection, setActiveSection] = useState<string>('browse'); // State to switch sections
     const [activeSection, setActiveSection] = useState<string>('browse'); // State to switch sections
 
     const [data, setData] = useState<any>(null);
@@ -26,16 +24,11 @@ const Trading = () => {
       };
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
         if (/^\d*$/.test(value)) {
             const numValue = value === '' ? '' : parseInt(value);
             setAmount(numValue);
-            const numValue = value === '' ? '' : parseInt(value);
-            setAmount(numValue);
         }
-    };
-    
     };
     
 
@@ -92,19 +85,16 @@ const Trading = () => {
                             <ChartComponent data={candlestickData}/>
                         </div>
                     </div>
-                    {/*
                     <div id="trade_window" className="p-5 bg-primary-color max-w-fit rounded-3xl">
                         <div className="flex flex-col h-full">
-                            <h1 className="text-white mb-8 font-medium">Make a trade</h1>
+                            <h1 className="text-white mb-8 font-medium select-none">Make a trade</h1>
                             <Switch/>
-                            {
-                            //<div id="button-container" className="flex gap-4">
-                            //    <Button className='w-full mt-8 self-center text-slate-50 uppercase py-2 px-8 bg-primary-color border-2'>Buy</Button>
-                            //    <Button className='w-full mt-8 self-center text-slate-50 uppercase py-2 px-8 bg-red-400 border-2'>Sell</Button>
-                            //</div>
-                            }
+                            {/*<div id="button-container" className="flex gap-4">
+                                <Button className='w-full mt-8 self-center text-slate-50 uppercase py-2 px-8 bg-primary-color border-2'>Buy</Button>
+                                <Button className='w-full mt-8 self-center text-slate-50 uppercase py-2 px-8 bg-red-400 border-2'>Sell</Button>
+                            </div>*/}
                             <div className="mt-8">
-                                <p className="text-light-gray font-medium">Amount</p>
+                                <p className="text-light-gray font-medium select-none">Amount</p>
                                 <TextField 
                                     inputClassName="w-full p-3 rounded-md border-2 bg-transparent text-white" 
                                     id="amount-field" 
@@ -113,7 +103,7 @@ const Trading = () => {
                                     value={amount}
                                 />
                             </div>
-                            <div className="mt-2 gap-3 flex">
+                            <div className="mt-2 gap-3 flex select-none">
                                 {predefinedValues.map((value) => {
                                     return (
                                         <div 
@@ -127,51 +117,12 @@ const Trading = () => {
                                 })}
                             </div>
                             <Button className="mt-auto font-semibold text-secondary-color mt-8 bg-white rounded-full py-4 hover:bg-black hover:text-white transition duration-300 ease-in-out">CONTINUE</Button>
-    
-                        </div>
-                    </div>
-                </div>
-                */}
-                <div id="trade_window" className="p-5 bg-primary-color max-w-fit rounded-3xl">
-                    <div className="flex flex-col h-full">
-                        <h1 className="text-white mb-8 font-medium select-none">Make a trade</h1>
-                        <Switch/>
-                        {/*<div id="button-container" className="flex gap-4">
-                            <Button className='w-full mt-8 self-center text-slate-50 uppercase py-2 px-8 bg-primary-color border-2'>Buy</Button>
-                            <Button className='w-full mt-8 self-center text-slate-50 uppercase py-2 px-8 bg-red-400 border-2'>Sell</Button>
-                        </div>*/}
-                        <div className="mt-8">
-                            <p className="text-light-gray font-medium select-none">Amount</p>
-                            <TextField 
-                                inputClassName="w-full p-3 rounded-md border-2 bg-transparent text-white" 
-                                id="amount-field" 
-                                type="text" 
-                                onChange={handleInputChange} 
-                                value={amount}
-                            />
-                        </div>
-                        <div className="mt-2 gap-3 flex select-none">
-                            {predefinedValues.map((value) => {
-                                return (
-                                    <div 
-                                        key={value} 
-                                        className="flex px-3 rounded-full border-2 border-light-gray text-xs text-light-gray cursor-pointer hover:bg-white hover:text-[#4ADE80] transition duration-300 ease-in-out"
-                                        onClick={() => handleButtonClick(value)}
-                                    >
-                                        {value}
-                                    </div>
-                                )
-                            })}
-                        </div>
-                        <Button className="mt-auto font-semibold text-secondary-color mt-8 bg-white rounded-full py-4 hover:bg-black hover:text-white transition duration-300 ease-in-out">CONTINUE</Button>
 
+                        </div>
                     </div>
-                </div>
             </div>
         </PageWrapper>
     );
-    }
-    
     }
     
 };
