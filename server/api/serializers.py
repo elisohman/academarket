@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User
+from .models import User, Portfolio
 
 class SignUpSerializer(serializers.ModelSerializer):
     rpt_password = serializers.CharField(write_only=True)
@@ -16,6 +16,9 @@ class SignUpSerializer(serializers.ModelSerializer):
         )
         user.set_password(validated_data['password'])
         user.save()
+
+        # Initializing portfolio (Q: Should it be done here? Like this? /JK)
+        new_portfolio = Portfolio(user=user)
         return user
         
     def validate(self, data):
