@@ -16,14 +16,11 @@ Including another URLconf
 """
 from django.urls import path, include
 from . import views
-from .views import SignUpView, SignInView, GetUserInfoView, GetAllCoursesView
+from .views import SignUpView, SignInView, GetUserInfoView, GetPortfolioView,  GetAllCoursesView
 from rest_framework_simplejwt.views import TokenRefreshView, TokenBlacklistView, TokenObtainPairView
 
 
 urlpatterns = [
-    path('test', views.test),
-    path('elis', views.test),
-    path('', views.test),
     # API endpoints
     path('sign_up', SignUpView.as_view(), name='sign_up'),
     path('sign_in', SignInView.as_view(), name='sign_in'),
@@ -33,4 +30,6 @@ urlpatterns = [
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'), # Needs trailing slash, don't remove
     path('token/blacklist/', TokenBlacklistView.as_view(), name='token_blacklist'), # Needs trailing slash, don't remove
+    # Portfolio endpoints
+    path('get_portfolio', GetPortfolioView.as_view(), name='get_portfolio'),
 ]

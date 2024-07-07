@@ -157,6 +157,8 @@ def fill_courses_database(_request: HttpRequest) -> HttpResponse:
 
 def buy_course_test(_request: HttpRequest, course_code: str, user: str) -> JsonResponse:
     """
+    !! DEPRECIATED !!
+
     Buy a course by adding it to the user's list of courses. Temporary implementation.
 
     Parameters:
