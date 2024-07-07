@@ -28,6 +28,7 @@ const Trading = () => {
 
     const coursesBase = coursesExampleData;
     const [courses, setCourses] = useState<any>(coursesBase);
+    const all_courses = useRef<any>(); // keeps track of all courses while making multiple searches
     const navigate = useNavigate();
     
     const [balance, setBalance] = useState<string>('');
@@ -44,6 +45,18 @@ const Trading = () => {
 
     }
 
+    const fetchCourses = async (access_token : string) => {
+        const response = await sendRequest('/all_courses', 'GET', undefined, access_token);
+
+        if (response.ok) {
+            const courseData = await response.json();
+            setCourses(courseData);
+            all_courses.current = courseData; // save all courses as a ref for searches
+        }
+        else {
+            console.log("Error when getting course data");
+        }
+    }
     
     
     const [searchText, setSearchText] = useState<string>('');
@@ -60,11 +73,11 @@ const Trading = () => {
     
     function handleSearch () {
         //alert(`Searching for: ${searchText}`);
-        const filteredItems = coursesBase.items.filter((item: any) => {
+        const filteredItems = all_courses.current.items.filter((item: any) => {
             const courseCode = item[0];
             return courseCode.includes(searchTextRef.current.toUpperCase());
         });
-        setCourses({ headers: coursesBase["headers"], items: filteredItems });
+        setCourses({ headers: all_courses.current["headers"], items: filteredItems });
     };
     const priceChangeColor = (content: string) => {
         if (content.charAt(0) === "-") {
@@ -152,6 +165,7 @@ const Trading = () => {
         let token = localStorage.getItem(ACCESS_TOKEN);
         if (token){
             fetchEconomics(token);
+            fetchCourses(token);
             fetchData();
         }
         

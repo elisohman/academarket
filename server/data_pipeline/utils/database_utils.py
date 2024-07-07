@@ -12,7 +12,7 @@ ADAMS_OPTIMIZER = True # Set to False for SGD optimizer (not recommended for mos
 
 def internal_add_course_to_database_call(course_code):
     # API endpoint URL
-    external_api_url = f"http://127.0.0.1:8000/api/dev/add_course_to_database/{course_code}"
+    external_api_url = f"http://127.0.0.1:8000/data_pipeline/add_course_to_database/{course_code}"
     # Send a GET request to the API endpoint
     response = requests.get(external_api_url)
     # Check if the request was successful
