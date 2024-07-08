@@ -201,7 +201,7 @@ def get_module_data_dict_on_date(module_data):
 
 def internal_get_course_api_call(course_code):
     # API endpoint URL
-    external_api_url = f"http://127.0.0.1:8000/api/get_course_stats/{course_code}"
+    external_api_url = f"http://127.0.0.1:8000/data_pipeline/get_course_stats/{course_code}"
     # Send a GET request to the API endpoint
     response = requests.get(external_api_url)
     # Check if the request was successful
