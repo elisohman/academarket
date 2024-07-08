@@ -1,39 +1,44 @@
 import TopBar from '../topbar/TopBar';
 import { useState, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
-import {REFRESH_TOKEN, ACCESS_TOKEN} from '../../utils/constants';
-import {jwtDecode} from 'jwt-decode'
+import { REFRESH_TOKEN, ACCESS_TOKEN } from '../../utils/constants';
+import { jwtDecode } from 'jwt-decode';
 import sendRequest from '../../utils/request';
-import {Mutex, MutexInterface} from 'async-mutex';
+import { Mutex } from 'async-mutex';
+import React, { createContext, useContext } from 'react';
 
 interface PageWrapperProps {
     children: React.ReactNode;
     className?: string;
+    onAuthStateChanged?: (isAuthenticated: boolean) => void; 
 }
 
 const mutex = new Mutex();
 
-const PageWrapper: React.FC<PageWrapperProps> = ({children, className}) => {
 
+const PageWrapper: React.FC<PageWrapperProps> = ({ children, className, onAuthStateChanged = () => {}, }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        auth().catch(() => setIsAuthenticated(false))
-    })
-    
+        auth().catch(() => setIsAuthenticated(false));
+    }, []);
+
     const refreshToken = async () => {
         try {
             // token refresh uses mutex to avoid race condition
             await mutex.runExclusive(async () => {
-                const response = await sendRequest('/token/refresh/', 'POST', {refresh: localStorage.getItem(REFRESH_TOKEN)});
+                const response = await sendRequest('/token/refresh/', 'POST', {
+                    refresh: localStorage.getItem(REFRESH_TOKEN),
+                });
                 if (response.ok) {
                     const responseData = await response.json();
                     localStorage.setItem(ACCESS_TOKEN, responseData.access);
                     localStorage.setItem(REFRESH_TOKEN, responseData.refresh);
-                    
+
                     setIsAuthenticated(true);
-                    setLoading(false);  
+                    setLoading(false);
+                    console.log("WE'RE IN!");
                 } else {
                     setIsAuthenticated(false);
                     setLoading(false);
@@ -46,6 +51,8 @@ const PageWrapper: React.FC<PageWrapperProps> = ({children, className}) => {
         }
     };
 
+    
+
     const auth = async () => {
         const token = localStorage.getItem(ACCESS_TOKEN);
         if (!token) {
@@ -53,11 +60,11 @@ const PageWrapper: React.FC<PageWrapperProps> = ({children, className}) => {
             setLoading(false);
             return;
         }
-        
+
         const decoded_token = jwtDecode(token);
         const expiration = decoded_token.exp;
         const now = Date.now() / 1000;
-            
+
         if (expiration && expiration < now) {
             await refreshToken();
         } else {
@@ -66,22 +73,27 @@ const PageWrapper: React.FC<PageWrapperProps> = ({children, className}) => {
         }
     };
 
+    useEffect(() => {
+        onAuthStateChanged(isAuthenticated);
+    }, [isAuthenticated]);
+
     if (loading) {
-        return(
+        return (
+
             <div className='h-screen flex justify-center items-center'>
                 <div className='text-2xl font-semibold'>Loading...</div>
             </div>
+
         );
     }
 
     return isAuthenticated ? (
-        <div className={'h-screen flex flex-col ' + (className)}>
+        <div className={'h-screen flex flex-col ' + className}>
             <TopBar />
             <div className='grow px-8 pb-8'>{children}</div>
         </div>
     ) : (
         <Navigate to='/signin' />
     );
-}
-
+};
 export default PageWrapper;

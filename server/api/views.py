@@ -182,7 +182,7 @@ class SellStockView(APIView):
         else:
             return Response({'message': 'User not found'}, status=status.HTTP_400_BAD_REQUEST)
         
-class GetPortfolioView(APIView):
+class GetPortfolioStocksView(APIView):
     """
     API view for getting user portfolio.
 
@@ -197,20 +197,52 @@ class GetPortfolioView(APIView):
             portfolio = Portfolio.objects.get(user=user)
             if portfolio:
                 stocks = portfolio.stocks.all()
-                portfolio_info = {
-                    'user' : user_name,
-                    'stocks' : []
-                }
+                stock_data = []
                 for stock in stocks:
-                    stock_info = {
-                        'course_code' : stock.course.course_code,
-                        'amount' : stock.amount,
-                        'total_value' : stock.amount * stock.course.price,
-                        '24h_change' : '-5%'
-                    }
-                    portfolio_info['stocks'].append(stock_info)
-                return Response(portfolio_info, status=status.HTTP_200_OK)
+                    stock_data += [[stock.course.course_code, stock.course.name, stock.amount, str(stock.amount * stock.course.price) + " APE", "diff%"]]        
+
+                data_json = {
+                    'headers': ['Course Code', 'Course Name', 'Amount', 'Total Value', 'Price Change (24h)'],
+                    'items': stock_data
+                }
+                return Response(data_json, status=status.HTTP_200_OK)
             else:
                 return Response({'message': 'Portfolio not found for user (should not be possible)'}, status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response({'message': 'User not found'}, status=status.HTTP_400_BAD_REQUEST)
+        
+class GetAllCoursesView(APIView):
+    """
+    API view for getting all courses in the database.
+
+    Methods:
+        get(request): Handles the GET request for all courses.
+
+    Returns: 
+        Returns header naming given course attributes and items with the course data, on this form:
+        {
+        headers: ['Course Code', 'Course Name', 'Price', 'Price Change (24h)'],
+        items: [
+            ['LNCH01', 'Lunchföreläsning med Dr. Göran Östlund', 6000, '+5%'],
+            ['TÄTÄ24', "Urbans linjär algebra crash course", 900, '-2%'],
+            ]
+        }
+        
+        Otherwise, returns an error response.
+    """
+    permission = [permissions.IsAuthenticated]
+    def get(self, request):
+        courses = Course.objects.all()
+        
+        course_data = []
+        for course in courses:
+            course_data += [[course.course_code, course.name, course.price, "diff%"]]        
+
+        data_json = {
+            'headers': ['Course Code', 'Course Name', 'Price', 'Price Change (24h)'],
+            'items': course_data
+        }
+        if (data_json):
+            return Response(data_json, status=status.HTTP_200_OK)
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)

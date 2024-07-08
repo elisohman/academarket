@@ -1,7 +1,7 @@
 import PageWrapper from "../../components/pagewrapper/PageWrapper";
 import Button from '../../components/button/Button';
 import ChartComponent from "../../components/chart/ChartComponent";
-import { useState, useEffect } from "react";
+import { useState, useContext, useEffect } from "react";
 import { useNavigate, useParams } from 'react-router-dom';
 import { useRef } from "react";
 import { generateCandlestickData } from "./DataGenerator";
@@ -20,21 +20,17 @@ const coursesExampleData = { // Proposed structure for courses (backend should r
     ]
 }
 
-
 const Trading = () => {
     const urlParams = new URLSearchParams(window.location.search);
     const selectedCourseCode = urlParams.get('course');
     const isFromPortfolio = urlParams.get('fromPortfolio');
-
-    const coursesBase = coursesExampleData;
-    const [courses, setCourses] = useState<any>(coursesBase);
-    const all_courses = useRef<any>(); // keeps track of all courses while making multiple searches
+    const allCourses = useRef<any>(); // keeps track of all courses while making multiple searches
+    const [courses, setCourses] = useState<any>({headers: [], items: []});
     const navigate = useNavigate();
-    
     const [balance, setBalance] = useState<string>('');
-    
-    const fetchEconomics = async (access_token : string) => {
-        const response = await sendRequest('/user_info', 'GET', undefined, access_token);
+
+    const fetchEconomics = async (accessToken : string) => {
+        const response = await sendRequest('/user_info', 'GET', undefined, accessToken);
 
         if (response.ok) {
             const responseData = await response.json();
@@ -45,15 +41,21 @@ const Trading = () => {
 
     }
 
-    const fetchCourses = async (access_token : string) => {
-        const response = await sendRequest('/all_courses', 'GET', undefined, access_token);
+    const fetchCourses = async (accessToken : string) => {
+        /*
+            There exists a race condition, if access token needs to be refreshed at the same time as get requests
+            then access token is unathorized. Minor problem though when access token has a lifetime that isn't super short (15 seconds)
+        */
+        const response = await sendRequest('/all_courses', 'GET', undefined, accessToken);
 
         if (response.ok) {
             const courseData = await response.json();
-            setCourses(courseData);
-            all_courses.current = courseData; // save all courses as a ref for searches
+            allCourses.current = courseData; // save all courses as a ref for searches
+            setCourses(allCourses.current);
+
         }
         else {
+            console.log(accessToken);
             console.log("Error when getting course data");
         }
     }
@@ -73,12 +75,16 @@ const Trading = () => {
     
     function handleSearch () {
         //alert(`Searching for: ${searchText}`);
-        const filteredItems = all_courses.current.items.filter((item: any) => {
-            const courseCode = item[0];
-            return courseCode.includes(searchTextRef.current.toUpperCase());
-        });
-        setCourses({ headers: all_courses.current["headers"], items: filteredItems });
+        if (allCourses.current) {
+
+            const filteredItems = allCourses.current.items.filter((item: any) => {
+                const courseCode = item[0];
+                return courseCode.includes(searchTextRef.current.toUpperCase());
+            });
+            setCourses({ headers: allCourses.current["headers"], items: filteredItems });
+        }
     };
+
     const priceChangeColor = (content: string) => {
         if (content.charAt(0) === "-") {
             return "text-red-500";
@@ -92,6 +98,7 @@ const Trading = () => {
     };
 
     const checkColumnContent = (index: number, content: any) => {
+        
         const columnClassArguments = {
             0: "col-span-1 justify-self-start text-ellipsis overflow-hidden",
             1: "col-span-1 justify-self-start italic font-light line-clamp-2 mr-8 text-ellipsis overflow-hidden",
@@ -113,9 +120,6 @@ const Trading = () => {
         2: "col-span-1 justify-self-end pr-16 vscreen:pr-2 text-center font-medium",
         3: "col-span-1 justify-self-end text-center font-medium",
     } as { [key: number]: string };  
-
-
-
 
 
     const [activeSection, setActiveSection] = useState<string>('browse'); // State to switch sections
@@ -148,29 +152,34 @@ const Trading = () => {
         }
     }
     
-
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await fetch(dataURL);
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                const jsonData = await response.json();
-                setData(jsonData['TATA24']['course_code']);
-            } catch (error) {
-                console.error('Error fetching data:', error);
+    const fetchData = async () => {
+        try {
+            const response = await fetch(dataURL);
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
             }
-        };
-        let token = localStorage.getItem(ACCESS_TOKEN);
-        if (token){
+            const jsonData = await response.json();
+            setData(jsonData['TATA24']['course_code']);
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    };
+    const fetchAllData = async () => {
+        const token = localStorage.getItem(ACCESS_TOKEN);
+        if (token) {
             fetchEconomics(token);
             fetchCourses(token);
             fetchData();
         }
-        
-         
-    }, []);
+    };
+    const handleAuthStateChanged = (isAuthenticated: boolean) => {
+        if (isAuthenticated) {
+            fetchAllData();
+        }
+        console.log('Auth state changed:', isAuthenticated);
+    };
+
+
 
     useEffect(() => {
         console.log(selectedCourseCode);
@@ -181,11 +190,13 @@ const Trading = () => {
             setActiveSection('browse');
         }
     }, [selectedCourseCode]);
+    
 
+    
 
     if (activeSection === "browse"){
         return (
-            <PageWrapper>
+            <PageWrapper onAuthStateChanged={handleAuthStateChanged}>
                 <div className="overflow-auto bg-sky-50 rounded p-4 flex flex-col ">
 
                     <div className="flex flex-row">
@@ -222,7 +233,7 @@ const Trading = () => {
         )
     } else {
         return (
-            <PageWrapper>
+            <PageWrapper onAuthStateChanged={handleAuthStateChanged}>
                 <div className="size-full flex flex-row gap-5 rounded-3xl">
                     <div id="graph_window" className="bg-light-gray grow shrink rounded-3xl flex flex-col justify-center items-center">
                         <div className="self-start pt-4">

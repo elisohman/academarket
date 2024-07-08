@@ -76,8 +76,13 @@ interface ModularListProps{
 
 
 const ModularList: React.FC<ModularListProps> = ({content, itemsColumnClassFunc = () => "", headerColumnClassName = {}, onItemClick = () => {}, className}) => {
-    let headers = content.headers;
-    let items = content.items;
+    let headers: any[] = [];
+    let items: any[] = [];
+    if (content.headers && content.items){
+        headers = content.headers;
+        items = content.items;
+    }
+    
     return (
         <div className={`bg-slate-100 bg-transparent vscreen:text-smallerer my-2 ${className}`}>
             <div className="grid px-2 pb-2 items-center " style={{ gridTemplateColumns: `repeat(${headers.length}, minmax(0, 1fr))` }}>                            
