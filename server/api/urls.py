@@ -32,4 +32,6 @@ urlpatterns = [
     path('token/blacklist/', TokenBlacklistView.as_view(), name='token_blacklist'), # Needs trailing slash, don't remove
     # Portfolio endpoints
     path('get_portfolio', GetPortfolioView.as_view(), name='get_portfolio'),
+    # Portfolio endpoints
+    path('get_portfolio', GetPortfolioView.as_view(), name='get_portfolio'),
 ]
