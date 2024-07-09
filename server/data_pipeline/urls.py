@@ -10,6 +10,7 @@ urlpatterns = [
     path('add_course_to_database/<course_code>', views.add_course_to_database),
     path('fill_course_codes_list', views.fill_course_codes_list),
     path('fill_courses_json', views.fill_courses_json),
+    path('initialize_all_data', views.initialize_all_data),
     path('test_buy_course/<course_code>/<user>', views.buy_course_test),
 
 ]

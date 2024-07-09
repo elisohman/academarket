@@ -178,3 +178,17 @@ def buy_course_test(_request: HttpRequest, course_code: str, user: str) -> JsonR
     current_user.courses.add(course)
     current_user.save()
     return JsonResponse({'message': 'Course bought successfully!'}, status=200)
+
+def initialize_all_data(_request: HttpRequest) -> HttpResponse: 
+    print("Getting course codes from LiU...")
+    data_list = retrieve_new_data_from_liu()
+    print("Codes gotten, saving them to file...")
+    save_course_list(data_list)
+    print("Codes saved! Retrieving course data...")
+    courses = load_course_list()
+    fill_json_from_list(courses)
+    print("Course data retrieved and saved to file. Adding courses to database...")
+    data = read_all_course_data()
+    fill_database(data)
+    print("Done! All data initialized successfully (I hope)!")
+    return HttpResponse(status=202, content="Data intiliazation executed.")
