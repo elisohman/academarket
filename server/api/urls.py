@@ -16,20 +16,26 @@ Including another URLconf
 """
 from django.urls import path, include
 from . import views
-from .views import SignUpView, SignInView, GetUserInfoView, GetPortfolioStocksView,  GetAllCoursesView
-from rest_framework_simplejwt.views import TokenRefreshView, TokenBlacklistView, TokenObtainPairView
+from .views import SignUpView, SignInView, GetUserInfoView, GetPortfolioStocksView,  GetAllCoursesView, BuyStockView, SellStockView, GetCourseDataView
+from rest_framework_simplejwt.views import TokenRefreshView, TokenBlacklistView, TokenObtainPairView, TokenVerifyView
 
 
 urlpatterns = [
     # API endpoints
-    path('sign_up', SignUpView.as_view(), name='sign_up'),
-    path('sign_in', SignInView.as_view(), name='sign_in'),
-    path('user_info', GetUserInfoView.as_view(), name='user_info'),
-    path('all_courses', GetAllCoursesView.as_view(), name='all_courses'),
+    path('sign_up/', SignUpView.as_view(), name='sign_up'),
+    path('sign_in/', SignInView.as_view(), name='sign_in'),
+    path('user_info/', GetUserInfoView.as_view(), name='user_info'),
+    path('all_courses/', GetAllCoursesView.as_view(), name='all_courses'),
+    path('get_portfolio/', GetPortfolioStocksView.as_view(), name='get_portfolio'),
+    path('buy_stock/', BuyStockView.as_view(), name='buy_stock'),
+    path('buy_stock', BuyStockView.as_view(), name='buy_stock'),
+
+    path('sell_stock/', SellStockView.as_view(), name='sell_stock'),
+    path('get_course_data/', GetCourseDataView.as_view(), name='get_course_data'),
+    
     # Auth endpoints
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'), # Needs trailing slash, don't remove
     path('token/blacklist/', TokenBlacklistView.as_view(), name='token_blacklist'), # Needs trailing slash, don't remove
-    # Portfolio endpoints
-    path('get_portfolio', GetPortfolioStocksView.as_view(), name='get_portfolio'),
+    path('token/verify/', TokenVerifyView.as_view(), name='token_verify'),
 ]

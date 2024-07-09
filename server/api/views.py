@@ -22,6 +22,7 @@ def test(request: HttpRequest) -> HttpResponse:
 
 # Account related views (sign in, sign out, etc).
 
+
 class SignUpView(APIView):
     """
     API view for user sign up.
@@ -44,6 +45,7 @@ class SignUpView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 class SignInView(APIView):
     """
     API view for user sign-in, handles POST request for user sign-in. Expects a JSON payload
@@ -59,6 +61,8 @@ class SignInView(APIView):
     """
     permission_classes = [permissions.AllowAny]
     def post(self, request):
+        print(request.data)
+
         serializer = SignInSerializer(data=request.data)
         if serializer.is_valid():
             user = authenticate(
@@ -74,6 +78,7 @@ class SignInView(APIView):
                 }, status=status.HTTP_200_OK)
             return Response({'error': 'Invalid Credentials'}, status=status.HTTP_401_UNAUTHORIZED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class GetUserInfoView(APIView):
     """
@@ -102,6 +107,7 @@ class GetUserInfoView(APIView):
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
+
 class BuyStockView(APIView):
     """
     API view for buying stocks.
@@ -116,12 +122,10 @@ class BuyStockView(APIView):
         A response with the error message and HTTP status code 400 if the purchase is unsuccessful.
     """
     permission = [permissions.IsAuthenticated]
-    def get(self, request):
-        user_name = request.user_name
-        course_code = request.course_code
-        amount = request.amount
-        user = User.objects.get(username=user_name)
-
+    def post(self, request):
+        course_code = request.data["course_code"]
+        amount = request.data["amount"]
+        user = User.objects.get(username=request.user)
         course = Course.objects.get(course_code=course_code)
         if user:
             if course:
@@ -143,7 +147,8 @@ class BuyStockView(APIView):
 
         else:
             return Response({'message': 'User not found'}, status=status.HTTP_400_BAD_REQUEST)
-        
+
+
 class SellStockView(APIView):
     """
     API view for selling stocks.
@@ -153,12 +158,11 @@ class SellStockView(APIView):
     """
     permission = [permissions.IsAuthenticated]
     def get(self, request):
-        user_name = request.user_name
-        course_code = request.course_code
-        amount = request.amount
-        user = User.objects.get(username=user_name)
-
+        course_code = request.data["course_code"]
+        amount = request.data["amount"]
+        user = User.objects.get(username=request.user)
         course = Course.objects.get(course_code=course_code)
+
         if user:
             if course:
                 portfolio = Portfolio.objects.get(user=user)
@@ -181,7 +185,8 @@ class SellStockView(APIView):
                 return Response({'message': 'Course not found'}, status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response({'message': 'User not found'}, status=status.HTTP_400_BAD_REQUEST)
-        
+
+
 class GetPortfolioStocksView(APIView):
     """
     API view for getting user portfolio.
@@ -191,15 +196,20 @@ class GetPortfolioStocksView(APIView):
     """
     permission = [permissions.IsAuthenticated]
     def get(self, request):
-        user_name = request.user_name
-        user = User.objects.get(username=user_name)
+        user = User.objects.get(username=request.user)
         if user:
-            portfolio = Portfolio.objects.get(user=user)
+            portfolio = None
+            if Portfolio.objects.filter(user=user).exists():
+                portfolio = Portfolio.objects.get(user=user)
+            else:
+                new_portfolio = Portfolio(user=user)
+                new_portfolio.save()
+                portfolio = new_portfolio
             if portfolio:
                 stocks = portfolio.stocks.all()
                 stock_data = []
                 for stock in stocks:
-                    stock_data += [[stock.course.course_code, stock.course.name, stock.amount, str(stock.amount * stock.course.price) + " APE", "diff%"]]        
+                    stock_data += [[stock.course.course_code, stock.course.name, stock.amount, str(stock.amount * stock.course.price), "diff%"]]        
 
                 data_json = {
                     'headers': ['Course Code', 'Course Name', 'Amount', 'Total Value', 'Price Change (24h)'],
@@ -210,7 +220,8 @@ class GetPortfolioStocksView(APIView):
                 return Response({'message': 'Portfolio not found for user (should not be possible)'}, status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response({'message': 'User not found'}, status=status.HTTP_400_BAD_REQUEST)
-        
+
+
 class GetAllCoursesView(APIView):
     """
     API view for getting all courses in the database.
@@ -246,3 +257,23 @@ class GetAllCoursesView(APIView):
             return Response(data_json, status=status.HTTP_200_OK)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+class GetCourseDataView(APIView):
+    """
+    View for getting the data of a specific course.
+    """
+    permission = [permissions.IsAuthenticated]
+    def get(self, request):
+        course_code = request.query_params.get('course')
+        course = Course.objects.get(course_code=course_code)
+        if course:
+            course_data = {
+                'course_code': course.course_code,
+                'name': course.name,
+                'price': course.price,
+                'price_history': course.price_history
+            }
+            return Response(course_data, status=status.HTTP_200_OK)
+        else:
+            return Response({'message': 'Course not found'}, status=status.HTTP_400_BAD_REQUEST)

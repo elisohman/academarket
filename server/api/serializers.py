@@ -19,6 +19,7 @@ class SignUpSerializer(serializers.ModelSerializer):
 
         # Initializing portfolio (Q: Should it be done here? Like this? /JK)
         new_portfolio = Portfolio(user=user)
+        new_portfolio.save()
         return user
         
     def validate(self, data):

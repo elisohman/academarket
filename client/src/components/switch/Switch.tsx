@@ -1,11 +1,16 @@
 import { useState } from 'react';
 
+interface SwitchProps {
+  onToggle?: (isBuy: boolean) => void;
+}
 
-const Switch: React.FC = () => {
+const Switch: React.FC<SwitchProps> = ( {onToggle = () => {}}) => {
     const [isBuy, setIsBuy] = useState(true);
   
     const toggleSwitch = () => {
-      setIsBuy(!isBuy);
+      let switchedIsBuy = !isBuy;
+      onToggle(switchedIsBuy);
+      setIsBuy(switchedIsBuy);
     };
   
     return (
