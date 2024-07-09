@@ -69,13 +69,15 @@ import React from 'react';
 interface ModularListProps{
     content: {[key: string]: any[]};
     itemsColumnClassFunc?: (index: number, content: any) => string;
+    itemsColumnContentAddon?: { [key: number]: string };
     headerColumnClassName?: { [key: number]: string };
+    headerColumnContentAddon?: { [key: number]: string };
     onItemClick?: (item: any) => void;
     className?: string;
 };
 
 
-const ModularList: React.FC<ModularListProps> = ({content, itemsColumnClassFunc = () => "", headerColumnClassName = {}, onItemClick = () => {}, className}) => {
+const ModularList: React.FC<ModularListProps> = ({content, itemsColumnClassFunc = () => "", itemsColumnContentAddon = {}, headerColumnClassName = {}, headerColumnContentAddon = {}, onItemClick = () => {}, className}) => {
     let headers: any[] = [];
     let items: any[] = [];
     if (content.headers && content.items){
@@ -88,7 +90,7 @@ const ModularList: React.FC<ModularListProps> = ({content, itemsColumnClassFunc 
             <div className="grid px-2 pb-2 items-center " style={{ gridTemplateColumns: `repeat(${headers.length}, minmax(0, 1fr))` }}>                            
                 {headers.map((header, index) => (
                             <div key={index} className={`${index in headerColumnClassName ? headerColumnClassName[index] : ""}`}>
-                                {header}
+                                {headerColumnContentAddon[index] ? header+headerColumnContentAddon[index] : header}
                             </div>
                         ))}
 
@@ -103,7 +105,7 @@ const ModularList: React.FC<ModularListProps> = ({content, itemsColumnClassFunc 
                 >
                     {headers.map((header, index) => (
                     <div key={index} className={`${itemsColumnClassFunc(index, item[index])}`}>
-                        {item[index]}
+                        {itemsColumnContentAddon[index] ? item[index]+itemsColumnContentAddon[index] : item[index]}
                     </div>
                     ))}
                 </div>
