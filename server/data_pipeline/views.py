@@ -1,5 +1,5 @@
 from django.shortcuts import render
-
+from datetime import datetime, timedelta
 from django.http import HttpResponse, HttpRequest, JsonResponse
 from api.models import User, Course
 from data_pipeline.utils.courses_json_utils import read_course_data_from_code, read_all_course_data, check_if_course_exists_locally, save_course_data, fill_json_from_list
@@ -7,7 +7,7 @@ from data_pipeline.utils.courses_list_utils import save_course_list, retrieve_ne
 from data_pipeline.utils.database_utils import fill_database, validate_database
 from data_pipeline.utils.ipo_calculation import calculate_price
 import json, requests, traceback
-
+import random
 
 # Views for robbing y-sektionen
 
@@ -191,4 +191,36 @@ def initialize_all_data(_request: HttpRequest) -> HttpResponse:
     data = read_all_course_data()
     fill_database(data)
     print("Done! All data initialized successfully (I hope)!")
-    return HttpResponse(status=202, content="Data intiliazation executed.")
+    return HttpResponse(status=202, content="Data initilization executed.")
+
+
+def generate_price_histories(_request: HttpRequest) -> HttpResponse:
+    # Get today's date
+    courses = Course.objects.all()
+    for course in courses:
+        today = datetime.now()
+        dates = {}
+        # Start from yesterday and go backwards
+        for i in range(1, 6):
+            idate = today - timedelta(days=i)
+            second_date = idate - timedelta(hours=4)
+            # Initialize the inner dictionary if the date key doesn't exist
+            if idate.date() not in dates:
+                dates[str(idate.date())] = {}
+            if second_date.date() not in dates:
+                dates[str(second_date.date())] = {}
+
+            random_price1 = random.randint(4096, 768000)
+            random_price2 = random.randint(4096, 768000)
+
+            # Add datetime and integer value to the inner dictionary
+            dates[str(idate.date())][str(idate)] = random_price1 # Replace 0 with the actual int value if needed
+            dates[str(second_date.date())][str(second_date)] = random_price2  # Replace 0 with the actual int value if needed    
+        course.price_history = dates
+        course.save()
+
+    return HttpResponse(status=200, content="Generated price histories.")
+
+
+    
+    
