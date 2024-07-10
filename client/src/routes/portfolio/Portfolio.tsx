@@ -6,6 +6,8 @@ import ModularList from "../../components/modularList/ModularList";
 import { useState, useEffect, useRef } from "react";
 import sendRequest from "../../utils/request";
 import { ACCESS_TOKEN } from "../../utils/constants";
+import { getToken } from "../../utils/network";
+
 
 
 const coursesExampleData = { // Proposed structure for courses (backend should return in a similar format) -Jack
@@ -97,22 +99,12 @@ const Portfolio: React.FC = () => {
                 console.log("Error when getting course data");
             }
         }
-        const token = localStorage.getItem(ACCESS_TOKEN);
+        const token = await getToken();
         if (token) {
             fetchEconomics(token);
             fetchPortfolioStocks(token);
         }
-
-
     };
-
-    const handleAuthStateChanged = (isAuthenticated: boolean) => {
-        if (isAuthenticated) {
-            fetchData();
-        }
-        console.log('Auth state changed:', isAuthenticated);
-    };
-
 
     const checkColumnContent = (index: number, content: any) => {
         const columnClassArguments = {
@@ -141,10 +133,7 @@ const Portfolio: React.FC = () => {
 
 
     useEffect(() => {
-        let token = localStorage.getItem(ACCESS_TOKEN);
-        if (token){
-            fetchEconomics(token);
-        }
+        fetchData();
     }, []);
 
     const itemsContentAddon = {
@@ -152,7 +141,7 @@ const Portfolio: React.FC = () => {
     }
 
     return (
-        <PageWrapper onAuthStateChanged={handleAuthStateChanged}>
+        <PageWrapper>
         <div className="vscreen:text-smaller">
             <div className="overflow-auto bg-slate-100 rounded flex flex-col p-4 ">
                 <div className="flex flex-row">

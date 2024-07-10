@@ -28,7 +28,6 @@ urlpatterns = [
     path('all_courses/', GetAllCoursesView.as_view(), name='all_courses'),
     path('get_portfolio/', GetPortfolioStocksView.as_view(), name='get_portfolio'),
     path('buy_stock/', BuyStockView.as_view(), name='buy_stock'),
-    path('buy_stock', BuyStockView.as_view(), name='buy_stock'),
 
     path('sell_stock/', SellStockView.as_view(), name='sell_stock'),
     path('get_course_data/', GetCourseDataView.as_view(), name='get_course_data'),

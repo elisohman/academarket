@@ -61,6 +61,11 @@ const Trading = () => {
         }
     }
 
+    const callCourseFetchTradeData = async () => {
+        const token = await getToken();
+        fetchCourseTradeData(token);
+    }
+
     const [courseTradeData, setCourseTradeData] = useState<any>(null);
     const fetchCourseTradeData = async (accessToken : string) => {
         const courseTradeDataURL = '/get_course_data?course='+selectedCourseCode // file in public directory
@@ -76,10 +81,13 @@ const Trading = () => {
         } catch (error) {
             console.error('Error fetching data:', error);
         }
+        
     };
     
     const fetchAllData = async () => {
-        const token = localStorage.getItem(ACCESS_TOKEN);
+        //const token = localStorage.getItem(ACCESS_TOKEN);
+        const token = await getToken();
+        console.log("Awaited token (fetchAllData): "+token)
         if (token) {
             fetchEconomics(token);
             fetchCourses(token);
@@ -152,10 +160,9 @@ const Trading = () => {
 
     const itemsContentAddon = {
         2: " APE",
-    }
+    };
 
     const [activeSection, setActiveSection] = useState<string>('browse'); // State to switch sections
-
 
     const predefinedValues = [50, 100, 500, 1000];
 
@@ -179,17 +186,14 @@ const Trading = () => {
         } else {
             navigate('/trading');
         }
-    }
-    
-    
-    const handleAuthStateChanged = (isAuthenticated: boolean) => {
-        if (isAuthenticated) {
-            fetchAllData();
-        }
-        console.log('Auth state changed:', isAuthenticated);
     };
 
-
+    useEffect(() => {
+        //const token = getToken();
+        console.log("Fetch all data useEffect ran, test token:")
+        //console.log(token)
+        fetchAllData();
+    }, []);
 
     useEffect(() => {
         console.log(selectedCourseCode);
@@ -203,10 +207,7 @@ const Trading = () => {
     
     useEffect(() => {
         if (activeSection == 'trade') {
-            const token = localStorage.getItem(ACCESS_TOKEN);
-            if (token) {
-                fetchCourseTradeData(token);
-            }
+            callCourseFetchTradeData();
         }
     }, [activeSection]);
 
@@ -241,7 +242,7 @@ const Trading = () => {
 
     if (activeSection === "browse"){
         return (
-            <PageWrapper onAuthStateChanged={handleAuthStateChanged}>
+            <PageWrapper>
                 <div className="overflow-auto bg-sky-50 rounded p-4 flex flex-col ">
 
                     <div className="flex flex-row">
@@ -256,14 +257,11 @@ const Trading = () => {
                             <p className="font-semibold text-green-400">+42</p>
                             <p className="px-1.5 "> since yesterday</p>
                         </div>
-
                     </div>
                     <div className="flex flex-col self-end mx-8">  
                         <SearchBar input={searchText} setInput={updateSearchText} onButtonClick={handleSearch} placeholder="Search course code..." onChange={onSearchTextChange}></SearchBar>
                     </div>
-                    
                 </div>
-
                     <ModularList content={courses} itemsColumnClassFunc={checkColumnContent} headerColumnClassName={columnHeaderClasses} itemsColumnContentAddon={itemsContentAddon} onItemClick={handleRowClick} ></ModularList>
                 </div>
 
@@ -271,7 +269,7 @@ const Trading = () => {
         )
     } else {
         return (
-            <PageWrapper onAuthStateChanged={handleAuthStateChanged}>
+            <PageWrapper>
                 <div className="size-full flex flex-row gap-5 rounded-3xl">
                     <div id="graph_window" className="bg-light-gray grow shrink rounded-3xl flex flex-col justify-center items-center">
                         <div className="self-start pt-4">
@@ -285,8 +283,8 @@ const Trading = () => {
                         </div>
                         <div className="pb-5 pl-5 self-start gap-5">
                                 <p className="font-medium text-secondary-color">{courseTradeData ? courseTradeData["course_code"] : "Loading..."}</p>
-                                <p className="font-medium text-sky-400">{courseTradeData ? courseTradeData["price"] : "Loading..."}</p>     
-     
+                                <p className="font-medium text-sky-400">{courseTradeData ? courseTradeData["price"] + " APE" : "Loading..."}</p>     
+    
                         </div>
                         <div className="flex grow w-full px-5 pb-5">
                             <ChartComponent data={candlestickData}/>
@@ -296,10 +294,6 @@ const Trading = () => {
                         <div className="flex flex-col h-full">
                             <h1 className="text-white mb-8 font-medium select-none">Make a trade</h1>
                             <Switch onToggle={setIsBuying}></Switch>
-                            {/*<div id="button-container" className="flex gap-4">
-                                <Button className='w-full mt-8 self-center text-slate-50 uppercase py-2 px-8 bg-primary-color border-2'>Buy</Button>
-                                <Button className='w-full mt-8 self-center text-slate-50 uppercase py-2 px-8 bg-red-400 border-2'>Sell</Button>
-                            </div>*/}
                             <div className="mt-8">
                                 <p className="text-light-gray font-medium select-none">Amount</p>
                                 <TextField 

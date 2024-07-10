@@ -5,18 +5,16 @@ import { REFRESH_TOKEN, ACCESS_TOKEN } from '../../utils/constants';
 import { jwtDecode } from 'jwt-decode';
 import sendRequest from '../../utils/request';
 import { Mutex } from 'async-mutex';
-import React, { createContext, useContext } from 'react';
-
+import { getToken } from '../../utils/network'
 interface PageWrapperProps {
     children: React.ReactNode;
     className?: string;
-    onAuthStateChanged?: (isAuthenticated: boolean) => void; 
 }
 
 const mutex = new Mutex();
 
 
-const PageWrapper: React.FC<PageWrapperProps> = ({ children, className, onAuthStateChanged = () => {}, }) => {
+const PageWrapper: React.FC<PageWrapperProps> = ({ children, className }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [loading, setLoading] = useState(true);
 
@@ -54,28 +52,27 @@ const PageWrapper: React.FC<PageWrapperProps> = ({ children, className, onAuthSt
     
 
     const auth = async () => {
-        const token = localStorage.getItem(ACCESS_TOKEN);
-        if (!token) {
-            setIsAuthenticated(false);
-            setLoading(false);
-            return;
+        const localToken = localStorage.getItem(ACCESS_TOKEN);
+        if (localToken){
+            const decoded_token = jwtDecode(localToken);
+            const expiration = decoded_token.exp;
+            const now = Date.now() / 1000;
+
+            if (expiration && expiration >= now) {
+                console.log("We are not expired, I believe")
+            }
         }
-
-        const decoded_token = jwtDecode(token);
-        const expiration = decoded_token.exp;
-        const now = Date.now() / 1000;
-
-        if (expiration && expiration < now) {
-            await refreshToken();
-        } else {
+        
+        const token = await getToken();
+        if (token){
             setIsAuthenticated(true);
             setLoading(false);
         }
+        else{
+            setIsAuthenticated(false);
+            setLoading(false);
+        }
     };
-
-    useEffect(() => {
-        onAuthStateChanged(isAuthenticated);
-    }, [isAuthenticated]);
 
     if (loading) {
         return (

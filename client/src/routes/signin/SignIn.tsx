@@ -54,7 +54,7 @@ const SignIn: React.FC = () => {
     };
 
     try {
-      const response = await sendRequest('/token/', 'POST', data);
+      const response = await sendRequest('/sign_in/', 'POST', data);
       if (response.ok) {
         const responseData = await response.json();
         localStorage.setItem('access_token', responseData.access);

@@ -125,17 +125,23 @@ class BuyStockView(APIView):
     def post(self, request):
         course_code = request.data["course_code"]
         amount = request.data["amount"]
-        user = User.objects.get(username=request.user)
-        course = Course.objects.get(course_code=course_code)
+        user = User.objects.filter(username=request.user).first()
+        course = Course.objects.filter(course_code=course_code).first()
         if user:
             if course:
                 if user.balance >= course.price * amount:
-                    portfolio = Portfolio.objects.get(user=user)
+                    portfolio = Portfolio.objects.filter(user=user).first()
                     if portfolio:
                         user.balance -= course.price * amount
                         user.save()
-                        new_stock = Stock.objects.create(course=course, amount=amount)
-                        portfolio.stocks.add(new_stock)
+
+                        existing_stock = portfolio.stocks.filter(course=course).first()
+                        if existing_stock:
+                            existing_stock.amount += amount
+                            existing_stock.save()
+                        else:
+                            new_stock = Stock.objects.create(course=course, amount=amount)
+                            portfolio.stocks.add(new_stock)
                         portfolio.save()
                         return Response({'message': 'Stocks bought successfully'}, status=status.HTTP_200_OK)
                     else:
@@ -160,14 +166,14 @@ class SellStockView(APIView):
     def get(self, request):
         course_code = request.data["course_code"]
         amount = request.data["amount"]
-        user = User.objects.get(username=request.user)
-        course = Course.objects.get(course_code=course_code)
+        user = User.objects.filter(username=request.user).first()
+        course = Course.objects.filter(course_code=course_code).first()
 
         if user:
             if course:
-                portfolio = Portfolio.objects.get(user=user)
+                portfolio = Portfolio.objects.filter(user=user).first()
                 if portfolio:
-                    stock = Stock.objects.get(course=course)
+                    stock = Stock.objects.filter(course=course).first()
                     if stock:
                         if stock.amount >= amount:
                             user.balance += course.price * amount
