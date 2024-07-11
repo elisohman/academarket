@@ -43,7 +43,6 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt.token_blacklist',
     'api.apps.ApiConfig',
     'data_pipeline.apps.DataPipelineConfig',
-
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

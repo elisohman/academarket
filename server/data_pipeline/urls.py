@@ -14,5 +14,4 @@ urlpatterns = [
     path('test_buy_course/<course_code>/<user>', views.buy_course_test),
     path('generate_price_histories', views.generate_price_histories),
 
-
 ]

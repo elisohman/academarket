@@ -1,6 +1,6 @@
 from django.http import HttpResponse, HttpRequest, JsonResponse
-from api.models import User, Course, Stock, Portfolio
-import json, requests, traceback
+from api.models import User, Course, Stock, Portfolio, PricePoint
+import json, requests, traceback, datetime
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -12,6 +12,7 @@ from .serializers import SignUpSerializer, SignInSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from django.contrib.auth import authenticate
 
+from collections import OrderedDict
 
 #-- Views! --#
 
@@ -274,12 +275,31 @@ class GetCourseDataView(APIView):
         course_code = request.query_params.get('course')
         course = Course.objects.get(course_code=course_code)
         if course:
+            price_points_per_day = {}
+            for price_point in PricePoint.objects.filter(course=course):
+                dt = price_point.date.date()
+                if price_points_per_day.get(dt):
+                    price_points_per_day[dt] += [price_point.price]
+                else:
+                    price_points_per_day[dt] = [price_point.price]
+            formatted_price_history = []
+            for date_key in price_points_per_day:
+                day = date_key.date()              
+                day_info = OrderedDict({
+                            "time": date_key.day, 
+                            "open": price_points_per_day[day][0],
+                            "high": max(price_points_per_day[day]),
+                            "low": min(price_points_per_day[day]),
+                            "close": price_points_per_day[day][-1]
+                            })   
+                formatted_price_history.append(day_info)
             course_data = {
                 'course_code': course.course_code,
                 'name': course.name,
                 'price': course.price,
-                'price_history': course.price_history
+                'price_history': reversed(formatted_price_history)
             }
             return Response(course_data, status=status.HTTP_200_OK)
         else:
             return Response({'message': 'Course not found'}, status=status.HTTP_400_BAD_REQUEST)
+        

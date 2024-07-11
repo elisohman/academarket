@@ -1,14 +1,13 @@
 from django.shortcuts import render
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, random
 from django.http import HttpResponse, HttpRequest, JsonResponse
-from api.models import User, Course
+from api.models import User, Course, PricePoint
 from data_pipeline.utils.courses_json_utils import read_course_data_from_code, read_all_course_data, check_if_course_exists_locally, save_course_data, fill_json_from_list
 from data_pipeline.utils.courses_list_utils import save_course_list, retrieve_new_data_from_liu, load_course_list
 from data_pipeline.utils.database_utils import fill_database, validate_database
 from data_pipeline.utils.ipo_calculation import calculate_price
 import json, requests, traceback
-import random
-
+from django.utils import timezone
 # Views for robbing y-sektionen
 
 
@@ -130,7 +129,7 @@ def add_course_to_database(_request: HttpRequest, course_code: str) -> HttpRespo
     """
     course_data = read_course_data_from_code(course_code)
     
-    if validate_database(True) and course_data:
+    if validate_database(False) and course_data:
         ipo_prize = calculate_price(course_data)
         code = course_data['course_code']
         name = course_data['course_name']
@@ -179,6 +178,7 @@ def buy_course_test(_request: HttpRequest, course_code: str, user: str) -> JsonR
     current_user.save()
     return JsonResponse({'message': 'Course bought successfully!'}, status=200)
 
+
 def initialize_all_data(_request: HttpRequest) -> HttpResponse: 
     print("Getting course codes from LiU...")
     data_list = retrieve_new_data_from_liu()
@@ -195,32 +195,25 @@ def initialize_all_data(_request: HttpRequest) -> HttpResponse:
 
 
 def generate_price_histories(_request: HttpRequest) -> HttpResponse:
-    # Get today's date
+    print("Generating (fake) price history data...")
+    PricePoint.objects.all().delete()
     courses = Course.objects.all()
     for course in courses:
         today = datetime.now()
-        dates = {}
-        # Start from yesterday and go backwards
-        for i in range(1, 6):
-            idate = today - timedelta(days=i)
-            second_date = idate - timedelta(hours=4)
-            # Initialize the inner dictionary if the date key doesn't exist
-            if idate.date() not in dates:
-                dates[str(idate.date())] = {}
-            if second_date.date() not in dates:
-                dates[str(second_date.date())] = {}
-
-            random_price1 = random.randint(4096, 768000)
-            random_price2 = random.randint(4096, 768000)
-
-            # Add datetime and integer value to the inner dictionary
-            dates[str(idate.date())][str(idate)] = random_price1 # Replace 0 with the actual int value if needed
-            dates[str(second_date.date())][str(second_date)] = random_price2  # Replace 0 with the actual int value if needed    
-        course.price_history = dates
+        for i in range(1, 150):
+            for j in range(1, 2):
+                idate = today - timedelta(days=i) 
+                idate = idate - timedelta(hours=j)
+                random_price = random.randint(170, 185)
+                chance = random.randint(1, 100)
+                if chance <= 2:
+                    random_price += random.randint(-100, 100)
+                new_price_point = PricePoint(course = course, price=random_price)
+                tz = timezone.get_current_timezone()
+                idate = idate.replace(tzinfo=tz)
+                new_price_point.date = idate
+                new_price_point.save()
         course.save()
 
     return HttpResponse(status=200, content="Generated price histories.")
 
-
-    
-    

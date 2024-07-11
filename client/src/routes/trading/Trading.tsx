@@ -31,7 +31,7 @@ const Trading = () => {
     const [balance, setBalance] = useState<string>('');
     const [isBuying, setIsBuying] = useState<boolean>(true);
 
-    const candlestickData = generateCandlestickData();
+    const [candlestickData, setCandleStickData] = useState<any>(generateCandlestickData());
 
     const fetchEconomics = async (accessToken : string) => {
         const response = await sendRequest('/user_info', 'GET', undefined, accessToken);
@@ -77,7 +77,10 @@ const Trading = () => {
             }
             const jsonData = await response.json();
             console.log(jsonData);
-            setCourseTradeData(jsonData); // Object { course_code: "SNOP20", name: "Hur man diskar en Pensel, med flerfaldigt prisbelönta Göran Östlund", price: 13013, price_history: null }
+            
+            setCourseTradeData(jsonData);
+            console.log(jsonData.price_history)
+            setCandleStickData(jsonData.price_history) // Object { course_code: "SNOP20", name: "Hur man diskar en Pensel, med flerfaldigt prisbelönta Göran Östlund", price: 13013, price_history: null }
         } catch (error) {
             console.error('Error fetching data:', error);
         }
