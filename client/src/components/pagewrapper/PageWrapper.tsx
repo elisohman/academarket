@@ -38,6 +38,7 @@ const PageWrapper: React.FC<PageWrapperProps> = ({ children, className }) => {
                     setLoading(false);
                     console.log("WE'RE IN!");
                 } else {
+                    console.log('Token refresh failed:', response);
                     setIsAuthenticated(false);
                     setLoading(false);
                 }

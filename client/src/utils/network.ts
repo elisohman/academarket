@@ -13,17 +13,17 @@ async function getToken() {
         // token refresh uses mutex to avoid race condition
         //await mutex.runExclusive(async () => {
         const initialLocalToken = localStorage.getItem(ACCESS_TOKEN);
-        if (initialLocalToken){
+        /*if (initialLocalToken){
             const decoded_token = jwtDecode(initialLocalToken);
             const expiration = decoded_token.exp;
             const now = Date.now() / 1000;
 
-            if (expiration && expiration >= now) {
+            if (expiration && expiration <>> now) {
                 console.log("We are not expired, I believe")
                 return initialLocalToken;
             }
         }
-        else{
+        else{*/
             const response = await sendRequest('/token/verify/', 'POST', {
                 "token": localStorage.getItem(ACCESS_TOKEN),
             });
@@ -45,7 +45,7 @@ async function getToken() {
                     localStorage.setItem(REFRESH_TOKEN, responseData.refresh);
                 }
             }
-        }
+        
         //});
     } catch (error) {
         console.log('Error during token refresh:', error);

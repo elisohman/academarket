@@ -60,6 +60,7 @@ const SignIn: React.FC = () => {
         localStorage.setItem('access_token', responseData.access);
         localStorage.setItem('refresh_token', responseData.refresh);
         setShowPopup(false);
+        console.log('Sign-in successful');
         navigate("/dashboard");
       } else {
         console.error('Sign-in failed:');

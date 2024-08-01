@@ -284,13 +284,12 @@ class GetCourseDataView(APIView):
                     price_points_per_day[dt] = [price_point.price]
             formatted_price_history = []
             for date_key in price_points_per_day:
-                day = date_key.date()              
                 day_info = OrderedDict({
-                            "time": date_key.day, 
-                            "open": price_points_per_day[day][0],
-                            "high": max(price_points_per_day[day]),
-                            "low": min(price_points_per_day[day]),
-                            "close": price_points_per_day[day][-1]
+                            "time": date_key, 
+                            "open": price_points_per_day[date_key][0],
+                            "high": max(price_points_per_day[date_key]),
+                            "low": min(price_points_per_day[date_key]),
+                            "close": price_points_per_day[date_key][-1]
                             })   
                 formatted_price_history.append(day_info)
             course_data = {

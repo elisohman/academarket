@@ -1,13 +1,14 @@
 from django.shortcuts import render
-from datetime import datetime, timedelta, random
+from datetime import datetime, timedelta
 from django.http import HttpResponse, HttpRequest, JsonResponse
 from api.models import User, Course, PricePoint
 from data_pipeline.utils.courses_json_utils import read_course_data_from_code, read_all_course_data, check_if_course_exists_locally, save_course_data, fill_json_from_list
 from data_pipeline.utils.courses_list_utils import save_course_list, retrieve_new_data_from_liu, load_course_list
 from data_pipeline.utils.database_utils import fill_database, validate_database
 from data_pipeline.utils.ipo_calculation import calculate_price
-import json, requests, traceback
+import json, requests, traceback, random
 from django.utils import timezone
+from api.tasks import price_task
 # Views for robbing y-sektionen
 
 
@@ -92,6 +93,8 @@ def get_local_course_stats(_request: HttpRequest, course_code: str) -> JsonRespo
     - JsonResponse: The JSON response containing the course statistics.
 
     """
+    result = price_task.delay()
+    result_value = result.get(timeout=10)
     local_course_data = read_course_data_from_code(course_code)
     if local_course_data:
         return JsonResponse(local_course_data, status=200)
@@ -129,7 +132,7 @@ def add_course_to_database(_request: HttpRequest, course_code: str) -> HttpRespo
     """
     course_data = read_course_data_from_code(course_code)
     
-    if validate_database(False) and course_data:
+    if course_data:
         ipo_prize = calculate_price(course_data)
         code = course_data['course_code']
         name = course_data['course_name']
@@ -198,6 +201,8 @@ def generate_price_histories(_request: HttpRequest) -> HttpResponse:
     print("Generating (fake) price history data...")
     PricePoint.objects.all().delete()
     courses = Course.objects.all()
+    start_time = datetime.now()
+
     for course in courses:
         today = datetime.now()
         for i in range(1, 150):
@@ -214,6 +219,7 @@ def generate_price_histories(_request: HttpRequest) -> HttpResponse:
                 new_price_point.date = idate
                 new_price_point.save()
         course.save()
-
-    return HttpResponse(status=200, content="Generated price histories.")
+    end_time = datetime.now()
+    total_seconds = (end_time - start_time).total_seconds()
+    return HttpResponse(status=200, content=f'Generated price histories. Time taken: {total_seconds} seconds.')
 
