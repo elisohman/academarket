@@ -12,7 +12,8 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 from dotenv import load_dotenv, dotenv_values
-from datetime import timedelta
+from datetime import timedelta, datetime
+from celery.schedules import crontab
 
 # Load .env file and save variables to dictionary "env_var".
 load_dotenv(".env")
@@ -195,14 +196,3 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-# Celery
-
-CELERY_TIMEZONE = "UTC"
-#CELERY_TASK_TRACK_STARTED = True
-#CELERY_TASK_TIME_LIMIT = 30 * 60
-CELERY_BROKER_URL = 'amqp://guest:guest@127.0.0.1:5672//'
-CELERY_RESULT_BACKEND = 'rpc://'
-CELERY_ACCEPT_CONTENT = ['json']
-CELERY_TASK_SERIALIZER = 'json'
-CELERY_RESULT_SERIALIZER = 'json'

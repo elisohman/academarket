@@ -14,6 +14,7 @@ from django.contrib.auth import authenticate
 
 from collections import OrderedDict
 
+
 #-- Views! --#
 
 
@@ -301,4 +302,4 @@ class GetCourseDataView(APIView):
             return Response(course_data, status=status.HTTP_200_OK)
         else:
             return Response({'message': 'Course not found'}, status=status.HTTP_400_BAD_REQUEST)
-        
+

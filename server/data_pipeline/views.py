@@ -8,7 +8,6 @@ from data_pipeline.utils.database_utils import fill_database, validate_database
 from data_pipeline.utils.ipo_calculation import calculate_price
 import json, requests, traceback, random
 from django.utils import timezone
-from api.tasks import price_task
 # Views for robbing y-sektionen
 
 
@@ -93,8 +92,6 @@ def get_local_course_stats(_request: HttpRequest, course_code: str) -> JsonRespo
     - JsonResponse: The JSON response containing the course statistics.
 
     """
-    result = price_task.delay()
-    result_value = result.get(timeout=10)
     local_course_data = read_course_data_from_code(course_code)
     if local_course_data:
         return JsonResponse(local_course_data, status=200)

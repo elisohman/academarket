@@ -1,8 +1,5 @@
 @echo off
-
-REM Navigate to your Django project directory
-cd "C:\path\to\your\django\project"
-
+call .venv\Scripts\activate
 REM Run makemigrations
 echo Running makemigrations...
 python manage.py makemigrations
