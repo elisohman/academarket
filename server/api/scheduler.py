@@ -20,13 +20,13 @@ def update_course_prices():
 
 def trade_simulation():
     print("Trading...")
-    course = Course.objects.filter(name="SNOP25").first()
+    course = Course.objects.filter(course_code="SNOP25").first()
     if not course:
         new_course = Course(course_code="SNOP25", name="Mandeltillverkning med Göran Östlund", price=100)
         new_course.save()
-        course = new_course
-    course.price += random.randint(-10, 10)
-    course.save()
+    else:
+        course.price += random.randint(-10, 10)
+        course.save()
 
 
 def test_job():

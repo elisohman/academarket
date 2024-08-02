@@ -13,5 +13,5 @@ urlpatterns = [
     path('initialize_all_data', views.initialize_all_data),
     path('test_buy_course/<course_code>/<user>', views.buy_course_test),
     path('generate_price_histories', views.generate_price_histories),
-
+    path('create_bots/', views.call_create_bots),
 ]

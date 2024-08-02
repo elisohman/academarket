@@ -8,6 +8,7 @@ from data_pipeline.utils.database_utils import fill_database, validate_database
 from data_pipeline.utils.ipo_calculation import calculate_price
 import json, requests, traceback, random
 from django.utils import timezone
+from api.utils.create_bots import create_bots
 # Views for robbing y-sektionen
 
 
@@ -220,3 +221,8 @@ def generate_price_histories(_request: HttpRequest) -> HttpResponse:
     total_seconds = (end_time - start_time).total_seconds()
     return HttpResponse(status=200, content=f'Generated price histories. Time taken: {total_seconds} seconds.')
 
+
+def call_create_bots(_request: HttpRequest) -> HttpResponse:
+    print("Creating bots...")
+    create_bots()
+    return HttpResponse(status=200, content="Bots created.")
