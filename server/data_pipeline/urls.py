@@ -14,4 +14,9 @@ urlpatterns = [
     path('test_buy_course/<course_code>/<user>', views.buy_course_test),
     path('generate_price_histories', views.generate_price_histories),
     path('create_bots/', views.call_create_bots),
+    path('delete_all_users/', views.delete_all_users),
+    path('setup_bot_economy/', views.calL_setup_bot_economy),
+    path('delete_all_orders/', views.delete_all_orders),
+    path('fix_course_prices/', views.fix_course_prices),
+    path('start_scheduler/', views.start_scheduler),
 ]

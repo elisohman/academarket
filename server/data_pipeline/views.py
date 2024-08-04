@@ -1,16 +1,17 @@
 from django.shortcuts import render
 from datetime import datetime, timedelta
 from django.http import HttpResponse, HttpRequest, JsonResponse
-from api.models import User, Course, PricePoint
+from api.models import User, Course, PricePoint, Order
 from data_pipeline.utils.courses_json_utils import read_course_data_from_code, read_all_course_data, check_if_course_exists_locally, save_course_data, fill_json_from_list
 from data_pipeline.utils.courses_list_utils import save_course_list, retrieve_new_data_from_liu, load_course_list
 from data_pipeline.utils.database_utils import fill_database, validate_database
 from data_pipeline.utils.ipo_calculation import calculate_price
 import json, requests, traceback, random
 from django.utils import timezone
-from api.utils.create_bots import create_bots
-# Views for robbing y-sektionen
+import api.utils.bot_utils as bot_utils
 
+
+# Views for robbing y-sektionen
 
 def get_course_stats(_request: HttpRequest, course_code: str) -> JsonResponse:
     """
@@ -224,5 +225,35 @@ def generate_price_histories(_request: HttpRequest) -> HttpResponse:
 
 def call_create_bots(_request: HttpRequest) -> HttpResponse:
     print("Creating bots...")
-    create_bots()
+    bot_utils.create_bots()
     return HttpResponse(status=200, content="Bots created.")
+
+def calL_setup_bot_economy(_request: HttpRequest) -> HttpResponse:
+    print("Setting up bot economy...")
+    bot_utils.setup_bot_economy()
+    return HttpResponse(status=200, content="Bots economy set up.")
+
+
+def delete_all_users(_request: HttpRequest) -> HttpResponse:
+    print("Deleting all users...")
+    User.objects.all().delete()
+    return HttpResponse(status=200, content="All users deleted.")
+
+def delete_all_orders(_request: HttpRequest) -> HttpResponse:
+    print("Deleting all orders...")
+    Order.objects.all().delete()
+    return HttpResponse(status=200, content="All orders deleted.")
+
+def fix_course_prices(_request: HttpRequest) -> HttpResponse:
+    print("Fixing course prices...")
+    courses = Course.objects.all()
+    for course in courses:
+        course.price = int(abs(course.price)) + 1
+        course.save()
+    return HttpResponse(status=200, content="Prices fixed.")
+
+def start_scheduler(_request: HttpRequest) -> HttpResponse:
+    print("Starting scheduler...")
+    from api import scheduler
+    scheduler.start()
+    return HttpResponse(status=200, content="Scheduler started.")

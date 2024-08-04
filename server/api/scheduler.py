@@ -1,12 +1,16 @@
 from apscheduler.schedulers.background import BackgroundScheduler
 from datetime import datetime
-from api.models import User, Course, PricePoint
+from api.models import User, Course, PricePoint, Portfolio, Stock
+import api.utils.bot_utils as bot_utils
 import random
+import api.utils.stock_manager as stock_manager
+
 def start():
     scheduler = BackgroundScheduler()
     #scheduler.add_job(test_job, 'interval', seconds=10)
-    scheduler.add_job(update_course_prices, 'interval', seconds=3.1)
-    scheduler.add_job(trade_simulation, 'interval', seconds=3)
+    scheduler.add_job(update_course_prices, 'interval', seconds=5)
+    scheduler.add_job(trade_simulation, 'interval', seconds=8)
+    scheduler.add_job(finalize_orders, 'interval', seconds=10)
 
     scheduler.start()
 
@@ -18,15 +22,41 @@ def update_course_prices():
         price_point = PricePoint(course=course, price=price)
         price_point.save()
 
+def finalize_orders():
+    print("Executing orders...")
+    stock_manager.finalize_orders()
+
 def trade_simulation():
-    print("Trading...")
-    course = Course.objects.filter(course_code="SNOP25").first()
-    if not course:
-        new_course = Course(course_code="SNOP25", name="Mandeltillverkning med Göran Östlund", price=100)
-        new_course.save()
-    else:
-        course.price += random.randint(-10, 10)
-        course.save()
+    print("Bots are trading...")
+    bot_names = bot_utils.get_bot_names()
+    for i in range(20):
+        name = bot_names[random.randint(0, len(bot_names)-1)].rstrip('\n')
+        user = User.objects.filter(username=name).first()
+        if user:
+            chance = random.randint(1, 100)
+            #stock_manager.buy_stock(user, random_stock.course, random.randint(1, 10))
+            if chance <= 45:
+                stocks = Portfolio.objects.filter(user=user).first().stocks.all()
+                random_stock = stocks[random.randint(0, len(stocks)-1)]
+
+                sell_amount = random_stock.amount
+                if random_stock.amount > 1:
+                    sell_amount = random.randint(1, random_stock.amount)
+                stock_manager.sell_stock(user, random_stock, sell_amount)
+            else:
+                courses = Course.objects.all()
+                random_course = courses[random.randint(0, len(courses)-1)]
+                max_buy_amount = random_course.price // user.balance
+                if max_buy_amount > 1:
+                    buy_amount = random.randint(1, max_buy_amount)
+                    stock_manager.buy_stock(user, random_course, buy_amount)
+                else:
+                    random_amount = random.randint(1, 10)
+                    user.balance += random_course.price * random_amount * 2
+                    user.save()
+                    stock_manager.buy_stock(user, random_course, random_amount)
+
+
 
 
 def test_job():

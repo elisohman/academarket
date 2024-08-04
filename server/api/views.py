@@ -14,6 +14,8 @@ from django.contrib.auth import authenticate
 
 from collections import OrderedDict
 
+import api.utils.stock_manager as stock_manager
+
 
 #-- Views! --#
 
@@ -131,6 +133,12 @@ class BuyStockView(APIView):
         course = Course.objects.filter(course_code=course_code).first()
         if user:
             if course:
+                if stock_manager.buy_stock(user, course, amount):
+                    return Response({'message': 'Stocks bought successfully'}, status=status.HTTP_200_OK)
+                else:
+                    return Response({'message': 'Insufficient balance'}, status=status.HTTP_400_BAD_REQUEST)
+
+                """
                 if user.balance >= course.price * amount:
                     portfolio = Portfolio.objects.filter(user=user).first()
                     if portfolio:
@@ -148,8 +156,7 @@ class BuyStockView(APIView):
                         return Response({'message': 'Stocks bought successfully'}, status=status.HTTP_200_OK)
                     else:
                         return Response({'message': 'Portfolio not found for user (should not be possible)'}, status=status.HTTP_400_BAD_REQUEST)
-                else:
-                    return Response({'message': 'Insufficient balance'}, status=status.HTTP_400_BAD_REQUEST)
+                """
             else:
                 return Response({'message': 'Course not found'}, status=status.HTTP_400_BAD_REQUEST)
 

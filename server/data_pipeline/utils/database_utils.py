@@ -4,7 +4,7 @@ import sys, datetime
 from itertools import chain
 from functools import partial, reduce
 import requests
-from api.models import  Course
+from api.models import  Course, User
 from operator import add, methodcaller
 import random
 
@@ -99,4 +99,3 @@ def fill_database(data):
     """
     for course in data:
         internal_add_course_to_database_call(course)
-

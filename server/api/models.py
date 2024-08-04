@@ -28,6 +28,15 @@ class Stock(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='stocks')
     amount = models.IntegerField()
     
+class Order(models.Model):
+    id = models.AutoField(primary_key=True)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='orders', null=True)
+    stock = models.ForeignKey(Stock, on_delete=models.CASCADE, related_name='orders', null=True)
+    amount = models.IntegerField()
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders')
+    date = models.DateTimeField(default=timezone.now)
+    saved_value = models.IntegerField()
+    is_buying = models.BooleanField(default=True)
 
 class Portfolio(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='portfolios', unique=True)
