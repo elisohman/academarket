@@ -301,11 +301,12 @@ class GetCourseDataView(APIView):
                             "close": price_points_per_day[date_key][-1]
                             })   
                 formatted_price_history.append(day_info)
+            sorted_formatted_price_history_on_timestamp_date_key = sorted(formatted_price_history, key=lambda x: x['time'])
             course_data = {
                 'course_code': course.course_code,
                 'name': course.name,
                 'price': course.price,
-                'price_history': reversed(formatted_price_history)
+                'price_history': sorted_formatted_price_history_on_timestamp_date_key
             }
             return Response(course_data, status=status.HTTP_200_OK)
         else:

@@ -8,14 +8,14 @@ import api.utils.stock_manager as stock_manager
 def start():
     scheduler = BackgroundScheduler()
     #scheduler.add_job(test_job, 'interval', seconds=10)
-    scheduler.add_job(update_course_prices, 'interval', seconds=5)
-    scheduler.add_job(trade_simulation, 'interval', seconds=8)
-    scheduler.add_job(finalize_orders, 'interval', seconds=10)
+    scheduler.add_job(update_course_prices, 'interval', minutes=1)
+    scheduler.add_job(trade_simulation, 'interval', minutes=5)
+    scheduler.add_job(finalize_orders, 'interval', seconds=30)
 
     scheduler.start()
 
 def update_course_prices():
-    print("Updating course prices...")
+    #print("Updating course prices...")
     courses = Course.objects.all()
     for course in courses:
         price = course.price
@@ -24,11 +24,11 @@ def update_course_prices():
         price_point.save()
 
 def finalize_orders():
-    print("Executing orders...")
+    #print("Executing orders...")
     stock_manager.finalize_orders()
 
 def trade_simulation():
-    print("Bots are trading...")
+    #print("Bots are trading...")
     bot_names = bot_utils.get_bot_names()
     for i in range(20):
         name = bot_names[random.randint(0, len(bot_names)-1)].rstrip('\n')
