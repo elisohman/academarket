@@ -133,7 +133,7 @@ class BuyStockView(APIView):
         course = Course.objects.filter(course_code=course_code).first()
         if user:
             if course:
-                if stock_manager.buy_stock(user, course, amount):
+                if stock_manager.place_buy_order(user, course, amount):
                     return Response({'message': 'Stocks bought successfully'}, status=status.HTTP_200_OK)
                 else:
                     return Response({'message': 'Insufficient balance'}, status=status.HTTP_400_BAD_REQUEST)
@@ -286,10 +286,11 @@ class GetCourseDataView(APIView):
             price_points_per_day = {}
             for price_point in PricePoint.objects.filter(course=course):
                 dt = price_point.date.date()
-                if price_points_per_day.get(dt):
-                    price_points_per_day[dt] += [price_point.price]
+                timestamp = price_point.timestamp
+                if price_points_per_day.get(timestamp):
+                    price_points_per_day[timestamp] += [price_point.price]
                 else:
-                    price_points_per_day[dt] = [price_point.price]
+                    price_points_per_day[timestamp] = [price_point.price]
             formatted_price_history = []
             for date_key in price_points_per_day:
                 day_info = OrderedDict({

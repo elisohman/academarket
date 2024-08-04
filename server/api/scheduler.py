@@ -19,7 +19,8 @@ def update_course_prices():
     courses = Course.objects.all()
     for course in courses:
         price = course.price
-        price_point = PricePoint(course=course, price=price)
+        timestamp = datetime.now().timestamp()
+        price_point = PricePoint(course=course, price=price, timestamp=timestamp)
         price_point.save()
 
 def finalize_orders():
@@ -42,19 +43,19 @@ def trade_simulation():
                 sell_amount = random_stock.amount
                 if random_stock.amount > 1:
                     sell_amount = random.randint(1, random_stock.amount)
-                stock_manager.sell_stock(user, random_stock, sell_amount)
+                stock_manager.place_sell_order(user, random_stock, sell_amount)
             else:
                 courses = Course.objects.all()
                 random_course = courses[random.randint(0, len(courses)-1)]
                 max_buy_amount = random_course.price // user.balance
                 if max_buy_amount > 1:
                     buy_amount = random.randint(1, max_buy_amount)
-                    stock_manager.buy_stock(user, random_course, buy_amount)
+                    stock_manager.place_buy_order(user, random_course, buy_amount)
                 else:
                     random_amount = random.randint(1, 10)
                     user.balance += random_course.price * random_amount * 2
                     user.save()
-                    stock_manager.buy_stock(user, random_course, random_amount)
+                    stock_manager.place_buy_order(user, random_course, random_amount)
 
 
 

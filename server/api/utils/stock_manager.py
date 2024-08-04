@@ -2,7 +2,7 @@
 from api.models import Portfolio, Stock, Order, Course
 import math
 
-def buy_stock(user, course, amount):
+def place_buy_order(user, course, amount):
     """
     Places order of given amount of a stock for a user. Returns true if the player can afford it.
     """
@@ -13,7 +13,7 @@ def buy_stock(user, course, amount):
         return True
     return False
 
-def finalize_buy_stock(user, course, amount):
+def finalize_buy_order(user, course, amount):
     """
     Finalizes buy order and adds stock to user. 
     """
@@ -36,7 +36,7 @@ def finalize_buy_stock(user, course, amount):
 
 
 
-def sell_stock(user, stock, amount):
+def place_sell_order(user, stock, amount):
     """
     Sells a given amount of a stock for a user. Returns true if the player has enough stock to sell.
     """
@@ -48,7 +48,7 @@ def sell_stock(user, stock, amount):
         return True
     return False
 
-def finalize_sell_stock(user, stock, amount):
+def finalize_sell_order(user, stock, amount):
     """
     Finalizes sell order for a given amount of a stock for a user.
     """
@@ -81,11 +81,11 @@ def finalize_orders():
                 course = Course.objects.filter(course_code=key).first()
                 if order.is_buying:
                     buy_volume += order.amount
-                    if finalize_buy_stock(order.user, order.course, order.amount):
+                    if finalize_buy_order(order.user, order.course, order.amount):
                         order.delete()
                 else:
                     sell_volume += order.amount
-                    if finalize_sell_stock(order.user, order.stock, order.amount):
+                    if finalize_sell_order(order.user, order.stock, order.amount):
                         order.delete()
 
             change_factor = 1.0

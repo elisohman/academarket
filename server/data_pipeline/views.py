@@ -201,7 +201,7 @@ def generate_price_histories(_request: HttpRequest) -> HttpResponse:
     PricePoint.objects.all().delete()
     courses = Course.objects.all()
     start_time = datetime.now()
-
+    
     for course in courses:
         today = datetime.now()
         for i in range(1, 150):
@@ -215,7 +215,9 @@ def generate_price_histories(_request: HttpRequest) -> HttpResponse:
                 new_price_point = PricePoint(course = course, price=random_price)
                 tz = timezone.get_current_timezone()
                 idate = idate.replace(tzinfo=tz)
+                timestamp = idate.timestamp()
                 new_price_point.date = idate
+                new_price_point.timestamp = timestamp
                 new_price_point.save()
         course.save()
     end_time = datetime.now()

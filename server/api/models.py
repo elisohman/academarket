@@ -17,10 +17,12 @@ class Course(models.Model):
 
 
 class PricePoint(models.Model):
+    id = models.AutoField(primary_key=True)
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='price_points')
     price = models.IntegerField()
     # date = models.DateTimeField(auto_now_add=True) #
     date = models.DateTimeField(default=timezone.now)
+    timestamp = models.IntegerField()
 
 
 class Stock(models.Model):
