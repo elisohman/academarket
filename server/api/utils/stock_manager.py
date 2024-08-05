@@ -40,7 +40,7 @@ def place_sell_order(user, stock, amount):
     """
     Sells a given amount of a stock for a user. Returns true if the player has enough stock to sell.
     """
-
+    print(f'amount: {amount}, stock amount: {stock.amount}, stock name: {stock.course.course_code}')
     if stock.amount >= amount:
         sell_value = stock.course.price * amount
         new_order = Order.objects.create(course=stock.course, stock=stock, amount=amount, user=user, saved_value=sell_value, is_buying=False)
@@ -58,6 +58,8 @@ def finalize_sell_order(user, stock, amount):
         user.save()
         stock.amount -= amount
         stock.save()
+        if stock.amount == 0:
+            stock.delete()
         return True
     return False
 

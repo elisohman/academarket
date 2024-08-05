@@ -172,7 +172,7 @@ class SellStockView(APIView):
 
     """
     permission = [permissions.IsAuthenticated]
-    def get(self, request):
+    def post(self, request):
         course_code = request.data["course_code"]
         amount = request.data["amount"]
         user = User.objects.filter(username=request.user).first()
@@ -182,18 +182,25 @@ class SellStockView(APIView):
             if course:
                 portfolio = Portfolio.objects.filter(user=user).first()
                 if portfolio:
-                    stock = Stock.objects.filter(course=course).first()
-                    if stock:
-                        if stock.amount >= amount:
-                            user.balance += course.price * amount
-                            user.save()
-                            stock.amount -= amount
-                            stock.save()
-                            return Response({'message': 'Stocks sold successfully'}, status=status.HTTP_200_OK)
+                    stock = portfolio.stocks.filter(course=course).first()
+                    print(f'stock amount: {stock.amount}, stock name: {stock.course.course_code}')
+                    if stock:       
+                        if stock_manager.place_sell_order(user, stock, amount):
+                            return Response({'message': 'Stock sell order placed successfully'}, status=status.HTTP_200_OK)
+
+                            """
+                            if stock.amount >= amount:
+                                user.balance += course.price * amount
+                                user.save()
+                                stock.amount -= amount
+                                stock.save()
+                            """
                         else:
                             return Response({'message': 'Insufficient stocks'}, status=status.HTTP_400_BAD_REQUEST)
+                       
                     else:
                         return Response({'message': 'Stock not found'}, status=status.HTTP_400_BAD_REQUEST)
+
                 else:
                     return Response({'message': 'Portfolio not found for user (should not be possible)'}, status=status.HTTP_400_BAD_REQUEST)
             else:

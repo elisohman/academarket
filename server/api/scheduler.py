@@ -1,6 +1,6 @@
 from apscheduler.schedulers.background import BackgroundScheduler
 from datetime import datetime
-from api.models import User, Course, PricePoint, Portfolio, Stock
+from api.models import User, Course, PricePoint, Portfolio, Stock, BalancePoint
 import api.utils.bot_utils as bot_utils
 import random
 import api.utils.stock_manager as stock_manager
@@ -8,13 +8,22 @@ import api.utils.stock_manager as stock_manager
 def start():
     scheduler = BackgroundScheduler()
     #scheduler.add_job(test_job, 'interval', seconds=10)
-    scheduler.add_job(update_course_prices, 'interval', minutes=1)
-    scheduler.add_job(trade_simulation, 'interval', minutes=5)
-    scheduler.add_job(finalize_orders, 'interval', seconds=30)
-
+    #sscheduler.add_job(timestamp_course_prices, 'interval', minutes=1)
+    #scheduler.add_job(trade_simulation, 'interval', minutes=5)
+    scheduler.add_job(finalize_orders, 'interval', seconds=5)
+    scheduler.add_job(timestamp_user_balance, 'interval', minutes=1)
     scheduler.start()
 
-def update_course_prices():
+def timestamp_user_balance():
+    print("Updating user balances...")
+    users = User.objects.all()
+    for user in users:
+        timestamp = datetime.now().timestamp()
+        user_balance = user.balance
+        user_balance_point = BalancePoint(user=user, balance=user_balance, timestamp=timestamp)
+        user_balance_point.save()
+
+def timestamp_course_prices():
     #print("Updating course prices...")
     courses = Course.objects.all()
     for course in courses:
@@ -24,7 +33,7 @@ def update_course_prices():
         price_point.save()
 
 def finalize_orders():
-    #print("Executing orders...")
+    print("Executing orders...")
     stock_manager.finalize_orders()
 
 def trade_simulation():

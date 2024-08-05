@@ -6,6 +6,11 @@ class User(AbstractUser):
     balance = models.IntegerField(null=True, default=10000)
     courses = models.ManyToManyField('Course', related_name='users')
 
+class BalancePoint(models.Model):
+    id = models.AutoField(primary_key=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='balance_points')
+    balance = models.IntegerField()
+    timestamp = models.IntegerField()
 
 class Course(models.Model):
     class Meta:
@@ -29,7 +34,7 @@ class Stock(models.Model):
     id = models.AutoField(primary_key=True)
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='stocks')
     amount = models.IntegerField()
-    
+
 class Order(models.Model):
     id = models.AutoField(primary_key=True)
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='orders', null=True)
@@ -43,7 +48,7 @@ class Order(models.Model):
 class Portfolio(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='portfolios', unique=True)
     stocks = models.ManyToManyField(Stock, related_name='portfolios')
-
+    
 
 class Transaction(models.Model):
     class Meta:
