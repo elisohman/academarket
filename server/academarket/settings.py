@@ -13,7 +13,6 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 from pathlib import Path
 from dotenv import load_dotenv, dotenv_values
 from datetime import timedelta, datetime
-from celery.schedules import crontab
 
 # Load .env file and save variables to dictionary "env_var".
 load_dotenv(".env")
