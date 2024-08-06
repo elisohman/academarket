@@ -101,10 +101,11 @@ class GetUserInfoView(APIView):
         user = request.user
 
         if (user):
+            formatted_balance = round(user.balance, 2)
             user_info = {
                 'username' : str(user),
                 'email' : str(user.email),
-                'balance' : str(user.balance),
+                'balance' : str(formatted_balance),
             }
 
             return Response(user_info, status=status.HTTP_200_OK)
@@ -133,11 +134,11 @@ class BuyStockView(APIView):
         course = Course.objects.filter(course_code=course_code).first()
         if user:
             if course:
+                stock_manager.get_last_24h_change(course)
                 if stock_manager.place_buy_order(user, course, amount):
                     return Response({'message': 'Stocks bought successfully'}, status=status.HTTP_200_OK)
                 else:
                     return Response({'message': 'Insufficient balance'}, status=status.HTTP_400_BAD_REQUEST)
-
                 """
                 if user.balance >= course.price * amount:
                     portfolio = Portfolio.objects.filter(user=user).first()
@@ -156,7 +157,7 @@ class BuyStockView(APIView):
                         return Response({'message': 'Stocks bought successfully'}, status=status.HTTP_200_OK)
                     else:
                         return Response({'message': 'Portfolio not found for user (should not be possible)'}, status=status.HTTP_400_BAD_REQUEST)
-                """
+                    """
             else:
                 return Response({'message': 'Course not found'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -231,7 +232,8 @@ class GetPortfolioStocksView(APIView):
                 stocks = portfolio.stocks.all()
                 stock_data = []
                 for stock in stocks:
-                    stock_data += [[stock.course.course_code, stock.course.name, stock.amount, str(stock.amount * stock.course.price), "diff%"]]        
+                    formatted_price = round(stock.amount * stock.course.price)
+                    stock_data += [[stock.course.course_code, stock.course.name, stock.amount, formatted_price, "diff%"]]        
 
                 data_json = {
                     'headers': ['Course Code', 'Course Name', 'Amount', 'Total Value', 'Price Change (24h)'],
@@ -269,7 +271,8 @@ class GetAllCoursesView(APIView):
         
         course_data = []
         for course in courses:
-            course_data += [[course.course_code, course.name, course.price, "diff%"]]        
+            formatted_price = round(course.price)
+            course_data += [[course.course_code, course.name, formatted_price, "diff%"]]        
 
         data_json = {
             'headers': ['Course Code', 'Course Name', 'Price', 'Price Change (24h)'],
@@ -294,10 +297,11 @@ class GetCourseDataView(APIView):
             for price_point in PricePoint.objects.filter(course=course):
                 dt = price_point.date.date()
                 timestamp = price_point.timestamp
+                formatted_price = round(price_point.price, 2)
                 if price_points_per_day.get(timestamp):
-                    price_points_per_day[timestamp] += [price_point.price]
+                    price_points_per_day[timestamp] += [formatted_price]
                 else:
-                    price_points_per_day[timestamp] = [price_point.price]
+                    price_points_per_day[timestamp] = [formatted_price]
             formatted_price_history = []
             for date_key in price_points_per_day:
                 day_info = OrderedDict({
@@ -309,11 +313,22 @@ class GetCourseDataView(APIView):
                             })   
                 formatted_price_history.append(day_info)
             sorted_formatted_price_history_on_timestamp_date_key = sorted(formatted_price_history, key=lambda x: x['time'])
+            user = User.objects.get(username=request.user)
+            stock_amount = 0
+            if user:
+                portfolio = Portfolio.objects.filter(user=user).first()
+                if portfolio:
+                    stock = portfolio.stocks.filter(course=course).first()
+                    if stock:
+                        stock_amount = stock.amount
+                        
+            formatted_price = round(course.price, 2)
             course_data = {
                 'course_code': course.course_code,
                 'name': course.name,
-                'price': course.price,
-                'price_history': sorted_formatted_price_history_on_timestamp_date_key
+                'price': formatted_price,
+                'price_history': sorted_formatted_price_history_on_timestamp_date_key,
+                'stock_amount': stock_amount
             }
             return Response(course_data, status=status.HTTP_200_OK)
         else:

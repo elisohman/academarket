@@ -1,19 +1,11 @@
 
-from api.models import Portfolio, Stock, Order, Course
+from api.models import Portfolio, Stock, PricePoint, BalancePoint
 import math
+from datetime import datetime
+import numpy as np
+
 
 def place_buy_order(user, course, amount):
-    """
-    Places order of given amount of a stock for a user. Returns true if the player can afford it.
-    """
-    buy_value = course.price * amount
-    if user.balance >= buy_value:
-        new_order = Order.objects.create(course=course, amount=amount, user=user, saved_value=buy_value, is_buying=True)
-        new_order.save()
-        return True
-    return False
-
-def finalize_buy_order(user, course, amount):
     """
     Finalizes buy order and adds stock to user. 
     """
@@ -21,6 +13,7 @@ def finalize_buy_order(user, course, amount):
     if not portfolio:
         portfolio = Portfolio.objects.create(user=user)
     if user.balance >= course.price * amount:
+        
         user.balance -= course.price * amount
         user.save()
         existing_stock = portfolio.stocks.filter(course=course).first()
@@ -31,29 +24,19 @@ def finalize_buy_order(user, course, amount):
             new_stock = Stock.objects.create(course=course, amount=amount)
             portfolio.stocks.add(new_stock)
         portfolio.save()
+        course_price_update(course, amount, True)
+
         return True
     return False
-
 
 
 def place_sell_order(user, stock, amount):
-    """
-    Sells a given amount of a stock for a user. Returns true if the player has enough stock to sell.
-    """
-    print(f'amount: {amount}, stock amount: {stock.amount}, stock name: {stock.course.course_code}')
-    if stock.amount >= amount:
-        sell_value = stock.course.price * amount
-        new_order = Order.objects.create(course=stock.course, stock=stock, amount=amount, user=user, saved_value=sell_value, is_buying=False)
-        new_order.save()
-        return True
-    return False
-
-def finalize_sell_order(user, stock, amount):
     """
     Finalizes sell order for a given amount of a stock for a user.
     """
     #print("Finalizing sell order!")
     if stock.amount >= amount:
+        course_price_update(stock.course, amount, False)
         user.balance += stock.course.price * amount
         user.save()
         stock.amount -= amount
@@ -63,43 +46,56 @@ def finalize_sell_order(user, stock, amount):
         return True
     return False
 
+def course_price_update(course, amount, is_buying):
+    course_price = course.price
+    if course_price == 1:
+        course_price = 2
+    print(f'Course price: {course_price}, Log course price: {math.log(course_price)}, Amount: {amount}, Buy factor: {is_buying}')
+    #new_price = (math.log(course_price))*amount*buy_factor + course_price
+    #new_price = (math.(course_price))*amount*buy_factor + course_price
+    k = 0.1
+    new_price = 0
+    if is_buying:
+        new_price = course_price * (1+k*np.log(amount+1))
+    else:
+        new_price = course_price * (1/(1+k*np.log(amount+1)))
+    if new_price <= 0.001:
+        new_price = 0.001
+    course.price = new_price
+    course.save()
+    save_price_point(course)
 
-def finalize_orders():
-    """
-    Finalizes all orders in the database.
-    """
-    orders = Order.objects.all()
-    if orders:
-        all_orders = {}
-        for order in orders:
-            stock_key = order.course.course_code
-            if stock_key not in all_orders:
-                all_orders[stock_key] = []
-            all_orders[stock_key].append(order)
-        for key in all_orders:
-            buy_volume = 0
-            sell_volume = 0
-            for order in all_orders[key]:
-                course = Course.objects.filter(course_code=key).first()
-                if order.is_buying:
-                    buy_volume += order.amount
-                    if finalize_buy_order(order.user, order.course, order.amount):
-                        order.delete()
-                else:
-                    sell_volume += order.amount
-                    if finalize_sell_order(order.user, order.stock, order.amount):
-                        order.delete()
+def save_price_point(course):
+    price = course.price
+    timestamp = datetime.now().timestamp()
+    price_point = PricePoint(course=course, price=price, timestamp=timestamp)
+    price_point.save()
 
-            change_factor = 1.0
-            volume_diff = buy_volume - sell_volume
-            if volume_diff > 0:
-                change_factor = 1.1
-            elif volume_diff < 0:
-                change_factor = 0.9
-            else:
-                change_factor = 1.0
-            new_course_value = int(math.ceil(course.price * change_factor))
-            if new_course_value < 1:
-                new_course_value = 1
-            course.price = new_course_value
-            course.save()
+def save_balance_point(user):
+    balance = user.balance
+    timestamp = datetime.now().timestamp()
+    balance_point = BalancePoint(user=user, balance=balance, timestamp=timestamp)
+    balance_point.save()
+
+
+def get_last_24h_change(course):
+    # This doesnt work correctly yet
+    #price_points = PricePoint.objects.filter(course=course).order_by('-timestamp')
+    price_points = PricePoint.objects.filter(course=course).order_by('-timestamp')
+    timestamps = sorted([point.timestamp for point in price_points])
+    unique_dates = {datetime.fromtimestamp(timestamp).date(): point.price for timestamp, point in zip(timestamps, price_points)}
+    unique_dates = dict(sorted(unique_dates.items())[-2:])
+    latest_price = list(unique_dates.values())[0]
+    previous_price = list(unique_dates.values())[1]
+    change_percentage = (latest_price - previous_price) / previous_price * 100
+    print(change_percentage)
+    print(unique_dates)
+# APE 3964.830398684156
+# APE 118338.90430853292
+# APE 118113.90430853292
+# APE 118136.49739805765
+# APE 118136.49739805765
+# APE 113062.49739805765
+# APE 135721.64136886346
+# APE 135601.64136886346
+# APE 135721.64136886346

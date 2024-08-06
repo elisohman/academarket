@@ -167,7 +167,7 @@ const Trading = () => {
 
     const [activeSection, setActiveSection] = useState<string>('browse'); // State to switch sections
 
-    const predefinedValues = [50, 100, 500, 1000];
+    const predefinedValues = [1, 5, 10, 100];
 
     const [amount, setAmount] = useState<number>(0);
 
@@ -217,7 +217,6 @@ const Trading = () => {
     const buyStock = async () => {   
         // await getToken();
         const token = await getToken();
-        console.log("I got the token man"); console.log(token);
         if (token) {
             if (!courseTradeData) {
                 console.error('No course data');
@@ -233,12 +232,23 @@ const Trading = () => {
                 course_code: courseCode, 
                 amount: buyAmount,
             }
-            const response = await sendRequest('/buy_stock/', 'POST', requestBody, token);
-            if (response.ok) {
-                console.log('Stock bought successfully');
-                fetchAllData();
-            } else {
-                console.error('Error buying stock');
+            if (isBuying) {
+                const response = await sendRequest('/buy_stock/', 'POST', requestBody, token);
+                if (response.ok) {
+                    console.log('Stock buy order placed successfully');
+                    fetchAllData();
+                } else {
+                    console.error('Error buying stock');
+                }   
+            }
+            else {
+                const response = await sendRequest('/sell_stock/', 'POST', requestBody, token);
+                if (response.ok) {
+                    console.log('Stock sell order placed successfully');
+                    fetchAllData();
+                } else {
+                    console.error('Error selling stock: ' + response.status);
+                }
             }
         }
     };    
@@ -298,7 +308,10 @@ const Trading = () => {
                             <h1 className="text-white mb-8 font-medium select-none">Make a trade</h1>
                             <Switch onToggle={setIsBuying}></Switch>
                             <div className="mt-8">
-                                <p className="text-light-gray font-medium select-none">Amount</p>
+                                <div className="flex flex-row justify-between">
+                                    <p className="text-light-gray font-medium select-none">Amount</p>
+                                    <p className="text-light-gray font-medium select-none">Owned: {courseTradeData ? courseTradeData.stock_amount : "..."}</p>
+                                </div>
                                 <TextField 
                                     inputClassName={amount === 0 ? "w-full p-3 rounded-md border-2 bg-transparent text-emerald-200 select-none" : "w-full p-3 rounded-md border-2 bg-transparent text-white"} 
                                     id="amount-field" 

@@ -230,6 +230,7 @@ def call_create_bots(_request: HttpRequest) -> HttpResponse:
     bot_utils.create_bots()
     return HttpResponse(status=200, content="Bots created.")
 
+
 def calL_setup_bot_economy(_request: HttpRequest) -> HttpResponse:
     print("Setting up bot economy...")
     bot_utils.setup_bot_economy()
@@ -241,18 +242,23 @@ def delete_all_users(_request: HttpRequest) -> HttpResponse:
     User.objects.all().delete()
     return HttpResponse(status=200, content="All users deleted.")
 
+
 def delete_all_orders(_request: HttpRequest) -> HttpResponse:
     print("Deleting all orders...")
     Order.objects.all().delete()
     return HttpResponse(status=200, content="All orders deleted.")
+
 
 def fix_course_prices(_request: HttpRequest) -> HttpResponse:
     print("Fixing course prices...")
     courses = Course.objects.all()
     for course in courses:
         course.price = int(abs(course.price)) + 1
+        if course.price > 5000:
+            course.price = 5000
         course.save()
     return HttpResponse(status=200, content="Prices fixed.")
+
 
 def start_scheduler(_request: HttpRequest) -> HttpResponse:
     print("Starting scheduler...")
