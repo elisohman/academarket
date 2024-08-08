@@ -54,12 +54,13 @@ const SignIn: React.FC = () => {
     };
 
     try {
-      const response = await sendRequest('/token/', 'POST', data);
+      const response = await sendRequest('/sign_in/', 'POST', data);
       if (response.ok) {
         const responseData = await response.json();
         localStorage.setItem('access_token', responseData.access);
         localStorage.setItem('refresh_token', responseData.refresh);
         setShowPopup(false);
+        console.log('Sign-in successful');
         navigate("/dashboard");
       } else {
         console.error('Sign-in failed:');
@@ -72,7 +73,7 @@ const SignIn: React.FC = () => {
       console.error('Error during sign-in:', error);
     }
   };
-
+  
 
   return (
     <>

@@ -64,7 +64,7 @@ const SignUp: React.FC = () => {
     };
 
     try {
-      const response = await sendRequest('/sign_up', 'POST', data);
+      const response = await sendRequest('/sign_up/', 'POST', data);
 
 
       if (response.ok) {

@@ -28,10 +28,20 @@ def load_course_list():
     """
     Loads the course list from local text file.
     """
+    # Ensure the directory exists
+    os.makedirs(os.path.dirname(DATA_PATH), exist_ok=True)
+    
+    # Ensure the file exists
+    if not os.path.exists(DATA_PATH):
+        with open(DATA_PATH, 'w') as file:
+            pass  # Just create the file, no need to write anything
+    
+    # Read the file contents
     with open(DATA_PATH, 'r') as file:
         data_list = file.readlines()
-    # Note: An extra character is somehow added to every element in the list
+    
     return data_list
+
 
 def merge_two_lists(list1, list2):
     """

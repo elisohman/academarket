@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 from dotenv import load_dotenv, dotenv_values
-from datetime import timedelta
+from datetime import timedelta, datetime
 
 # Load .env file and save variables to dictionary "env_var".
 load_dotenv(".env")
@@ -43,7 +43,6 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt.token_blacklist',
     'api.apps.ApiConfig',
     'data_pipeline.apps.DataPipelineConfig',
-
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -83,7 +82,7 @@ REST_FRAMEWORK = {
 
 # SIMPLE JWT
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(seconds=15),
+    'ACCESS_TOKEN_LIFETIME': timedelta(seconds=5),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=30),
     'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': True,

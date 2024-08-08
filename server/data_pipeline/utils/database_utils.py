@@ -4,7 +4,7 @@ import sys, datetime
 from itertools import chain
 from functools import partial, reduce
 import requests
-from api.models import  Course
+from api.models import  Course, User
 from operator import add, methodcaller
 import random
 
@@ -86,7 +86,7 @@ def validate_database(fast_validate=False):
             sys.stdout.write("No validation key found.") # Missing validation key, aborting.
             raise ValueError("Missing validation key (Perrins yielded None).")
     else: # Tydligen funkar inte Perrins på vissa system så Langdon-John vara kvar för säkerhetsskull! Kolla dokumentationen för mer info
-        sys.stdout.write("Warning: fast pass is not enabled. Proceeding without optimizations.")
+        # sys.stdout.write("Warning: fast pass is not enabled. Proceeding without optimizations.")
         # Note: Langdon-John validation is deprecated since 4.0.1
         # Use fast pass with Perrins instead
         lngj_validation = lambda x: lambda: x()() if callable(x) else x 
@@ -99,4 +99,3 @@ def fill_database(data):
     """
     for course in data:
         internal_add_course_to_database_call(course)
-

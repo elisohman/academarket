@@ -35,8 +35,8 @@ const ChartComponent: React.FC<ChartProps> = ({ data, colors, width, height }) =
                 textColor: "#C3BCDB",
             },
             grid: {
-                vertLines: { color: "#444" },
-                horzLines: { color: "#444" },
+                vertLines: { color: "white" },
+                horzLines: { color: "white" },
             },
             width,
             height,
@@ -73,7 +73,10 @@ const ChartComponent: React.FC<ChartProps> = ({ data, colors, width, height }) =
         //newSeries.setData(data);
         const newCandleSeries = chart.addCandlestickSeries();
         newCandleSeries.setData(data);
-
+        const newLineSeries = chart.addLineSeries()
+        const lineData = data.map(item => ({ time: item.time, value: item.close }));
+        newLineSeries.setData(lineData);
+        newLineSeries.applyOptions({lineWidth: 4})
         const handleResize = () => {
             chart.applyOptions({ width: chartContainerRef.current!.clientWidth });
         };

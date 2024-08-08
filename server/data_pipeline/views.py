@@ -1,16 +1,17 @@
 from django.shortcuts import render
-
+from datetime import datetime, timedelta
 from django.http import HttpResponse, HttpRequest, JsonResponse
-from api.models import User, Course
+from api.models import User, Course, PricePoint, Order
 from data_pipeline.utils.courses_json_utils import read_course_data_from_code, read_all_course_data, check_if_course_exists_locally, save_course_data, fill_json_from_list
 from data_pipeline.utils.courses_list_utils import save_course_list, retrieve_new_data_from_liu, load_course_list
 from data_pipeline.utils.database_utils import fill_database, validate_database
 from data_pipeline.utils.ipo_calculation import calculate_price
-import json, requests, traceback
+import json, requests, traceback, random
+from django.utils import timezone
+import api.utils.bot_utils as bot_utils
 
 
 # Views for robbing y-sektionen
-
 
 def get_course_stats(_request: HttpRequest, course_code: str) -> JsonResponse:
     """
@@ -130,7 +131,7 @@ def add_course_to_database(_request: HttpRequest, course_code: str) -> HttpRespo
     """
     course_data = read_course_data_from_code(course_code)
     
-    if validate_database(True) and course_data:
+    if course_data:
         ipo_prize = calculate_price(course_data)
         code = course_data['course_code']
         name = course_data['course_name']
@@ -157,6 +158,8 @@ def fill_courses_database(_request: HttpRequest) -> HttpResponse:
 
 def buy_course_test(_request: HttpRequest, course_code: str, user: str) -> JsonResponse:
     """
+    !! DEPRECIATED !!
+
     Buy a course by adding it to the user's list of courses. Temporary implementation.
 
     Parameters:
@@ -176,3 +179,89 @@ def buy_course_test(_request: HttpRequest, course_code: str, user: str) -> JsonR
     current_user.courses.add(course)
     current_user.save()
     return JsonResponse({'message': 'Course bought successfully!'}, status=200)
+
+
+def initialize_all_data(_request: HttpRequest) -> HttpResponse: 
+    print("Getting course codes from LiU...")
+    data_list = retrieve_new_data_from_liu()
+    print("Codes gotten, saving them to file...")
+    save_course_list(data_list)
+    print("Codes saved! Retrieving course data...")
+    courses = load_course_list()
+    fill_json_from_list(courses)
+    print("Course data retrieved and saved to file. Adding courses to database...")
+    data = read_all_course_data()
+    fill_database(data)
+    print("Done! All data initialized successfully (I hope)!")
+    return HttpResponse(status=202, content="Data initilization executed.")
+
+
+def generate_price_histories(_request: HttpRequest) -> HttpResponse:
+    print("Generating (fake) price history data...")
+    PricePoint.objects.all().delete()
+    courses = Course.objects.all()
+    start_time = datetime.now()
+    
+    for course in courses:
+        today = datetime.now()
+        for i in range(1, 150):
+            for j in range(1, 2):
+                idate = today - timedelta(days=i) 
+                idate = idate - timedelta(hours=j)
+                random_price = random.randint(170, 185)
+                chance = random.randint(1, 100)
+                if chance <= 2:
+                    random_price += random.randint(-100, 100)
+                new_price_point = PricePoint(course = course, price=random_price)
+                tz = timezone.get_current_timezone()
+                idate = idate.replace(tzinfo=tz)
+                timestamp = idate.timestamp()
+                new_price_point.date = idate
+                new_price_point.timestamp = timestamp
+                new_price_point.save()
+        course.save()
+    end_time = datetime.now()
+    total_seconds = (end_time - start_time).total_seconds()
+    return HttpResponse(status=200, content=f'Generated price histories. Time taken: {total_seconds} seconds.')
+
+
+def call_create_bots(_request: HttpRequest) -> HttpResponse:
+    print("Creating bots...")
+    bot_utils.create_bots()
+    return HttpResponse(status=200, content="Bots created.")
+
+
+def calL_setup_bot_economy(_request: HttpRequest) -> HttpResponse:
+    print("Setting up bot economy...")
+    bot_utils.setup_bot_economy()
+    return HttpResponse(status=200, content="Bots economy set up.")
+
+
+def delete_all_users(_request: HttpRequest) -> HttpResponse:
+    print("Deleting all users...")
+    User.objects.all().delete()
+    return HttpResponse(status=200, content="All users deleted.")
+
+
+def delete_all_orders(_request: HttpRequest) -> HttpResponse:
+    print("Deleting all orders...")
+    Order.objects.all().delete()
+    return HttpResponse(status=200, content="All orders deleted.")
+
+
+def fix_course_prices(_request: HttpRequest) -> HttpResponse:
+    print("Fixing course prices...")
+    courses = Course.objects.all()
+    for course in courses:
+        course.price = int(abs(course.price)) + 1
+        if course.price > 5000:
+            course.price = 5000
+        course.save()
+    return HttpResponse(status=200, content="Prices fixed.")
+
+
+def start_scheduler(_request: HttpRequest) -> HttpResponse:
+    print("Starting scheduler...")
+    from api import scheduler
+    scheduler.start()
+    return HttpResponse(status=200, content="Scheduler started.")
