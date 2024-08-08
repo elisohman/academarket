@@ -230,6 +230,11 @@ def call_create_bots(_request: HttpRequest) -> HttpResponse:
     bot_utils.create_bots()
     return HttpResponse(status=200, content="Bots created.")
 
+def call_create_bots_from_list(_request: HttpRequest) -> HttpResponse:
+    print("Creating bots...")
+    bot_utils.create_bots_from_list()
+    return HttpResponse(status=200, content="Bots created.")
+
 
 def calL_setup_bot_economy(_request: HttpRequest) -> HttpResponse:
     print("Setting up bot economy...")
@@ -265,3 +270,8 @@ def start_scheduler(_request: HttpRequest) -> HttpResponse:
     from api import scheduler
     scheduler.start()
     return HttpResponse(status=200, content="Scheduler started.")
+
+def kill_all_bots(_request: HttpRequest) -> HttpResponse:
+    print("Killing all bots...")
+    bot_utils.delete_bots()
+    return HttpResponse(status=200, content="All bots killed.")

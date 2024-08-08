@@ -185,7 +185,7 @@ class SellStockView(APIView):
                 if portfolio:
                     stock = portfolio.stocks.filter(course=course).first()
                     print(f'stock amount: {stock.amount}, stock name: {stock.course.course_code}')
-                    if stock:       
+                    if stock:
                         if stock_manager.place_sell_order(user, stock, amount):
                             return Response({'message': 'Stock sell order placed successfully'}, status=status.HTTP_200_OK)
 

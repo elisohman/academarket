@@ -39,15 +39,16 @@ def trade_simulation():
             #stock_manager.buy_stock(user, random_stock.course, random.randint(1, 10))
             if chance <= 45:
                 stocks = Portfolio.objects.filter(user=user).first().stocks.all()
-                random_stock = stocks[random.randint(0, len(stocks)-1)]
-                sell_amount = random_stock.amount
-                print(f'Sell amount : {sell_amount}')
-                if random_stock.amount > 1:
-                    sell_amount = random.randint(1, random_stock.amount)
-                if sell_amount == 0:
-                    random_stock.delete()
-                    continue
-                stock_manager.place_sell_order(user, random_stock, sell_amount)
+                if stocks:
+                    random_stock = stocks[random.randint(0, len(stocks)-1)]
+                    sell_amount = random_stock.amount
+                    print(f'Sell amount : {sell_amount}')
+                    if random_stock.amount > 1:
+                        sell_amount = random.randint(1, random_stock.amount)
+                    if sell_amount == 0:
+                        random_stock.delete()
+                        continue
+                    stock_manager.place_sell_order(user, random_stock, sell_amount)
             else:
                 courses = Course.objects.all()
                 random_course = courses[random.randint(1, len(courses)-1)]
@@ -55,12 +56,8 @@ def trade_simulation():
                 if max_buy_amount > 1:
                     buy_amount = random.randint(1, max_buy_amount)
                     stock_manager.place_buy_order(user, random_course, buy_amount)
-                else:
-                    random_amount = random.randint(1, 10)
-                    user.balance += random_course.price * random_amount * 2
-                    user.save()
-                    stock_manager.place_buy_order(user, random_course, random_amount)
-
+                elif max_buy_amount == 1:
+                    stock_manager.place_buy_order(user, random_course, 1)
 
 
 
