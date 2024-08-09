@@ -74,9 +74,9 @@ def course_price_update(course, amount, is_buying):
     save_price_point(course)
 
 def the_algorithm(base_price):
-    K = 15
-    ALPHA = 0.8
-    scale = 10
+    K = 2
+    ALPHA = 0.7
+    scale = 1
     return 1 + ((base_price**ALPHA) * (K - (K/base_price)))*scale
 
 
