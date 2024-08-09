@@ -246,10 +246,13 @@ const Trading = () => {
             else{
                 let newPrice = 0;
                 if (courseTradeData.stock_amount >= amount && amount > 0) {
-                    let coursePrice = courseTradeData.price;
-                    let k = 0.1;
-                    newPrice = (coursePrice * (1 / (1 + k * Math.log(amount + 1))))*amount; // Same algorithm as in backend
-                    // Round to 2 decimals:
+                    let K = 15
+                    let ALPHA = 0.8
+                    let scale = 10
+                    let base_price = courseTradeData.base_price
+                    base_price -= 1
+                    newPrice = 1 + ((base_price**ALPHA) * (K - (K/base_price)))*scale
+                
                     newPrice = parseFloat(newPrice.toFixed(2));
                 }
                 setEstimatedPrice(newPrice);

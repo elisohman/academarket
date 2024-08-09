@@ -328,7 +328,8 @@ class GetCourseDataView(APIView):
                 'name': course.name,
                 'price': formatted_price,
                 'price_history': sorted_formatted_price_history_on_timestamp_date_key,
-                'stock_amount': stock_amount
+                'stock_amount': stock_amount,
+                'base_price': course.base_price,
             }
             return Response(course_data, status=status.HTTP_200_OK)
         else:
