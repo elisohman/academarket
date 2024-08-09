@@ -351,7 +351,7 @@ class DashboardView(APIView):
         if current_user:
             portfolio = Portfolio.objects.filter(user=current_user).first()
             if portfolio:
-                best_portfolio_stock = Portfolio.objects.all().order_by('-stocks__course__price').first()
+                best_portfolio_stock = portfolio.stocks.all().order_by('-course__daily_change').first()
                 dashboard_data = {
                     'best_course': trending_course.course_code,
                     'best_course_change': trending_course.daily_change,
@@ -359,8 +359,9 @@ class DashboardView(APIView):
                     'worst_course_change': worst_course.daily_change,
                     'best_users': best_users_names_only,
                     'best_user_balances': best_users_balances,
-                    'best_portfolio_stock': best_portfolio_stock.stocks.all().first().course.course_code,
-                    'best_portfolio_stock_change': best_portfolio_stock.stocks.all().first().course.daily_change}
+                    'best_portfolio_stock': best_portfolio_stock.course.course_code,
+                    'best_portfolio_stock_change': best_portfolio_stock.course.daily_change
+                    }
                 return Response(dashboard_data, status=status.HTTP_200_OK)
             else:
                 return Response({'message': 'Portfolio not found for user (should not be possible)'}, status=status.HTTP_400_BAD_REQUEST)
