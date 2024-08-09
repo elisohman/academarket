@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.urls import path, include
 from . import views
-from .views import SignUpView, SignInView, GetUserInfoView, GetPortfolioStocksView,  GetAllCoursesView, BuyStockView, SellStockView, GetCourseDataView
+from .views import SignUpView, SignInView, GetUserInfoView, GetPortfolioStocksView,  GetAllCoursesView, BuyStockView, SellStockView, GetCourseDataView, DashboardView
 from rest_framework_simplejwt.views import TokenRefreshView, TokenBlacklistView, TokenObtainPairView, TokenVerifyView
 
 
@@ -31,7 +31,7 @@ urlpatterns = [
 
     path('sell_stock/', SellStockView.as_view(), name='sell_stock'),
     path('get_course_data/', GetCourseDataView.as_view(), name='get_course_data'),
-    
+    path('get_dashboard_data/', DashboardView.as_view(), name='get_dashboard_data'),
     # Auth endpoints
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'), # Needs trailing slash, don't remove
