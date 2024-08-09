@@ -21,5 +21,6 @@ urlpatterns = [
     path('fix_course_prices/', views.fix_course_prices),
     path('start_scheduler/', views.start_scheduler),
     path('kill_all_bots/', views.kill_all_bots),
+    path('test/', views.test_percentage_data),
 
 ]

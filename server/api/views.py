@@ -134,7 +134,6 @@ class BuyStockView(APIView):
         course = Course.objects.filter(course_code=course_code).first()
         if user:
             if course:
-                stock_manager.get_last_24h_change(course)
                 if stock_manager.place_buy_order(user, course, amount):
                     return Response({'message': 'Stocks bought successfully'}, status=status.HTTP_200_OK)
                 else:
@@ -233,7 +232,7 @@ class GetPortfolioStocksView(APIView):
                 stock_data = []
                 for stock in stocks:
                     formatted_price = round(stock.amount * stock.course.price)
-                    stock_data += [[stock.course.course_code, stock.course.name, stock.amount, formatted_price, "diff%"]]        
+                    stock_data += [[stock.course.course_code, stock.course.name, stock.amount, formatted_price, str(stock.course.daily_change)+" %"]]        
 
                 data_json = {
                     'headers': ['Course Code', 'Course Name', 'Amount', 'Total Value', 'Price Change (24h)'],
@@ -271,8 +270,9 @@ class GetAllCoursesView(APIView):
         
         course_data = []
         for course in courses:
+
             formatted_price = round(course.price)
-            course_data += [[course.course_code, course.name, formatted_price, "diff%"]]        
+            course_data += [[course.course_code, course.name, formatted_price, str(course.daily_change)+" %"]]        
 
         data_json = {
             'headers': ['Course Code', 'Course Name', 'Price', 'Price Change (24h)'],
