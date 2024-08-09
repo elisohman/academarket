@@ -13,6 +13,8 @@ import sendRequest from "../../utils/request";
 import { ACCESS_TOKEN } from "../../utils/constants";
 import { getToken } from "../../utils/network";
 import PopupMessage from "../../components/popupMessage/PopupMessage";
+import { useBalance } from "../../components/topbar/useBalanceContext";
+import updateUserInfo from "../../components/topbar/TopBar"
 
 const coursesExampleData = { // Proposed structure for courses (backend should return in a similar format) -Jack
     headers: ['Course Code', 'Course Name', 'Price', 'Price Change (24h)'],
@@ -30,8 +32,9 @@ const Trading = () => {
     const allCourses = useRef<any>(); // keeps track of all courses while making multiple searches
     const [courses, setCourses] = useState<any>({headers: [], items: []});
     const navigate = useNavigate();
-    const [balance, setBalance] = useState<string>('');
+    //const [balance, setBalance] = useState<string>('');
     const [isBuying, setIsBuying] = useState<boolean>(true);
+    const { balance, setBalance } = useBalance();
 
     const [candlestickData, setCandleStickData] = useState<any>(generateCandlestickData());
     const [estimatedPrice, setEstimatedPrice] = useState<number>(0);
@@ -40,6 +43,7 @@ const Trading = () => {
         if (response.ok) {
             const responseData = await response.json();
             setBalance(responseData.balance);
+            
         } else {
             console.log("Error when getting user info");
         }
@@ -285,6 +289,8 @@ const Trading = () => {
                     setShowPopup(true);
                     setAmount(0);
                     fetchAllData();
+                    
+
                 } else {
                     console.error('Error buying stock');
                 }   
@@ -294,12 +300,8 @@ const Trading = () => {
                 if (response.ok) {
                     console.log('Stock sell order placed successfully');
                     setPopupMessageColor('text-yellow-200');
-                    if (amount === 1) {
-                        setPopupMessage(`Sold ${amount} stock of ${courseCode}!`);
-                    }
-                    else{
-                        setPopupMessage(`Sold ${amount} stocks of ${courseCode}!`);
-                    }
+                    setPopupMessage(`Sold ${amount} stock of ${courseCode}!`);
+
                     setShowPopup(true);
                     setAmount(0);
                     fetchAllData();
@@ -327,10 +329,7 @@ const Trading = () => {
                                     <p className="text-4xl vscreen:text-large font-extralight decoration-0">APE</p>
                                     <p className="text-4xl vscreen:text-large font-medium ml-2">{balance}</p>
                                 </div>
-                                <div className="flex flex-row vscreen:text-small">  
-                                    <p className="font-semibold text-green-400">+42</p>
-                                    <p className="px-1.5 "> since yesterday</p>
-                                </div>
+
                             </div>
                             <div className="flex flex-col self-end mx-8">  
                                 <SearchBar input={searchText} setInput={updateSearchText} onButtonClick={handleSearch} placeholder="Search course code..." onChange={onSearchTextChange}></SearchBar>

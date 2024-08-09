@@ -9,6 +9,7 @@ import { getToken } from '../../utils/network'
 interface PageWrapperProps {
     children: React.ReactNode;
     className?: string;
+    
 }
 
 const mutex = new Mutex();

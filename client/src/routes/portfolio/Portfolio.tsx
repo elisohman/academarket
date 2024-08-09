@@ -147,7 +147,7 @@ const Portfolio: React.FC = () => {
                 <div className="flex flex-row">
                     <div className="flex flex-col">
                         
-                        <p className="vscreen:text-small ">Available funds</p>
+                        <p className="vscreen:text-small ">Total funds</p>
                         <div className="flex flex-row py-1.5">  
                             <p className="text-4xl vscreen:text-large font-extralight decoration-0">APE</p>
                             <p className="text-4xl vscreen:text-large font-medium ml-2">{balance}</p>

@@ -63,10 +63,10 @@ def course_price_update(course, amount, is_buying):
         #new_price = course_price * (1 + (offset / course_price)) * k * amount
     else:
         new_base = old_base - 1 * amount
+    if new_base < 1:
+        new_base = 1 #1854.80852 309.13475 1.38269 1.18322
     course.base_price = new_base
     new_price = the_algorithm(new_base)
-    if new_price <= 0.001:
-        new_price = 0.001 #1854.80852 309.13475 1.38269 1.18322
     new_daily_change = calculate_daily_course_price_change(course)
     course.daily_change = new_daily_change
     course.price = new_price
@@ -77,7 +77,7 @@ def the_algorithm(base_price):
     K = 15
     ALPHA = 0.8
     scale = 10
-    return (base_price**ALPHA * (K - (K/base_price)))*scale
+    return 1 + ((base_price**ALPHA) * (K - (K/base_price)))*scale
 
 
 def save_price_point(course):

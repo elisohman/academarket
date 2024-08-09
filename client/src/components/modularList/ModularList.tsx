@@ -89,22 +89,24 @@ const ModularList: React.FC<ModularListProps> = ({content, itemsColumnClassFunc 
         <div className={`bg-slate-100 bg-transparent vscreen:text-smallerer my-2 ${className}`}>
             <div className="grid px-2 pb-2 items-center " style={{ gridTemplateColumns: `repeat(${headers.length}, minmax(0, 1fr))` }}>                            
                 {headers.map((header, index) => (
-                            <div key={index} className={`${index in headerColumnClassName ? headerColumnClassName[index] : ""}`}>
+                            <div key={`header-${index}`} // Added unique key for headers
+                             className={`${index in headerColumnClassName ? headerColumnClassName[index] : ""}`}>
                                 {headerColumnContentAddon[index] ? header+headerColumnContentAddon[index] : header}
                             </div>
                         ))}
 
             </div>
             <div className="bg-white rounded-lg shadow-md border overflow-hidden">
-                {items.map((item: any) => (
+            {items.map((item, itemIndex) => (
                 <div
-                    key={item.id}
+                    key={item.id || itemIndex} // Ensure each row has a unique key
                     className="grid px-2 py-2 border-b last:border-none cursor-pointer hover:bg-gray-100 items-center content-center vscreen:text-smaller vscreen:truncate transition duration-200 ease-in-out"
                     style={{ gridTemplateColumns: `repeat(${headers.length}, minmax(0, 1fr))` }} 
                     onClick={() => onItemClick(item)}
                 >
                     {headers.map((header, index) => (
-                    <div key={index} className={`${itemsColumnClassFunc(index, item[index])}`}>
+                    <div key={`cell-${itemIndex}-${index}`} // Added unique key for cells
+                     className={`${itemsColumnClassFunc(index, item[index])}`}>
                         {itemsColumnContentAddon[index] ? item[index]+itemsColumnContentAddon[index] : item[index]}
                     </div>
                     ))}
