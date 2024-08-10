@@ -246,13 +246,13 @@ const Trading = () => {
             else{
                 let newPrice = 0;
                 if (courseTradeData.stock_amount >= amount && amount > 0) {
-                    let K = 15
-                    let ALPHA = 0.8
-                    let scale = 10
+                    let K = 2
+                    let ALPHA = 0.7
+                    let scale = 1
                     let base_price = courseTradeData.base_price
-                    base_price -= 1
-                    newPrice = 1 + ((base_price**ALPHA) * (K - (K/base_price)))*scale
-                
+                    base_price -= amount
+                    newPrice = (1 + ((base_price**ALPHA) * (K - (K/base_price)))*scale)*amount
+                    
                     newPrice = parseFloat(newPrice.toFixed(2));
                 }
                 setEstimatedPrice(newPrice);

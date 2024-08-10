@@ -80,7 +80,7 @@ const PageWrapper: React.FC<PageWrapperProps> = ({ children, className }) => {
         return (
 
             <div className='h-screen flex justify-center items-center'>
-                <div className='text-2xl font-semibold'>Loading...</div>
+                <div className='text-2xl italic text-gray-100 font-light'>Loading...</div>
             </div>
 
         );

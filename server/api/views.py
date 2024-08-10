@@ -351,17 +351,31 @@ class DashboardView(APIView):
         if current_user:
             portfolio = Portfolio.objects.filter(user=current_user).first()
             if portfolio:
+                dashboard_data = {}
                 best_portfolio_stock = portfolio.stocks.all().order_by('-course__daily_change').first()
-                dashboard_data = {
-                    'best_course': trending_course.course_code,
-                    'best_course_change': trending_course.daily_change,
-                    'worst_course': worst_course.course_code,
-                    'worst_course_change': worst_course.daily_change,
-                    'best_users': best_users_names_only,
-                    'best_user_balances': best_users_balances,
-                    'best_portfolio_stock': best_portfolio_stock.course.course_code,
-                    'best_portfolio_stock_change': best_portfolio_stock.course.daily_change
-                    }
+                if best_portfolio_stock:
+                    dashboard_data = {
+                        'best_course': trending_course.course_code,
+                        'best_course_change': trending_course.daily_change,
+                        'worst_course': worst_course.course_code,
+                        'worst_course_change': worst_course.daily_change,
+                        'best_users': best_users_names_only,
+                        'best_users_balances': best_users_balances,
+                        'best_portfolio_stock': best_portfolio_stock.course.course_code,
+                        'best_portfolio_stock_change': best_portfolio_stock.course.daily_change
+                        }
+                else:
+                    dashboard_data = {
+                        'best_course': trending_course.course_code,
+                        'best_course_change': trending_course.daily_change,
+                        'worst_course': worst_course.course_code,
+                        'worst_course_change': worst_course.daily_change,
+                        'best_users': best_users_names_only,
+                        'best_users_balances': best_users_balances,
+                        'best_portfolio_stock': None,
+                        'best_portfolio_stock_change': None
+                        }
+
                 return Response(dashboard_data, status=status.HTTP_200_OK)
             else:
                 return Response({'message': 'Portfolio not found for user (should not be possible)'}, status=status.HTTP_400_BAD_REQUEST)
