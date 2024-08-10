@@ -19,6 +19,8 @@ urlpatterns = [
     path('setup_bot_economy/', views.calL_setup_bot_economy),
     path('delete_all_orders/', views.delete_all_orders),
     path('fix_course_prices/', views.fix_course_prices),
+    path('fix_balances/', views.fix_balances),
+    path('update_all_daily_changes/', views.update_all_daily_changes),
     path('start_scheduler/', views.start_scheduler),
     path('kill_all_bots/', views.kill_all_bots),
     path('test/', views.test_percentage_data),

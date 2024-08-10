@@ -322,7 +322,7 @@ class GetCourseDataView(APIView):
                     if stock:
                         stock_amount = stock.amount
                         
-            formatted_price = round(course.price, 2)
+            formatted_price = round(stock_manager.the_algorithm(course.base_price), 2)
             course_data = {
                 'course_code': course.course_code,
                 'name': course.name,

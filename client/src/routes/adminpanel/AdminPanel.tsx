@@ -10,7 +10,7 @@ import PageWrapper from '../../components/pagewrapper/PageWrapper';
 const monkey = './assets/images/bg-monkeys.jpg';
 
 const AdminPanel: React.FC = () => {
-
+    const [isLoading, setIsLoading] = useState(false);
     const startScheduler = () => {
         const url = '/start_scheduler/' // file in public directory
         datapipelineRequest(url);
@@ -19,10 +19,15 @@ const AdminPanel: React.FC = () => {
         const url = '/generate_price_histories/' // file in public directory
         datapipelineRequest(url);
     }
-    const fixPrices = () => {
+    const fixCoursePrices = () => {
         const url = '/fix_course_prices/' // file in public directory
         datapipelineRequest(url);
     }
+    const fixBalances = () => {
+        const url = '/fix_balances/' // file in public directory
+        datapipelineRequest(url);
+    }
+
     const deleteAllUsers = () => {
         const url = '/delete_all_users/' // file in public directory
         datapipelineRequest(url);
@@ -39,30 +44,48 @@ const AdminPanel: React.FC = () => {
         const url = '/initialize_all_data/' // file in public directory
         datapipelineRequest(url);
     }
+
+    const updateAllDailyChanges = () => {
+        const url = '/update_all_daily_changes/' // file in public directory
+        datapipelineRequest(url);
+    }
     const datapipelineRequest = async (url : string) => {
         try {
+            setIsLoading(true);
             const response = await sendRequest(url, 'GET', undefined, "null", true);
             if (!response.ok) {
+                setIsLoading(false);
                 throw new Error('Network response was not ok');
             }
             else{
+                setIsLoading(false);
                 alert(url+" command executed successfully");
             }
         } catch (error) {
+            setIsLoading(false);
             console.error('Error fetching data:', error);
         }
     }
   
 
   return (
-      <div className="flex flex-col bg-blue-200 gap-2 m-12 p-8 rounded justify-center items-center">
-      <Button className="mt-2 font-semibold text-large text-secondary-color bg-white rounded-full p-4 px-8 hover:bg-black hover:text-white transition duration-300 ease-in-out" onClick={startScheduler}>Start scheduler</Button>
-      <Button className="mt-2 font-medium text-secondary-color bg-white rounded-full p-2 px-4 hover:bg-black hover:text-white transition duration-300 ease-in-out" onClick={fixPrices}>Fix prices</Button>
-      <Button className="mt-2 font-medium text-secondary-color bg-white rounded-full p-2 px-4 hover:bg-black hover:text-white transition duration-300 ease-in-out" onClick={createBotsFromList}>Create bots (from list)</Button>
-      <Button className="mt-2 font-medium text-secondary-color bg-white rounded-full p-2 px-4 hover:bg-black hover:text-white transition duration-300 ease-in-out" onClick={setupBotEconomy}>Setup bot economy</Button>
-      <Button className="mt-2 font-medium text-secondary-color bg-white rounded-full p-2 px-4 hover:bg-black hover:text-white transition duration-300 ease-in-out" onClick={deleteAllUsers}>Delete all users</Button>
-      <Button className="mt-2 font-medium text-secondary-color bg-white rounded-full p-2 px-4 hover:bg-black hover:text-white transition duration-300 ease-in-out" onClick={initializeAllData}>Initialize all course data</Button>
+    <div className="flex flex-row bg-blue-200 gap-2 m-12 p-8 rounded justify-center items-center">
+        <div className="flex flex-col gap-2 p-4 rounded justify-center items-center">
+            <div className="animate-pulse h-6 text-large text-blue-600">
+                {isLoading ? "Executing command..." : ""}
+            </div>
 
+            <Button className="mt-2 font-semibold text-large text-secondary-color bg-white rounded-full p-4 px-8 hover:bg-black hover:text-white transition duration-300 ease-in-out" onClick={startScheduler}>Start scheduler</Button>
+            <Button className="mt-2 font-medium text-secondary-color bg-white rounded-full p-2 px-4 hover:bg-black hover:text-white transition duration-300 ease-in-out" onClick={fixCoursePrices}>Fix course prices</Button>
+            <Button className="mt-2 font-medium text-secondary-color bg-white rounded-full p-2 px-4 hover:bg-black hover:text-white transition duration-300 ease-in-out" onClick={fixBalances}>Fix balances</Button>
+            <Button className="mt-2 font-medium text-secondary-color bg-white rounded-full p-2 px-4 hover:bg-black hover:text-white transition duration-300 ease-in-out" onClick={createBotsFromList}>Create bots (from list)</Button>
+            <Button className="mt-2 font-medium text-secondary-color bg-white rounded-full p-2 px-4 hover:bg-black hover:text-white transition duration-300 ease-in-out" onClick={setupBotEconomy}>Setup bot economy</Button>
+            <Button className="mt-2 font-medium text-secondary-color bg-white rounded-full p-2 px-4 hover:bg-black hover:text-white transition duration-300 ease-in-out" onClick={deleteAllUsers}>Delete all users</Button>
+            <Button className="mt-2 font-medium text-secondary-color bg-white rounded-full p-2 px-4 hover:bg-black hover:text-white transition duration-300 ease-in-out" onClick={initializeAllData}>Initialize all course data</Button>
+            <Button className="mt-2 font-medium text-secondary-color bg-white rounded-full p-2 px-4 hover:bg-black hover:text-white transition duration-300 ease-in-out" onClick={generatePriceHistories}>Regenerate price histories (may take a few minutes)</Button>
+            <Button className="mt-2 font-medium text-secondary-color bg-white rounded-full p-2 px-4 hover:bg-black hover:text-white transition duration-300 ease-in-out" onClick={updateAllDailyChanges}>Update all daily changes</Button>
+
+        </div>
       </div>
   );
 }

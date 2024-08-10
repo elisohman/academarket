@@ -15,6 +15,7 @@ import { getToken } from "../../utils/network";
 import PopupMessage from "../../components/popupMessage/PopupMessage";
 import { useBalance } from "../../components/topbar/useBalanceContext";
 import updateUserInfo from "../../components/topbar/TopBar"
+import constants from '../../algorithm_constants.json';
 
 const coursesExampleData = { // Proposed structure for courses (backend should return in a similar format) -Jack
     headers: ['Course Code', 'Course Name', 'Price', 'Price Change (24h)'],
@@ -246,12 +247,12 @@ const Trading = () => {
             else{
                 let newPrice = 0;
                 if (courseTradeData.stock_amount >= amount && amount > 0) {
-                    let K = 2
-                    let ALPHA = 0.7
-                    let scale = 1
+                    const K = constants.K;
+                    const ALPHA = constants.ALPHA;
+                    const SCALE = constants.SCALE;
                     let base_price = courseTradeData.base_price
                     base_price -= amount
-                    newPrice = (1 + ((base_price**ALPHA) * (K - (K/base_price)))*scale)*amount
+                    newPrice = (1 + ((base_price**ALPHA) * (K - (K/base_price)))*SCALE*(1/base_price))*amount
                     
                     newPrice = parseFloat(newPrice.toFixed(2));
                 }
