@@ -8,11 +8,11 @@ interface PopupMessageProps {
     onClose: () => void;
     duration?: number;
     classColor?: string;
-
+    tailwindPadding?: string;
     className?: string;
 }
 
-const PopupMessage: React.FC<PopupMessageProps> = ({ message, show, onClose, duration=2000, classColor = 'text-slate-500', className='' }) => {
+const PopupMessage: React.FC<PopupMessageProps> = ({ message, show, onClose, duration=2000, classColor = 'text-slate-500', className='', tailwindPadding='p-5'}) => {
     useEffect(() => {
       const timeout = setTimeout(() => {
         onClose();
@@ -23,7 +23,7 @@ const PopupMessage: React.FC<PopupMessageProps> = ({ message, show, onClose, dur
    
 
     return (
-        <div className="flex justify-center items-center p-5">
+        <div className={`flex justify-center items-center ${tailwindPadding}`}>
             <div className={`${show ? 'opacity-100' : 'opacity-0'} transition-opacity duration-1000 ease-in-out absolute self-center ${classColor} ${className}`}>
                 <p className = "select-none">
                     {message}

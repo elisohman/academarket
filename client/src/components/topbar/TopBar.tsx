@@ -57,7 +57,7 @@ function TopBar() {
     }
 
     return (
-        <div className="text-secondary-color w-full h-20 flex px-8 text-base">
+        <div className="text-secondary-color w-full h-20 flex px-8 py-8 text-base">
             <div id="logo-area" className="flex items-center">
                 <div className="text-lg font-bold select-none">Academarket</div>
             </div>

@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface SwitchProps {
   onToggle?: (isBuy: boolean) => void;
+  bgColor?: string;
 }
 
-const Switch: React.FC<SwitchProps> = ( {onToggle = () => {}}) => {
+const Switch: React.FC<SwitchProps> = ( {onToggle = () => {}, bgColor = 'bg-primary-color'}) => {
     const [isBuy, setIsBuy] = useState(true);
   
     const toggleSwitch = () => {
@@ -25,10 +26,10 @@ const Switch: React.FC<SwitchProps> = ( {onToggle = () => {}}) => {
               {isBuy ? '+' : '-'}
             </span>
           </div>
-          <div dir={isBuy ? "rtl" : "ltr"} className={`absolute bg-primary-color flex items-center w-3/5 h-full rounded-full text-white px-4 ${isBuy ? 'border-[3px] z-10 border-white' : 'border z-0'}`}>
+          <div dir={isBuy ? "rtl" : "ltr"} className={`absolute ${bgColor} flex items-center w-3/5 h-full rounded-full text-white px-4 ${isBuy ? 'border-[3px] z-10 border-white' : 'border z-0'}`}>
             <span className={`flex-1 select-none ${isBuy ? 'font-semibold' : 'font-light'}`}>BUY</span>
           </div>
-          <div dir={isBuy ? "rtl" : "ltr"} className={`absolute bg-primary-color flex items-center w-3/5 left-[40%] h-full rounded-full text-white px-4 ${!isBuy ? 'border-[3px] z-10 border-white' : 'border z-0'}`}>
+          <div dir={isBuy ? "rtl" : "ltr"} className={`absolute ${bgColor} flex items-center w-3/5 left-[40%] h-full rounded-full text-white px-4 ${!isBuy ? 'border-[3px] z-10 border-white' : 'border z-0'}`}>
             <span className={`flex-1 select-none ${!isBuy ? 'font-semibold' : 'font-light'}`}>SELL</span>
           </div>
         </div>

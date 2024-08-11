@@ -77,8 +77,16 @@ const ChartComponent: React.FC<ChartProps> = ({ data, colors, width, height }) =
         const lineData = data.map(item => ({ time: item.time, value: item.close }));
         newLineSeries.setData(lineData);
         newLineSeries.applyOptions({lineWidth: 4})
+
+        const chartDiv = document.getElementById("chart");
         const handleResize = () => {
+            console.log("HELLO");
             chart.applyOptions({ width: chartContainerRef.current!.clientWidth });
+            chart.applyOptions({ height: chartContainerRef.current!.clientHeight });
+
+            //chart.applyOptions({ width: chartDiv?.offsetWidth,
+            //                    height: chartDiv?.offsetHeight
+            // });
         };
 
         window.addEventListener('resize', handleResize);
@@ -91,7 +99,7 @@ const ChartComponent: React.FC<ChartProps> = ({ data, colors, width, height }) =
         };
     }, [data, textColor, borderColor]);
 
-    return <div ref={chartContainerRef} style={{ width: '100%', height: '100%' }} />;
+    return <div className="resize" ref={chartContainerRef} style={{ width: '90%', height: '90%' }} />;
 };
 
 export default ChartComponent;
