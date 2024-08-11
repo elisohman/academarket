@@ -6,7 +6,8 @@ def create_bot_user_in_db(name: str, email: str) -> bool:
     Create a bot user for the database.
     """
     if not User.objects.filter(username=name).exists():
-        bot_user = User.objects.create(username=name, email=email, password='supersecretbotpassword')
+        bot_user = User.objects.create(username=name, email=email)
+        bot_user.set_password("supersecretbotpassword")
         bot_user.save()
         new_portfolio = Portfolio(user=bot_user)
         new_portfolio.save()
@@ -47,6 +48,17 @@ def create_bots() -> None:
         if success:
             add_bot_name_to_txt(full_name)
 
+def create_bots_from_list() -> None:
+    """
+    Create bots from name list without creating any new names.
+    """
+    bot_names = get_bot_names()
+    for bot_name in bot_names:
+        bot_name = bot_name.strip()
+        bot_user = User.objects.filter(username=bot_name).first()
+        bot_name_without_space_lowercase = bot_name.replace(" ", "").lower()
+        create_bot_user_in_db(bot_name, bot_name_without_space_lowercase + "@botmail.com")
+
 def get_bot_names() -> list:
     """
     Get the names of all bots from the botnames.txt file in resources/
@@ -79,6 +91,18 @@ def setup_bot_portfolio(bot_user: User) -> None:
         bot_user.balance = 50000
     bot_user.save()
     bot_portfolio.save()
+
+def delete_bots() -> None:
+    """
+    Delete all bots from the database.
+    """
+    bot_names = get_bot_names()
+    for bot_name in bot_names:
+        bot_name = bot_name.strip()
+        bot_user = User.objects.filter(username=bot_name).first()
+        if bot_user:
+            bot_user.delete()
+            print(f"Deleted bot {bot_name}")
 
 def setup_bot_economy() -> None:
     """

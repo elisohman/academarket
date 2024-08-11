@@ -48,22 +48,37 @@ def place_sell_order(user, stock, amount):
 
 def course_price_update(course, amount, is_buying):
     course_price = course.price
+    old_base = course.base_price
+
     if course_price == 1:
         course_price = 2
-    print(f'Course price: {course_price}, Log course price: {math.log(course_price)}, Amount: {amount}, Buy factor: {is_buying}')
+    #print(f'Course price: {course_price}, Log course price: {math.log(course_price)}, Amount: {amount}, Buy factor: {is_buying}')
     #new_price = (math.log(course_price))*amount*buy_factor + course_price
     #new_price = (math.(course_price))*amount*buy_factor + course_price
-    k = 0.1
-    new_price = 0
+    k = 1.01
+    offset = 10.0
+    new_price, new_base = 0, 0
     if is_buying:
-        new_price = course_price * (1+k*np.log(amount+1))
+        new_base = old_base + 1 * amount
+        #new_price = course_price * (1 + (offset / course_price)) * k * amount
     else:
-        new_price = course_price * (1/(1+k*np.log(amount+1)))
-    if new_price <= 0.001:
-        new_price = 0.001
+        new_base = old_base - 1 * amount
+    if new_base < 1:
+        new_base = 1 #1854.80852 309.13475 1.38269 1.18322
+    course.base_price = new_base
+    new_price = the_algorithm(new_base)
+    new_daily_change = calculate_daily_course_price_change(course)
+    course.daily_change = new_daily_change
     course.price = new_price
     course.save()
     save_price_point(course)
+
+def the_algorithm(base_price):
+    K = 2
+    ALPHA = 0.7
+    scale = 1
+    return 1 + ((base_price**ALPHA) * (K - (K/base_price)))*scale
+
 
 def save_price_point(course):
     price = course.price
@@ -78,24 +93,22 @@ def save_balance_point(user):
     balance_point.save()
 
 
-def get_last_24h_change(course):
-    # This doesnt work correctly yet
-    #price_points = PricePoint.objects.filter(course=course).order_by('-timestamp')
-    price_points = PricePoint.objects.filter(course=course).order_by('-timestamp')
-    timestamps = sorted([point.timestamp for point in price_points])
-    unique_dates = {datetime.fromtimestamp(timestamp).date(): point.price for timestamp, point in zip(timestamps, price_points)}
-    unique_dates = dict(sorted(unique_dates.items())[-2:])
-    latest_price = list(unique_dates.values())[0]
-    previous_price = list(unique_dates.values())[1]
-    change_percentage = (latest_price - previous_price) / previous_price * 100
-    print(change_percentage)
-    print(unique_dates)
-# APE 3964.830398684156
-# APE 118338.90430853292
-# APE 118113.90430853292
-# APE 118136.49739805765
-# APE 118136.49739805765
-# APE 113062.49739805765
-# APE 135721.64136886346
-# APE 135601.64136886346
-# APE 135721.64136886346
+def calculate_daily_course_price_change(course):
+    price_points = reversed(PricePoint.objects.filter(course=course).order_by('-timestamp'))
+    price_points_on_date = list({(datetime.fromtimestamp(point.timestamp).date()): point for point in price_points}.values())
+    if(len(price_points_on_date) >= 2):
+        latest_price = price_points_on_date[-1].price
+        second_latest_price = price_points_on_date[-2].price
+        change_percentage = ((latest_price - second_latest_price) / second_latest_price) * 100
+        return round(change_percentage, 2)
+    return 0
+
+def calculate_daily_balance_change(user):
+    price_points = reversed(BalancePoint.objects.filter(user=user).order_by('-timestamp'))
+    price_points_on_date = list({(datetime.fromtimestamp(point.timestamp).date()): point for point in price_points}.values())
+    if(len(price_points_on_date) >= 2):
+        latest_price = price_points_on_date[-1].price
+        second_latest_price = price_points_on_date[-2].price
+        change_percentage = ((latest_price - second_latest_price) / second_latest_price) * 100
+        return round(change_percentage, 2)
+    return 0

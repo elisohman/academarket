@@ -9,8 +9,8 @@ from data_pipeline.utils.ipo_calculation import calculate_price
 import json, requests, traceback, random
 from django.utils import timezone
 import api.utils.bot_utils as bot_utils
-
-
+import api.utils.stock_manager as stock_manager
+import math
 # Views for robbing y-sektionen
 
 def get_course_stats(_request: HttpRequest, course_code: str) -> JsonResponse:
@@ -230,6 +230,11 @@ def call_create_bots(_request: HttpRequest) -> HttpResponse:
     bot_utils.create_bots()
     return HttpResponse(status=200, content="Bots created.")
 
+def call_create_bots_from_list(_request: HttpRequest) -> HttpResponse:
+    print("Creating bots...")
+    bot_utils.create_bots_from_list()
+    return HttpResponse(status=200, content="Bots created.")
+
 
 def calL_setup_bot_economy(_request: HttpRequest) -> HttpResponse:
     print("Setting up bot economy...")
@@ -253,9 +258,9 @@ def fix_course_prices(_request: HttpRequest) -> HttpResponse:
     print("Fixing course prices...")
     courses = Course.objects.all()
     for course in courses:
-        course.price = int(abs(course.price)) + 1
-        if course.price > 5000:
-            course.price = 5000
+        ri = random.randint(1, 100)
+        course.base_price = ri
+        course.price = stock_manager.the_algorithm(ri)
         course.save()
     return HttpResponse(status=200, content="Prices fixed.")
 
@@ -265,3 +270,13 @@ def start_scheduler(_request: HttpRequest) -> HttpResponse:
     from api import scheduler
     scheduler.start()
     return HttpResponse(status=200, content="Scheduler started.")
+
+def kill_all_bots(_request: HttpRequest) -> HttpResponse:
+    print("Killing all bots...")
+    bot_utils.delete_bots()
+    return HttpResponse(status=200, content="All bots killed.")
+
+def test_percentage_data(_request: HttpRequest) -> HttpResponse:
+    course = Course.objects.filter(course_code="723G80").first()
+    stock_manager.calculate_daily_course_price_change(course)
+    return HttpResponse(status=200, content="Prices multiplied by 100.")

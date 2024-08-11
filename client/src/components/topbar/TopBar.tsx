@@ -6,19 +6,20 @@ import { ACCESS_TOKEN, REFRESH_TOKEN } from "../../utils/constants";
 import sendRequest from "../../utils/request";
 import { jwtDecode, JwtPayload } from "jwt-decode";
 import { Exception } from "sass";
+import { useBalance } from "../../components/topbar/useBalanceContext";
 
 // Define a custom interface that extends JwtPayload
 interface CustomJwtPayload extends JwtPayload {
     user_id: string;
   }
 
-function TopBar() {
+
+const TopBar = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const path = location.pathname;
     const [username, setUsername] = useState<string | null>(null);
-    const [balance, setBalance] = useState<string | null>(null);
-
+    const { balance, setBalance } = useBalance();
 
 
     const updateUserInfo = async (access_token : string) => {
@@ -42,7 +43,7 @@ function TopBar() {
         } else {
             console.log("No access token");
         }
-    },[]);
+    },[balance]);
     
     
     const handleLogout = async () => {

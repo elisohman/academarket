@@ -7,6 +7,8 @@ import Dashboard from './routes/dashboard/Dashboard';
 import Portfolio from './routes/portfolio/Portfolio';
 import Trading from './routes/trading/Trading';
 
+import { BalanceProvider } from './components/topbar/useBalanceContext'
+
 import reportWebVitals from './reportWebVitals';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 
@@ -43,7 +45,9 @@ const root = ReactDOM.createRoot(
 
 root.render(
   <React.StrictMode>
+    <BalanceProvider> 
     <RouterProvider router={router} />
+    </BalanceProvider>
   </React.StrictMode>
 );
 

@@ -19,7 +19,8 @@ class Course(models.Model):
     course_code = models.CharField(max_length=10, unique=True)
     name = models.CharField(max_length=100, null=True) # accepts null but shouldn't be possible
     price = models.FloatField(null=True)
-
+    base_price = models.FloatField(null=True)
+    daily_change = models.FloatField(null=True)
 
 class PricePoint(models.Model):
     id = models.AutoField(primary_key=True)
