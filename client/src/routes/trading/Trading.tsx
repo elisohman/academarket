@@ -200,11 +200,6 @@ const Trading = () => {
     };
 
     useEffect(() => {
-        //const token = getToken();
-        console.log("Fetch all data useEffect ran, test token:")
-        //console.log(token)
-        console.log("USE THE EFFECT");
-        // hej
         fetchAllData();
     }, []);
 
