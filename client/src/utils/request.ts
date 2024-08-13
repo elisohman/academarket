@@ -1,7 +1,10 @@
 
-async function sendRequest(path: string, method: string, body?: any, token?: string) {
+async function sendRequest(path: string, method: string, body?: any, token?: string, isAdmin=false) {
     const ipAddress = window.location.hostname;
-    const apiUrl = ipAddress === 'localhost' ? 'http://localhost:8000/api' : `http://${ipAddress}:8000/api`;
+    let apiUrl = ipAddress === 'localhost' ? 'http://localhost:8000/api' : `http://${ipAddress}:8000/api`;
+    if(isAdmin){
+        apiUrl = ipAddress === 'localhost' ? 'http://localhost:8000/data_pipeline' : `http://${ipAddress}:8000/data_pipeline`;
+    }
     console.log('API URL:', apiUrl + path)
     try {
         const headers: Record<string, string> = {

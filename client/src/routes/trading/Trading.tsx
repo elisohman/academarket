@@ -15,6 +15,7 @@ import { getToken } from "../../utils/network";
 import PopupMessage from "../../components/popupMessage/PopupMessage";
 import { useBalance } from "../../components/topbar/useBalanceContext";
 import updateUserInfo from "../../components/topbar/TopBar"
+import constants from '../../algorithm_constants.json';
 
 const coursesExampleData = { // Proposed structure for courses (backend should return in a similar format) -Jack
     headers: ['Course Code', 'Course Name', 'Price', 'Price Change (24h)'],
@@ -199,11 +200,6 @@ const Trading = () => {
     };
 
     useEffect(() => {
-        //const token = getToken();
-        console.log("Fetch all data useEffect ran, test token:")
-        //console.log(token)
-        console.log("USE THE EFFECT");
-        // hej
         fetchAllData();
     }, []);
 
@@ -246,13 +242,13 @@ const Trading = () => {
             else{
                 let newPrice = 0;
                 if (courseTradeData.stock_amount >= amount && amount > 0) {
-                    let K = 15
-                    let ALPHA = 0.8
-                    let scale = 10
+                    const K = constants.K;
+                    const ALPHA = constants.ALPHA;
+                    const SCALE = constants.SCALE;
                     let base_price = courseTradeData.base_price
-                    base_price -= 1
-                    newPrice = 1 + ((base_price**ALPHA) * (K - (K/base_price)))*scale
-                
+                    base_price -= amount
+                    newPrice = (1 + ((base_price**ALPHA) * (K - (K/base_price)))*SCALE*(1/base_price))*amount
+                    
                     newPrice = parseFloat(newPrice.toFixed(2));
                 }
                 setEstimatedPrice(newPrice);

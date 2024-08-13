@@ -322,7 +322,7 @@ class GetCourseDataView(APIView):
                     if stock:
                         stock_amount = stock.amount
                         
-            formatted_price = round(course.price, 2)
+            formatted_price = round(stock_manager.the_algorithm(course.base_price), 2)
             course_data = {
                 'course_code': course.course_code,
                 'name': course.name,
@@ -334,4 +334,51 @@ class GetCourseDataView(APIView):
             return Response(course_data, status=status.HTTP_200_OK)
         else:
             return Response({'message': 'Course not found'}, status=status.HTTP_400_BAD_REQUEST)
+
+class DashboardView(APIView):
+    """
+    View for getting dashboard stuff.
+    """
+    permission = [permissions.IsAuthenticated]
+    def get(self, request):
+        courses = Course.objects.all().order_by('-daily_change')
+        trending_course = courses.first()
+        worst_course = courses.last()
+        best_users = User.objects.all().order_by('-balance')[:5]
+        best_users_names_only = [user.username for user in best_users]
+        best_users_balances = [user.balance for user in best_users]
+        current_user = User.objects.get(username=request.user)
+        if current_user:
+            portfolio = Portfolio.objects.filter(user=current_user).first()
+            if portfolio:
+                dashboard_data = {}
+                best_portfolio_stock = portfolio.stocks.all().order_by('-course__daily_change').first()
+                if best_portfolio_stock:
+                    dashboard_data = {
+                        'best_course': trending_course.course_code,
+                        'best_course_change': trending_course.daily_change,
+                        'worst_course': worst_course.course_code,
+                        'worst_course_change': worst_course.daily_change,
+                        'best_users': best_users_names_only,
+                        'best_users_balances': best_users_balances,
+                        'best_portfolio_stock': best_portfolio_stock.course.course_code,
+                        'best_portfolio_stock_change': best_portfolio_stock.course.daily_change
+                        }
+                else:
+                    dashboard_data = {
+                        'best_course': trending_course.course_code,
+                        'best_course_change': trending_course.daily_change,
+                        'worst_course': worst_course.course_code,
+                        'worst_course_change': worst_course.daily_change,
+                        'best_users': best_users_names_only,
+                        'best_users_balances': best_users_balances,
+                        'best_portfolio_stock': None,
+                        'best_portfolio_stock_change': None
+                        }
+
+                return Response(dashboard_data, status=status.HTTP_200_OK)
+            else:
+                return Response({'message': 'Portfolio not found for user (should not be possible)'}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({'message': 'User not found'}, status=status.HTTP_400_BAD_REQUEST)
 

@@ -203,15 +203,21 @@ def generate_price_histories(_request: HttpRequest) -> HttpResponse:
     start_time = datetime.now()
     
     for course in courses:
+        current_price = course.price
+        latest_price = course.price
         today = datetime.now()
         for i in range(1, 150):
             for j in range(1, 2):
                 idate = today - timedelta(days=i) 
                 idate = idate - timedelta(hours=j)
-                random_price = random.randint(170, 185)
+                max_new_price = latest_price * 1.15
+                min_new_price = latest_price * 0.85
                 chance = random.randint(1, 100)
                 if chance <= 2:
-                    random_price += random.randint(-100, 100)
+                    max_new_price = latest_price * 1.3
+                    min_new_price = latest_price * 0.7
+                random_price = random.uniform(min_new_price, max_new_price)
+                latest_price = random_price
                 new_price_point = PricePoint(course = course, price=random_price)
                 tz = timezone.get_current_timezone()
                 idate = idate.replace(tzinfo=tz)
@@ -219,6 +225,7 @@ def generate_price_histories(_request: HttpRequest) -> HttpResponse:
                 new_price_point.date = idate
                 new_price_point.timestamp = timestamp
                 new_price_point.save()
+        stock_manager.save_price_point(course)
         course.save()
     end_time = datetime.now()
     total_seconds = (end_time - start_time).total_seconds()
@@ -258,12 +265,20 @@ def fix_course_prices(_request: HttpRequest) -> HttpResponse:
     print("Fixing course prices...")
     courses = Course.objects.all()
     for course in courses:
-        ri = random.randint(1, 100)
+        ri = random.randint(50, 200)
         course.base_price = ri
         course.price = stock_manager.the_algorithm(ri)
         course.save()
     return HttpResponse(status=200, content="Prices fixed.")
 
+def fix_balances(_request: HttpRequest) -> HttpResponse:
+    print("Fixing balances...")
+    users = User.objects.all()
+    for user in users:
+        ri = random.randint(100, 1000)
+        user.balance = ri
+        user.save()
+    return HttpResponse(status=200, content="Balances fixed.")
 
 def start_scheduler(_request: HttpRequest) -> HttpResponse:
     print("Starting scheduler...")
@@ -280,3 +295,11 @@ def test_percentage_data(_request: HttpRequest) -> HttpResponse:
     course = Course.objects.filter(course_code="723G80").first()
     stock_manager.calculate_daily_course_price_change(course)
     return HttpResponse(status=200, content="Prices multiplied by 100.")
+
+def update_all_daily_changes(_request: HttpRequest) -> HttpResponse:
+    courses = Course.objects.all()
+    for course in courses:
+        new_daily_change = stock_manager.calculate_daily_course_price_change(course)
+        course.daily_change = new_daily_change
+        course.save()
+    return HttpResponse(status=200, content="All daily changes updated.")

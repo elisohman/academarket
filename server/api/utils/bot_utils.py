@@ -72,6 +72,7 @@ def setup_bot_portfolio(bot_user: User) -> None:
     Setup the portfolio for a bot user.
     """
     bot_portfolio = Portfolio.objects.filter(user=bot_user).first()
+    bot_portfolio.stocks.all().delete()
     courses = Course.objects.all()
     for i in range(10):
         course = courses[random.randint(0, len(courses)-1)]
@@ -86,9 +87,9 @@ def setup_bot_portfolio(bot_user: User) -> None:
             bot_portfolio.stocks.add(new_stock)
             print(f'Adding stock {course.course_code} to bot {bot_user.username}.')
 
-    bot_user.balance = random.randint(5000, 30000)
+    bot_user.balance = random.randint(1, 1500)
     if bot_user.username == "Jamal Davis":
-        bot_user.balance = 50000
+        bot_user.balance = 10000
     bot_user.save()
     bot_portfolio.save()
 

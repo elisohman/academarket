@@ -6,6 +6,7 @@ import SignUp from './routes/signup/SignUp';
 import Dashboard from './routes/dashboard/Dashboard';
 import Portfolio from './routes/portfolio/Portfolio';
 import Trading from './routes/trading/Trading';
+import AdminPanel from './routes/adminpanel/AdminPanel';
 
 import { BalanceProvider } from './components/topbar/useBalanceContext'
 
@@ -36,6 +37,10 @@ const router = createBrowserRouter([
   {
     path: '/trading',
     element: <Trading />
+  },
+  {
+    path: '/admin',
+    element: <AdminPanel />
   }
 ]);
 
