@@ -15,8 +15,9 @@ def place_buy_order(user, course, amount):
     if not portfolio:
         portfolio = Portfolio.objects.create(user=user)
     if user.balance >= course.price * amount:
-        
-        user.balance -= course.price * amount
+        buy_value = course_price_update(course, amount, True)
+
+        user.balance -= buy_value #course.price * amount # Note: this behavior might be weird, check first comment if so
         user.save()
         existing_stock = portfolio.stocks.filter(course=course).first()
         if existing_stock:
@@ -26,7 +27,6 @@ def place_buy_order(user, course, amount):
             new_stock = Stock.objects.create(course=course, amount=amount)
             portfolio.stocks.add(new_stock)
         portfolio.save()
-        course_price_update(course, amount, True)
 
         return True
     return False
@@ -38,43 +38,64 @@ def place_sell_order(user, stock, amount):
     """
     #print("Finalizing sell order!")
     if stock.amount >= amount:
-        user.balance += stock.course.price * amount
+        sell_value = course_price_update(stock.course, amount, False)
+        user.balance += sell_value
         user.save()
         stock.amount -= amount
         stock.save()
         if stock.amount == 0:
             stock.delete()
-        course_price_update(stock.course, amount, False)
         return True
     return False
 
 def course_price_update(course, amount, is_buying):
     old_base = course.base_price
-    new_price, new_base = 0, 0
+    sell_value = 0
     if is_buying:
-        new_base = old_base + (1 * amount)
+        sell_value = calculate_course_price_update(course, old_base, amount, True)
     else:
-        new_base = old_base - (1 * amount)
+        sell_value = calculate_course_price_update(course, old_base, amount, False)
     if new_base < 1:
         new_base = 1 
-    course.base_price = new_base
-    new_price = the_algorithm(new_base)
-    course.price = new_price
+        course.base_price = new_base
+        new_price = the_algorithm(new_base)
+        course.price = new_price
     save_price_point(course)
     new_daily_change = calculate_daily_course_price_change(course)
     course.daily_change = new_daily_change
     course.save()
+    return sell_value
+def calculate_course_price_update(course, base_price, amount, is_buying=True):
+    base_prices = np.array(0)
+    if is_buying:
+        base_prices = np.arange(base_price, base_price + amount, 1)
+    else:
+        base_prices = np.arange(base_price, base_price - amount, -1)
+    # Create an array of prices decrementing from base_price
+    print(base_prices)
+    
+    # Compute the original price once
+    original_price = the_algorithm(base_price)
+    
+    # Compute all iteration prices at once using vectorized operations
+    iteration_prices = the_algorithm(base_prices)
+    
+    # Calculate the difference and average difference value
+    diff_value = np.sum(original_price - iteration_prices)
+    new_price = iteration_prices[-1]
+    new_base = base_prices[-1]
+    course.base_price = new_base
+    course.price = new_price
 
-def the_algorithm(base_price):
-    algorithm_constants_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../client/src/algorithm_constants.json'))
-    with open(algorithm_constants_path) as f:
-        constants = json.load(f)
+    return abs(diff_value)
+
+
+def the_algorithm(base_price, constants):
     K = constants['K']
     A = constants['ALPHA']
     S = constants['SCALE']
 
-    return 1 + ((base_price**A) * (K - (K/base_price)))*S*(1/base_price)
-
+    return 1 + ((base_price**A) * (K - (K/base_price))) * S * (1/base_price)
 
 def save_price_point(course):
     price = course.price
