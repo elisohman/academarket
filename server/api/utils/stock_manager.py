@@ -1,7 +1,8 @@
 
 from api.models import Portfolio, Stock, PricePoint, BalancePoint
 import math
-from datetime import datetime
+from datetime import datetime, timedelta
+from django.utils import timezone
 import numpy as np
 import os
 import json
@@ -37,13 +38,13 @@ def place_sell_order(user, stock, amount):
     """
     #print("Finalizing sell order!")
     if stock.amount >= amount:
-        course_price_update(stock.course, amount, False)
         user.balance += stock.course.price * amount
         user.save()
         stock.amount -= amount
         stock.save()
         if stock.amount == 0:
             stock.delete()
+        course_price_update(stock.course, amount, False)
         return True
     return False
 
@@ -58,11 +59,11 @@ def course_price_update(course, amount, is_buying):
         new_base = 1 
     course.base_price = new_base
     new_price = the_algorithm(new_base)
+    course.price = new_price
+    save_price_point(course)
     new_daily_change = calculate_daily_course_price_change(course)
     course.daily_change = new_daily_change
-    course.price = new_price
     course.save()
-    save_price_point(course)
 
 def the_algorithm(base_price):
     algorithm_constants_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../client/src/algorithm_constants.json'))
@@ -89,15 +90,13 @@ def save_balance_point(user):
 
 
 def calculate_daily_course_price_change(course):
-    price_points = reversed(PricePoint.objects.filter(course=course).order_by('-timestamp'))
-    price_points_on_date = list({(datetime.fromtimestamp(point.timestamp).date()): point for point in price_points}.values())
-    if(len(price_points_on_date) >= 2):
-        latest_price = price_points_on_date[-1].price
-        second_latest_price = price_points_on_date[-2].price
-        change_percentage = ((latest_price - second_latest_price) / second_latest_price) * 100
-        change_percentage = round(change_percentage, 2)
-        return change_percentage
-    return 0
+    current_price = get_closest_price_at_time(course, timezone.now()).price
+    target_time = target_time = timezone.now() - timedelta(hours=24)
+    yesterday_price = get_closest_price_at_time(course, target_time).price
+    print("YESTERDAY_PRICE = ", yesterday_price)
+    print("CURRENT_PRICE = ", current_price)
+    change_percentage = ((current_price - yesterday_price) / yesterday_price) * 100
+    return round(change_percentage, 2)
 
 def calculate_daily_balance_change(user):
     price_points = reversed(BalancePoint.objects.filter(user=user).order_by('-timestamp'))
@@ -108,3 +107,21 @@ def calculate_daily_balance_change(user):
         change_percentage = ((latest_price - second_latest_price) / second_latest_price) * 100
         return round(change_percentage, 2)
     return 0
+
+def get_closest_price_at_time(course, target_time):
+    target_time_timestamp = target_time.timestamp()
+    price_point_before = PricePoint.objects.filter(course=course, timestamp__lte=target_time_timestamp).first()
+    price_point_after = PricePoint.objects.filter(course=course, timestamp__gte=target_time_timestamp).last()
+    if price_point_before and price_point_after:
+        timestamp_before = price_point_before.timestamp
+        timestamp_after = price_point_after.timestamp
+        if (target_time_timestamp - timestamp_before) <= (timestamp_after - target_time_timestamp):
+            return price_point_before
+        else:
+            return price_point_after
+    elif price_point_before:
+        return price_point_before
+    elif price_point_after:
+        return price_point_after
+    else:
+        return 0

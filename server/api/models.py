@@ -1,6 +1,5 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-import datetime
 from django.utils import timezone
 class User(AbstractUser):
     balance = models.FloatField(null=True, default=10000)
@@ -24,11 +23,14 @@ class Course(models.Model):
 
 class PricePoint(models.Model):
     id = models.AutoField(primary_key=True)
-    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='price_points')
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='price_points', db_index=True)
     price = models.FloatField()
     # date = models.DateTimeField(auto_now_add=True) #
     date = models.DateTimeField(default=timezone.now)
-    timestamp = models.IntegerField()
+    timestamp = models.IntegerField(db_index=True)
+
+    class Meta:
+        ordering = ["-timestamp"]
 
 
 class Stock(models.Model):
