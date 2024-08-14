@@ -24,5 +24,5 @@ urlpatterns = [
     path('start_scheduler/', views.start_scheduler),
     path('kill_all_bots/', views.kill_all_bots),
     path('test/', views.test_percentage_data),
-
+    path('flush_courses_database/', views.flush_courses_database),
 ]

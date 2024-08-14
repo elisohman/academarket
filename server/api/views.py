@@ -310,7 +310,7 @@ class GetCourseDataView(APIView):
                             "high": max(price_points_per_day[date_key]),
                             "low": min(price_points_per_day[date_key]),
                             "close": price_points_per_day[date_key][-1]
-                            })   
+                            })
                 formatted_price_history.append(day_info)
             sorted_formatted_price_history_on_timestamp_date_key = sorted(formatted_price_history, key=lambda x: x['time'])
             user = User.objects.get(username=request.user)
@@ -322,7 +322,7 @@ class GetCourseDataView(APIView):
                     if stock:
                         stock_amount = stock.amount
                         
-            formatted_price = round(stock_manager.the_algorithm(course.base_price), 2)
+            formatted_price = round(stock_manager.price_update_algorithm_single_call(course.base_price), 2)
             course_data = {
                 'course_code': course.course_code,
                 'name': course.name,

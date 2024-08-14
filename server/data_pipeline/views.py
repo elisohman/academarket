@@ -155,6 +155,18 @@ def fill_courses_database(_request: HttpRequest) -> HttpResponse:
     fill_database(data)
     return HttpResponse(status=202, content="Script to fill database with courses executed.")
 
+def flush_courses_database(_request: HttpRequest) -> HttpResponse:
+    """
+    Fill the local database with course data. Calls script in database_utils.py.
+    
+    Returns:
+    - HttpResponse: HTTP response indicating that the script has been executed.
+
+    """
+    Course.objects.all().delete()
+    return HttpResponse(status=200, content="All courses in database removed.")
+
+
 
 def buy_course_test(_request: HttpRequest, course_code: str, user: str) -> JsonResponse:
     """
@@ -267,7 +279,7 @@ def fix_course_prices(_request: HttpRequest) -> HttpResponse:
     for course in courses:
         ri = random.randint(50, 200)
         course.base_price = ri
-        course.price = stock_manager.the_algorithm(ri)
+        course.price = stock_manager.price_update_algorithm_single_call(ri)
         course.save()
     return HttpResponse(status=200, content="Prices fixed.")
 

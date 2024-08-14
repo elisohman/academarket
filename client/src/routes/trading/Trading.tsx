@@ -220,6 +220,68 @@ const Trading = () => {
         }
     }, [activeSection]);
 
+    
+
+    const calculateEstimatedPrice = (trade_amount: number, isBuying: boolean) => {
+        const priceUpdateAlgorithm = (basePrice: number): number => {
+            const K = constants.K;
+            const ALPHA = constants.ALPHA;
+            const SCALE = constants.SCALE;
+
+            return 1 + ((Math.pow(basePrice, ALPHA)) * (K - (K / basePrice))) * SCALE * (1 / basePrice);
+        }
+        
+        // Function to calculate the course price update
+        const calculateCoursePriceUpdate = (
+            basePrice: number, 
+            amount: number, 
+            isBuying: boolean = true
+        ): number => {
+            // Generate array of prices based on isBuying flag
+            const basePrices: number[] = [];
+            
+            if (isBuying) {
+                for (let i = basePrice; i < basePrice + amount; i++) {
+                    basePrices.push(i);
+                }
+            } else {
+                for (let i = basePrice; i > basePrice - amount; i--) {
+                    basePrices.push(i);
+                }
+            }
+            
+            
+            // Compute all iteration prices at once using array mapping
+            const iterationPrices = basePrices.map(price => priceUpdateAlgorithm(price));
+            
+            // Compute the original price once
+            //const originalPrice = priceUpdateAlgorithm(basePrice);
+            // Calculate the difference and average difference value
+            // const diffValue = iterationPrices.reduce((acc, price) => acc + (originalPrice - price), 0);
+            
+            const totalTradeValue = iterationPrices.reduce((sum, price) => sum + price, 0);
+        
+            return Math.abs(totalTradeValue);
+        }
+        const base_price = courseTradeData.base_price;
+        return calculateCoursePriceUpdate(base_price, trade_amount, isBuying);
+    }
+
+    const getMaxBuyAmount = () => {
+        if (courseTradeData) {
+            let k = Math.floor(parseFloat(balance) / courseTradeData.price);
+            while (k > 0){
+                let maxPrice = calculateEstimatedPrice(k, true);
+                if (maxPrice <= parseFloat(balance)){
+                    return k;
+                }
+                else{
+                    k--;
+                }
+            }    
+        }
+        return 0;
+    }
 
     useEffect(() => {
         if (courseTradeData) {
@@ -229,7 +291,7 @@ const Trading = () => {
                 // 46.73
                 //APE 57576891.78
                 //APE 57576938.51
-                let newPrice = courseTradeData.price * amount;
+                let newPrice = calculateEstimatedPrice(amount, true);
                 if (newPrice <= parseFloat(balance)) {
                     newPrice = parseFloat(newPrice.toFixed(2));
                     setEstimatedPrice(newPrice);
@@ -241,13 +303,9 @@ const Trading = () => {
             }
             else{
                 let newPrice = 0;
+
                 if (courseTradeData.stock_amount >= amount && amount > 0) {
-                    const K = constants.K;
-                    const ALPHA = constants.ALPHA;
-                    const SCALE = constants.SCALE;
-                    let base_price = courseTradeData.base_price
-                    base_price -= amount
-                    newPrice = (1 + ((base_price**ALPHA) * (K - (K/base_price)))*SCALE*(1/base_price))*amount
+                    newPrice = calculateEstimatedPrice(amount, false);
                     
                     newPrice = parseFloat(newPrice.toFixed(2));
                 }
@@ -412,7 +470,7 @@ const Trading = () => {
                                         className='flex px-3 rounded-full border-2 border-light-gray text-xs text-light-gray cursor-pointer hover:bg-white hover:text-[#4ADE80] transition duration-300 ease-in-out'
                                         onClick={() => handleButtonClick(courseTradeData 
                                                                             ? isBuying 
-                                                                                ? Math.floor((parseFloat(balance) / courseTradeData.price)) : courseTradeData.stock_amount
+                                                                                ? getMaxBuyAmount() : courseTradeData.stock_amount
                                                                             : 0)}
                                     >
                                         Max
@@ -427,7 +485,9 @@ const Trading = () => {
                                             <div className={"text-emerald-100 text-large italic"}>{estimatedPrice}</div>
                                             <div className={"text-emerald-100 text-small italic pl-1 pb-1 "}> APE</div>
                                         </div>
-                                        <div className={"text-emerald-100 italic text-small"}>total buy value</div>
+                                        <div className={"text-emerald-100 italic text-small"}>estimated buy value</div>
+                                        <div className={"text-emerald-100 italic text-smaller"}>after fees</div>
+
                                     </div>
                                 </div>
                                 <div className={isBuying? "hidden":""}>
@@ -437,6 +497,8 @@ const Trading = () => {
                                             <div className={"text-rose-200 text-small italic pl-1 pb-1 "}> APE</div>
                                         </div>
                                         <div className={"text-rose-200 italic text-small"}>estimated sell value</div>
+                                        <div className={"text-rose-200 italic text-smaller"}>after fees</div>
+
                                     </div>
                                 </div>
                                 <PopupMessage message={popupMessage} show={showPopup} onClose={() => setShowPopup(false)} classColor={popupMessageColor} tailwindPadding="p-2 pt-6"></PopupMessage>
