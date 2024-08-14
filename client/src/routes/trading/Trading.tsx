@@ -270,44 +270,29 @@ const Trading = () => {
     const getMaxBuyAmount = () => {
         if (courseTradeData) {
             let k = Math.floor(parseFloat(balance) / courseTradeData.price);
-            while (k > 0){
-                let maxPrice = calculateEstimatedPrice(k, true);
-                if (maxPrice <= parseFloat(balance)){
-                    return k;
-                }
-                else{
-                    k--;
-                }
-            }    
+            return k;
         }
         return 0;
     }
 
     useEffect(() => {
         if (courseTradeData) {
+            const TRADE_VALUE : number = 250.0;
             if (isBuying) { 
-                //APE 57576836.68
-                //APE 57576836.68
-                // 46.73
-                //APE 57576891.78
-                //APE 57576938.51
-                let newPrice = calculateEstimatedPrice(amount, true);
-                if (newPrice <= parseFloat(balance)) {
+                let newPrice = 0
+                if (TRADE_VALUE*amount <= parseFloat(balance)) {
+                    newPrice = TRADE_VALUE*amount;
                     newPrice = parseFloat(newPrice.toFixed(2));
-                    setEstimatedPrice(newPrice);
                 }
-                else{
-                    setEstimatedPrice(0);
-                }
+                setEstimatedPrice(newPrice);
                 
             }
             else{
                 let newPrice = 0;
 
                 if (courseTradeData.stock_amount >= amount && amount > 0) {
-                    newPrice = calculateEstimatedPrice(amount, false);
-                    
-                    newPrice = parseFloat(newPrice.toFixed(2));
+            
+                    newPrice = TRADE_VALUE*amount;
                 }
                 setEstimatedPrice(newPrice);
             }

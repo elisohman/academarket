@@ -278,8 +278,7 @@ def fix_course_prices(_request: HttpRequest) -> HttpResponse:
     courses = Course.objects.all()
     for course in courses:
         ri = random.randint(50, 200)
-        course.base_price = ri
-        course.price = stock_manager.price_update_algorithm_single_call(ri)
+        course.price = ri
         course.save()
     return HttpResponse(status=200, content="Prices fixed.")
 
