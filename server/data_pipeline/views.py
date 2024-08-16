@@ -304,7 +304,7 @@ def kill_all_bots(_request: HttpRequest) -> HttpResponse:
 
 def test_percentage_data(_request: HttpRequest) -> HttpResponse:
     course = Course.objects.filter(course_code="723G80").first()
-    stock_manager.calculate_daily_course_price_change(course)
+    stock_manager.calculate_daily_course_price_change_percent(course)
     return HttpResponse(status=200, content="Prices multiplied by 100.")
 
 def update_all_daily_changes(_request: HttpRequest) -> HttpResponse:
@@ -312,5 +312,7 @@ def update_all_daily_changes(_request: HttpRequest) -> HttpResponse:
     for course in courses:
         new_daily_change = stock_manager.calculate_daily_course_price_change(course)
         course.daily_change = new_daily_change
+        new_daily_change_percent = stock_manager.calculate_daily_course_price_change(course, percent=True)
+        course.daily_change_percent = new_daily_change_percent
         course.save()
     return HttpResponse(status=200, content="All daily changes updated.")

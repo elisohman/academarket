@@ -230,13 +230,18 @@ class GetPortfolioStocksView(APIView):
             if portfolio:
                 stocks = portfolio.stocks.all()
                 stock_data = []
+                daily_portfolio_change = 0
+                total_portfolio_value = 0
                 for stock in stocks:
                     formatted_price = round(stock.amount * stock.course.price)
-                    stock_data += [[stock.course.course_code, stock.course.name, stock.amount, formatted_price, str(stock.course.daily_change)+" %"]]        
-
+                    stock_data += [[stock.course.course_code, stock.course.name, stock.amount, formatted_price, str(stock.course.daily_change_percent)+" %"]]        
+                    daily_portfolio_change += stock.course.daily_change
+                    total_portfolio_value += formatted_price
                 data_json = {
                     'headers': ['Course Code', 'Course Name', 'Amount', 'Total Value', 'Price Change (24h)'],
-                    'items': stock_data
+                    'items': stock_data,
+                    'daily_portfolio_change': round(daily_portfolio_change, 2),
+                    'total_portfolio_value': round(total_portfolio_value, 2)
                 }
                 return Response(data_json, status=status.HTTP_200_OK)
             else:
@@ -272,7 +277,7 @@ class GetAllCoursesView(APIView):
         for course in courses:
 
             formatted_price = round(course.price)
-            course_data += [[course.course_code, course.name, formatted_price, str(course.daily_change)+" %"]]        
+            course_data += [[course.course_code, course.name, formatted_price, str(course.daily_change_percent)+" %"]]    
 
         data_json = {
             'headers': ['Course Code', 'Course Name', 'Price', 'Price Change (24h)'],
@@ -341,7 +346,7 @@ class DashboardView(APIView):
     """
     permission = [permissions.IsAuthenticated]
     def get(self, request):
-        courses = Course.objects.all().order_by('-daily_change')
+        courses = Course.objects.all().order_by('-daily_change_percent')
         trending_course = courses.first()
         worst_course = courses.last()
         best_users = User.objects.all().order_by('-balance')[:5]
@@ -352,24 +357,24 @@ class DashboardView(APIView):
             portfolio = Portfolio.objects.filter(user=current_user).first()
             if portfolio:
                 dashboard_data = {}
-                best_portfolio_stock = portfolio.stocks.all().order_by('-course__daily_change').first()
+                best_portfolio_stock = portfolio.stocks.all().order_by('-course__daily_change_percent').first()
                 if best_portfolio_stock:
                     dashboard_data = {
                         'best_course': trending_course.course_code,
-                        'best_course_change': trending_course.daily_change,
+                        'best_course_change': trending_course.daily_change_percent,
                         'worst_course': worst_course.course_code,
-                        'worst_course_change': worst_course.daily_change,
+                        'worst_course_change': worst_course.daily_change_percent,
                         'best_users': best_users_names_only,
                         'best_users_balances': best_users_balances,
                         'best_portfolio_stock': best_portfolio_stock.course.course_code,
-                        'best_portfolio_stock_change': best_portfolio_stock.course.daily_change
+                        'best_portfolio_stock_change': best_portfolio_stock.course.daily_change_percent
                         }
                 else:
                     dashboard_data = {
                         'best_course': trending_course.course_code,
-                        'best_course_change': trending_course.daily_change,
+                        'best_course_change': trending_course.daily_change_percent,
                         'worst_course': worst_course.course_code,
-                        'worst_course_change': worst_course.daily_change,
+                        'worst_course_change': worst_course.daily_change_percent,
                         'best_users': best_users_names_only,
                         'best_users_balances': best_users_balances,
                         'best_portfolio_stock': None,

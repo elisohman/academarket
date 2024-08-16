@@ -20,6 +20,8 @@ class Course(models.Model):
     price = models.FloatField(null=True)
     base_price = models.FloatField(null=True)
     daily_change = models.FloatField(null=True)
+    daily_change_percent = models.FloatField(null=True)
+
 
 class PricePoint(models.Model):
     id = models.AutoField(primary_key=True)

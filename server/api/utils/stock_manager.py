@@ -65,7 +65,12 @@ def apply_course_price_update(course, amount, is_buying=True):
         new_price = course.price - amount*TRADE_VALUE
     course.price = new_price
     new_daily_change = calculate_daily_course_price_change(course)
+    new_daily_change_percent = calculate_daily_course_price_change(course, percent=True)
     course.daily_change = new_daily_change
+    course.daily_change_percent = new_daily_change_percent
+    print("New price: ", new_price)
+    print("New daily change: ", new_daily_change)
+    print("New daily change percent: ", new_daily_change_percent)
     course.save()
     save_price_point(course)
 
@@ -85,14 +90,19 @@ def save_balance_point(user):
     balance_point = BalancePoint(user=user, balance=balance, timestamp=timestamp)
     balance_point.save()
 
-def calculate_daily_course_price_change(course):
-    current_price = get_closest_price_at_time(course, timezone.now()).price
-    target_time = target_time = timezone.now() - timedelta(hours=24)
+
+def calculate_daily_course_price_change(course, percent=False):
+    current_price = course.price
+    target_time = timezone.now() - timedelta(hours=24)
     yesterday_price = get_closest_price_at_time(course, target_time).price
     print("YESTERDAY_PRICE = ", yesterday_price)
     print("CURRENT_PRICE = ", current_price)
-    change_percentage = ((current_price - yesterday_price) / yesterday_price) * 100
-    return round(change_percentage, 2)
+    if percent:
+        change = ((current_price - yesterday_price) / yesterday_price) * 100
+    else:
+        change = current_price - yesterday_price
+    return round(change, 2)
+
 
 def calculate_daily_balance_change(user):
     price_points = reversed(BalancePoint.objects.filter(user=user).order_by('-timestamp'))

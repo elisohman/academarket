@@ -21,6 +21,8 @@ const coursesExampleData = { // Proposed structure for courses (backend should r
 const Portfolio: React.FC = () => {
     const allCourses = useRef<any>(); // keeps track of all courses while making multiple searches;
     const [courses, setCourses] = useState<any>({headers: [], items: []});
+    const [dailyChange, setDailyChange] = useState<number>(0);
+    const [totalFunds, setTotalFunds] = useState<number>(0);
 
     const navigate = useNavigate();
     
@@ -93,6 +95,8 @@ const Portfolio: React.FC = () => {
                 const courseData = await response.json();
                 allCourses.current = courseData; // save all courses as a ref for searches
                 setCourses(allCourses.current);
+                setDailyChange(courseData['daily_portfolio_change']);
+                setTotalFunds(courseData['total_portfolio_value']);
             }
             else {
                 console.log(accessToken);
@@ -150,10 +154,10 @@ const Portfolio: React.FC = () => {
                         <p className="vscreen:text-small ">Total funds</p>
                         <div className="flex flex-row py-1.5">  
                             <p className="text-4xl vscreen:text-large font-extralight decoration-0">APE</p>
-                            <p className="text-4xl vscreen:text-large font-medium ml-2">{balance}</p>
+                            <p className="text-4xl vscreen:text-large font-medium ml-2">{totalFunds}</p>
                         </div>
                         <div className="flex flex-row vscreen:text-small">  
-                            <p className="font-semibold text-green-400">+42</p>
+                            <p className="font-semibold text-green-400">{dailyChange > 0 ? "+ APE " + dailyChange : "APE " + dailyChange}</p>
                             <p className="px-1.5 "> since yesterday</p>
                         </div>
 
