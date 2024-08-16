@@ -291,11 +291,17 @@ def fix_balances(_request: HttpRequest) -> HttpResponse:
         user.save()
     return HttpResponse(status=200, content="Balances fixed.")
 
+from api import scheduler
+
 def start_scheduler(_request: HttpRequest) -> HttpResponse:
     print("Starting scheduler...")
-    from api import scheduler
     scheduler.start()
     return HttpResponse(status=200, content="Scheduler started.")
+
+def stop_scheduler(_request: HttpRequest) -> HttpResponse:
+    print("Stopping scheduler...")
+    scheduler.stop()
+    return HttpResponse(status=200, content="Scheduler stopped.")
 
 def kill_all_bots(_request: HttpRequest) -> HttpResponse:
     print("Killing all bots...")

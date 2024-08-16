@@ -5,13 +5,23 @@ import api.utils.bot_utils as bot_utils
 import random, math
 import api.utils.stock_manager as stock_manager
 
+scheduler = None
+
 def start():
-    scheduler = BackgroundScheduler()
+    global scheduler
+    if not scheduler or not scheduler.running:
+        scheduler = BackgroundScheduler()
     #scheduler.add_job(test_job, 'interval', seconds=10)
     scheduler.add_job(timestamp_course_prices, 'interval', minutes=1)
     scheduler.add_job(trade_simulation, 'interval', seconds=5)
     scheduler.add_job(timestamp_user_balance, 'interval', minutes=1)
     scheduler.start()
+
+def stop():
+    global scheduler
+    if scheduler and scheduler.running:
+        scheduler.shutdown()
+        scheduler = None
 
 def timestamp_user_balance():
     print("Updating user balances...")
