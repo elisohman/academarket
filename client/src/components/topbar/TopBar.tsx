@@ -3,10 +3,12 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import DefaultProfilePic from "../../style/icons/DefaultProfilePic";
 import Button from "../button/Button";
 import { ACCESS_TOKEN, REFRESH_TOKEN } from "../../utils/constants";
-import sendRequest from "../../utils/request";
+//import sendRequest from "../../utils/request";
 import { jwtDecode, JwtPayload } from "jwt-decode";
 import { Exception } from "sass";
-import { useBalance } from "../../components/topbar/useBalanceContext";
+import { useUserContext } from "../../contexts/UserContext";
+import useAPI from "../../utils/network";
+import { useAuthContext } from "../../contexts/AuthContext";
 
 // Define a custom interface that extends JwtPayload
 interface CustomJwtPayload extends JwtPayload {
@@ -19,42 +21,39 @@ const TopBar = () => {
     const navigate = useNavigate();
     const path = location.pathname;
     const [username, setUsername] = useState<string | null>(null);
-    const { balance, setBalance } = useBalance();
+    const [ balance, setBalance ] = useState<number | null>(null);
+    const { user, authTokens, signOut } = useAuthContext();
+    const { userInfo } = useUserContext();
+    const sendRequest = useAPI();
 
 
-    const updateUserInfo = async (access_token : string) => {
-        const response = await sendRequest('/user_info', 'GET', undefined, access_token);
+    const updateUserInfo = async () => {
+        //const user_id = user?.user_id;
+        //const response = await sendRequest('/user_info', 'GET');
 
-        if (response.ok) {
-            const responseData = await response.json();
+        /*if (response.status === 200) {
+            const responseData = response.data;
             setUsername(responseData.username);
             setBalance(responseData.balance);
         } else {
             console.log("Error when getting user info");
-        }
+        }*/
 
     }
 
     // When topbar loads, access token is fetched and userinfo updated
     useEffect(() => {
-        const access_token = localStorage.getItem(ACCESS_TOKEN);
-        if (access_token){
-            updateUserInfo(access_token);
+        if (userInfo ){
+            setUsername(userInfo.username);
+            setBalance(userInfo.balance);
         } else {
             console.log("No access token");
         }
-    },[balance]);
+    },[userInfo]);
     
     
     const handleLogout = async () => {
-        const refresh_token = localStorage.getItem(REFRESH_TOKEN);
-        const response = await sendRequest('/token/blacklist/', 'POST', {refresh: refresh_token});
-
-        if (response.ok) {
-            localStorage.removeItem(ACCESS_TOKEN);
-            localStorage.removeItem(REFRESH_TOKEN);
-            navigate('/signin');
-        }
+        signOut();
     }
 
     return (

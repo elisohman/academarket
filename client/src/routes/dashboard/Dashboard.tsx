@@ -3,12 +3,16 @@
 import { useState, useContext, useEffect } from "react";
 import { useNavigate, useParams } from 'react-router-dom';
 
-import sendRequest from "../../utils/request";
-import { getToken } from "../../utils/network";
+import {jwtDecode} from 'jwt-decode';
+import { useAuthContext } from '../../contexts/AuthContext';
+
+//import { getToken } from "../../utils/network";
+import useAPI from "../../utils/network";
 
 import './dashboard.scss';
 import Button from '../../components/button/Button';
 import PageWrapper from '../../components/pagewrapper/PageWrapper';
+import { getAllJSDocTagsOfKind } from "typescript";
 const monkey = './assets/images/bg-monkeys.jpg';
 
 const Dashboard: React.FC = () => {
@@ -17,7 +21,29 @@ const Dashboard: React.FC = () => {
   const [bestUsersBalances, setBestUsersBalances] = useState<any>([]);
   const navigate = useNavigate();
 
-  const fetchData = async () => {
+  const sendRequest = useAPI();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await sendRequest('/get_dashboard_data/', 'GET');
+        console.log(response);
+        const jsonData = response.data;
+        console.log(jsonData.best_users_balances);
+        setBestUsers(jsonData.best_users);
+        setBestUsersBalances(jsonData.best_users_balances);
+        setDashboardData(jsonData);
+      }
+      catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    }
+    fetchData();
+ }, []);
+
+
+
+  /*const fetchData = async () => {
     const accessToken = await getToken();
     if (accessToken){
       const url = '/get_dashboard_data/' // file in public directory
@@ -35,7 +61,7 @@ const Dashboard: React.FC = () => {
           console.error('Error fetching data:', error);
       }
     }
-  };
+  };*/
   
   const priceChangeColor = (content: string) => {
     if (content.charAt(0) === "-") {
@@ -52,12 +78,12 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  useEffect(() => {
+  /*useEffect(() => {
     fetchData();
-  }, []);
+  }, []);*/
 
   return (
-    <PageWrapper>
+    //<PageWrapper>
       <div className="dashboard-container size-full bg-white flex flex-row gap-0.5 justify-center items-center gap-y-2">
         <div className="flex size-full flex-col justify-center items-center gap-y-4 p-12">
           <div className="flex-1 size-full flex flex-row justify-center items-center gap-x-4">
@@ -116,7 +142,7 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
       </div>
-    </PageWrapper>
+    //</PageWrapper>
   );
 }
 

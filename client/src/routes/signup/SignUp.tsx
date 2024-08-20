@@ -6,7 +6,8 @@ import TextField from '../../components/textfield/TextField';
 import { useNavigate } from 'react-router-dom';
 import PopupMessage from '../../components/popupMessage/PopupMessage';
 import React, { useState } from 'react';
-import sendRequest from '../../utils/request';
+import { useAuthContext } from '../../contexts/AuthContext';
+//import sendRequest from '../../utils/request';
 
 const monkey = './assets/images/bg-monkeys.jpg';
 //const monkey = './assets/images/minimalistic-monkey';
@@ -25,6 +26,8 @@ const SignUp: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [repeatPassword, setRepeatPassword] = useState('');
+
+  const { signUp } = useAuthContext();
 
   const handleSignup = async () => {
 
@@ -56,33 +59,19 @@ const SignUp: React.FC = () => {
       return;
     }
 
-    const data = {
-      'username': username,
-      'email': email,
-      'password': password,
-      'rpt_password': repeatPassword
-    };
+    const status = await signUp(username, email, password, repeatPassword);
 
-    try {
-      const response = await sendRequest('/sign_up/', 'POST', data);
-
-
-      if (response.ok) {
+      if (status === 201) {
         console.log('Successful sign-up:');
         localStorage.setItem('signupSuccess', 'true');
         navigate("/signin");  
         
       } else {
-        console.log(response)
+        console.log(status)
         setPopupMessage('Unsuccesful sign-up. Perhaps the user already exists?');
         setShowPopup(true); 
         console.error('Sign-up failed:');
       }
-    } catch (error) {
-      setPopupMessage('Bip bop something went wrong!');
-      setShowPopup(true); 
-      console.error('Error during sign-up:', error);
-    }
   };
   return (
     <>

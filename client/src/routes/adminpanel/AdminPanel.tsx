@@ -2,7 +2,7 @@
 //import logo from './logo.svg';
 import { useState, useContext, useEffect } from "react";
 import sendRequest from "../../utils/request";
-import { getToken } from "../../utils/network";
+//import { getToken } from "../../utils/network";
 
 import './adminpanel.scss';
 import Button from '../../components/button/Button';

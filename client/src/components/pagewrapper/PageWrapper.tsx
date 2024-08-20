@@ -3,9 +3,10 @@ import { useState, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 import { REFRESH_TOKEN, ACCESS_TOKEN } from '../../utils/constants';
 import { jwtDecode } from 'jwt-decode';
-import sendRequest from '../../utils/request';
 import { Mutex } from 'async-mutex';
-import { getToken } from '../../utils/network'
+import { useAuthContext } from '../../contexts/AuthContext';
+import { useUserContext } from '../../contexts/UserContext';
+//import { getToken } from '../../utils/network'
 interface PageWrapperProps {
     children: React.ReactNode;
     className?: string;
@@ -16,7 +17,15 @@ const mutex = new Mutex();
 
 
 const PageWrapper: React.FC<PageWrapperProps> = ({ children, className }) => {
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const {authTokens} = useAuthContext();
+    const {updateUserInfo} = useUserContext();
+    useEffect(() => { 
+         if (authTokens){
+            updateUserInfo();
+            console.log("We're in!");
+         }
+    }, [authTokens]);
+    /*const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -84,15 +93,16 @@ const PageWrapper: React.FC<PageWrapperProps> = ({ children, className }) => {
             </div>
 
         );
+    }*/
+    if (authTokens){
+        return (
+            <div className={'h-screen flex flex-col ' + className}>
+                <TopBar />
+                <div className='grow px-8 pb-8'>{children}</div>
+            </div>
+        );
+    }else {
+        return <>{children}</>
     }
-
-    return isAuthenticated ? (
-        <div className={'h-screen flex flex-col ' + className}>
-            <TopBar />
-            <div className='grow px-8 pb-8'>{children}</div>
-        </div>
-    ) : (
-        <Navigate to='/signin' />
-    );
 };
 export default PageWrapper;

@@ -6,7 +6,8 @@ import TextField from '../../components/textfield/TextField';
 import PopupMessage from '../../components/popupMessage/PopupMessage';
 import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
-import sendRequest from '../../utils/request';
+import {useAuthContext} from '../../contexts/AuthContext';
+import { useUserContext } from '../../contexts/UserContext';
 
 const monkey = './assets/images/bg-monkeys.jpg';
 
@@ -22,6 +23,7 @@ const SignIn: React.FC = () => {
   const [popupMessageColor, setPopupMessageColor] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const {signIn} = useAuthContext();
   
   // This useEffect part is to correctly show the message (once!) after a new successful sign up has redirected the user here // Jack
   useEffect(() => {
@@ -34,24 +36,32 @@ const SignIn: React.FC = () => {
     }
   }, [showPopup]); 
 
-  const handleSignin = async () => {
-    if (username === '') {
-      setPopupMessageColor('text-red-500');
-      setPopupMessage('Please enter a username');
-      setShowPopup(true);
-      return;
-    }
-    if (password === '') {
-      setPopupMessageColor('text-red-500');
-      setPopupMessage('Please enter a password');
-      setShowPopup(true);
-      return;
-    }
+const handleSignin = async () => {
+  if (username === '') {
+    setPopupMessageColor('text-red-500');
+    setPopupMessage('Please enter a username');
+    setShowPopup(true);
+    return;
+  }
+  if (password === '') {
+    setPopupMessageColor('text-red-500');
+    setPopupMessage('Please enter a password');
+    setShowPopup(true);
+    return;
+  }
 
-    const data = {
-      username: username,
-      password: password
-    };
+  const status = await signIn(username, password);
+  console.log('status:', status);
+  if (status === 200) {
+    setShowPopup(false);
+  } else {
+    setPopupMessageColor('text-red-500');
+    setPopupMessage('Please enter valid credentials');
+    setShowPopup(true);
+  }
+
+  }
+/*
 
     try {
       const response = await sendRequest('/sign_in/', 'POST', data);
@@ -73,7 +83,7 @@ const SignIn: React.FC = () => {
       console.error('Error during sign-in:', error);
     }
   };
-  
+  */
 
   return (
     <>

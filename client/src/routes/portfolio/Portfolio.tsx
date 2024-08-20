@@ -4,9 +4,10 @@ import SearchBar from "../../components/searchBar/SearchBar";
 import ModularList from "../../components/modularList/ModularList";
 
 import { useState, useEffect, useRef } from "react";
-import sendRequest from "../../utils/request";
+//import sendRequest from "../../utils/request";
 import { ACCESS_TOKEN } from "../../utils/constants";
-import { getToken } from "../../utils/network";
+//import { getToken } from "../../utils/network";
+import useAPI from "../../utils/network";
 
 
 
@@ -34,11 +35,13 @@ const Portfolio: React.FC = () => {
     }
     const [balance, setBalance] = useState<string>('');
 
-    const fetchEconomics = async (access_token : string) => {
-        const response = await sendRequest('/user_info', 'GET', undefined, access_token);
+    const sendRequest = useAPI();
 
-        if (response.ok) {
-            const responseData = await response.json();
+    const fetchEconomics = async () => {
+        const response = await sendRequest('/user_info', 'GET');
+
+        if (response.status === 200) {
+            const responseData = await response.data;
             setBalance(responseData.balance);
         } else {
             console.log("Error when getting user info");
@@ -71,43 +74,40 @@ const Portfolio: React.FC = () => {
     };
 
     const fetchData = async () => {
-        const fetchEconomics = async (accessToken : string) => {
-            const response = await sendRequest('/user_info', 'GET', undefined, accessToken);
-            if (response.ok) {
-                const responseData = await response.json();
+        /*const fetchEconomics = async () => {
+            const response = await sendRequest('/user_info', 'GET');
+            if (response.status === 200) {
+                const responseData = await response.data;
                 setBalance(responseData.balance);
             } else {
                 console.log("Error when getting user info");
             }
-        }
+        }*/
     
-        const fetchPortfolioStocks = async (accessToken : string) => {
+        const fetchPortfolioStocks = async () => {
             /*
                 There exists a race condition, if access token needs to be refreshed at the same time as get requests
                 then access token is unathorized. Minor problem though when access token has a lifetime that isn't super short (15 seconds)
             */
-            const requestBody = {
-                'username': localStorage.getItem('username')        
-            }
-            const response = await sendRequest('/get_portfolio', 'GET', requestBody, accessToken);
-    
-            if (response.ok) {
-                const courseData = await response.json();
-                allCourses.current = courseData; // save all courses as a ref for searches
-                setCourses(allCourses.current);
-                setDailyChange(courseData['daily_portfolio_change']);
-                setTotalFunds(courseData['total_portfolio_value']);
-            }
-            else {
-                console.log(accessToken);
-                console.log("Error when getting course data");
+            try {
+                const response = await sendRequest('/get_portfolio', 'GET');
+        
+                if (response.status === 200) {
+                    const courseData = await response.data;
+                    allCourses.current = courseData; // save all courses as a ref for searches
+                    setCourses(allCourses.current);
+                    setDailyChange(courseData['daily_portfolio_change']);
+                    setTotalFunds(courseData['total_portfolio_value']);
+                }
+                else {
+                    console.log("Error when getting course data");
+                }
+            } catch (error) {
+                console.error('Error fetching data:', error);
             }
         }
-        const token = await getToken();
-        if (token) {
-            fetchEconomics(token);
-            fetchPortfolioStocks(token);
-        }
+        //fetchEconomics();
+        fetchPortfolioStocks();
     };
 
     const checkColumnContent = (index: number, content: any) => {
@@ -137,7 +137,11 @@ const Portfolio: React.FC = () => {
 
 
     useEffect(() => {
-        fetchData();
+        try {
+            fetchData();
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
     }, []);
 
     const itemsContentAddon = {
@@ -145,7 +149,7 @@ const Portfolio: React.FC = () => {
     }
 
     return (
-        <PageWrapper>
+        //<PageWrapper>
         <div className="vscreen:text-smaller">
             <div className="overflow-auto bg-slate-100 rounded flex flex-col p-4 ">
                 <div className="flex flex-row">
@@ -172,7 +176,7 @@ const Portfolio: React.FC = () => {
             </div>
              
         </div>
-        </PageWrapper>
+        //</PageWrapper>
     );
 };
 

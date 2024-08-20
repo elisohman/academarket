@@ -16,6 +16,8 @@ from collections import OrderedDict
 
 import api.utils.stock_manager as stock_manager
 
+from django.db.models import Sum, F, FloatField
+
 
 #-- Views! --#
 
@@ -349,9 +351,14 @@ class DashboardView(APIView):
         courses = Course.objects.all().order_by('-daily_change_percent')
         trending_course = courses.first()
         worst_course = courses.last()
-        best_users = User.objects.all().order_by('-balance')[:5]
+        best_users = User.objects.annotate(
+            total_portfolio_value=Sum(
+                F('portfolios__stocks__amount') * F('portfolios__stocks__course__price'),
+                output_field=FloatField()
+            )
+        ).order_by('-total_portfolio_value')[:5]
         best_users_names_only = [user.username for user in best_users]
-        best_users_balances = [user.balance for user in best_users]
+        best_users_balances = [user.total_portfolio_value for user in best_users]
         current_user = User.objects.get(username=request.user)
         if current_user:
             portfolio = Portfolio.objects.filter(user=current_user).first()
