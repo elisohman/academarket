@@ -23,7 +23,7 @@ const SignIn: React.FC = () => {
   const [popupMessageColor, setPopupMessageColor] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const {signIn} = useAuthContext();
+  const {signIn, authTokens, user} = useAuthContext();
   
   // This useEffect part is to correctly show the message (once!) after a new successful sign up has redirected the user here // Jack
   useEffect(() => {
@@ -34,7 +34,13 @@ const SignIn: React.FC = () => {
         localStorage.removeItem('signupSuccess');
         return () =>  setShowPopup(true);
     }
-  }, [showPopup]); 
+  }, [showPopup]);
+  
+  useEffect(() => {
+    if (authTokens && user) {
+      navigate('/dashboard');
+    }
+  }, [authTokens, user, navigate]);
 
 const handleSignin = async () => {
   if (username === '') {
@@ -59,8 +65,7 @@ const handleSignin = async () => {
     setPopupMessage('Please enter valid credentials');
     setShowPopup(true);
   }
-
-  }
+}
 /*
 
     try {
@@ -93,11 +98,11 @@ const handleSignin = async () => {
         <form className="flex flex-col gap-y-1">
           <TextField inputClassName="placeholder-slate-600" id="uname_input" type="text" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)}/>
           <TextField inputClassName="placeholder-slate-600" id="password_input" type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)}/>
-          <Button className='bg-primary-color w-full mt-2 self-center text-slate-50 uppercase p-3 rounded-md' onClick={handleSignin}>Sign in</Button>
+          <Button className='bg-primary-color w-full mt-2 self-center text-light-gray uppercase p-3 rounded-md hover:bg-primary-color-darker transition-all duration-300 ease-in-out' onClick={handleSignin}>Sign in</Button>
         </form>
 
         <div className=''>
-          <Button onClick={goToSignUp} className='px-4 py-2 mt-1 bg-transparent text-slate-600 text-sm border-solid border rounded-full border-slate-600'>Sign up here →</Button>
+          <Button onClick={goToSignUp} className='px-4 py-2 mt-1 bg-transparent text-secondary-color text-sm border-solid border rounded-full border-secondary-color hover:bg-secondary-color hover:text-light-gray transition-all duration-300 ease-in-out'>Sign up here →</Button>
         </div>
         <PopupMessage message={popupMessage} show={showPopup} onClose={() => setShowPopup(false)} classColor={popupMessageColor}/>
       </div>

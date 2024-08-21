@@ -24,7 +24,7 @@ export const UserProvider = ({ children }: {children: ReactNode}) => {
         }
         try {
             const response = await sendRequest('/user_info/', 'GET');
-            if (response.status == 200) {
+            if (response && response.status == 200) {
                 const responseData = await response.data;
                 setUserInfo(responseData);
             } else {

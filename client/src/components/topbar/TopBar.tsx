@@ -1,6 +1,5 @@
 import {Link, useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect, useCallback, useRef } from 'react';
-import DefaultProfilePic from "../../style/icons/DefaultProfilePic";
 import Button from "../button/Button";
 import { ACCESS_TOKEN, REFRESH_TOKEN } from "../../utils/constants";
 //import sendRequest from "../../utils/request";
@@ -22,7 +21,7 @@ const TopBar = () => {
     const path = location.pathname;
     const [username, setUsername] = useState<string | null>(null);
     const [ balance, setBalance ] = useState<number | null>(null);
-    const { user, authTokens, signOut } = useAuthContext();
+    const { signOut } = useAuthContext();
     const { userInfo } = useUserContext();
     const sendRequest = useAPI();
 
@@ -56,8 +55,12 @@ const TopBar = () => {
         signOut();
     }
 
+    const goToProfile = () => {
+        navigate('/profile');
+    }
+
     return (
-        <div className="text-secondary-color w-full h-20 flex px-8 py-8 text-base">
+        <div className="text-secondary-color w-full h-20 flex px-8 py-8 text-base items-center">
             <div id="logo-area" className="flex items-center">
                 <div className="text-lg font-bold select-none">Academarket</div>
             </div>
@@ -76,16 +79,14 @@ const TopBar = () => {
                     </Link>
                 </ul>
             </div>
-            <div id="profile-area" className="flex items-center">
-                <div id="pfp" className="w-10 h-10 rounded-full bg-light-gray overflow-hidden">  
-                    <DefaultProfilePic />
-                </div>
-                <div id="user-details" className="ml-4 text-sm">
+            <div id="profile-area" className="flex items-center cursor-pointer" onClick={goToProfile}>
+                <div id="user-details" className="text-sm text-right">
                     <p className="font-semibold text-secondary-color text-sm max-w-36 overflow-hidden whitespace-nowrap overflow-ellipsis">{username ? username : "Loading..."}</p>
-                    <p className="font-semibold text-sky-400">APE {balance}</p>
+                    <p className="font-semibold text-sky-400 max-w-36 overflow-hidden whitespace-nowrap overflow-ellipsis">APE {balance}</p>
                 </div>
-                <Button className="ml-4 text-white bg-coral px-2 py-1 rounded-md font-medium" onClick={handleLogout}>Log out</Button>
+                
             </div>
+            <Button className="h-10 ml-4 text-white bg-coral px-2 py-1 rounded-md font-medium" onClick={handleLogout}>Log out</Button>
         </div>
     );
 }

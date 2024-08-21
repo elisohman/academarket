@@ -27,12 +27,16 @@ const Dashboard: React.FC = () => {
     const fetchData = async () => {
       try {
         const response = await sendRequest('/get_dashboard_data/', 'GET');
-        console.log(response);
-        const jsonData = response.data;
-        console.log(jsonData.best_users_balances);
-        setBestUsers(jsonData.best_users);
-        setBestUsersBalances(jsonData.best_users_balances);
-        setDashboardData(jsonData);
+        if (response && response.status === 200) {
+          console.log(response);
+          const jsonData = response.data;
+          console.log(jsonData.best_users_balances);
+          setBestUsers(jsonData.best_users);
+          setBestUsersBalances(jsonData.best_users_balances);
+          setDashboardData(jsonData);
+        } else {
+          console.log('Error fetching data:', response);
+        }
       }
       catch (error) {
         console.error('Error fetching data:', error);
@@ -93,7 +97,7 @@ const Dashboard: React.FC = () => {
               <Button className="text-large rounded-full hover:bg-white transition duration-300 ease-in-out py-1 px-3 my-1" onClick={() => handleRowClick(dashboardData.best_course, dashboardData)}> 
                 <div>{dashboardData && dashboardData.best_course ? dashboardData.best_course : ""}</div> 
               </Button>
-              <div className={dashboardData && dashboardData.best_course_change? `${priceChangeColor(dashboardData.best_course_change.toString())} select-none` : "select-none"}>{dashboardData ? dashboardData.best_course_change+ " %" : ""}</div>
+              <div className={dashboardData && dashboardData.best_course_change? `${priceChangeColor(dashboardData.best_course_change.toString())} select-none font-medium` : "font-medium select-none"}>{dashboardData ? dashboardData.best_course_change+ " %" : ""}</div>
             </div>
 
             <div className={"flex-1 h-full flex flex-col justify-center items-center rounded-lg bg-light-gray p-4"}>
@@ -101,7 +105,7 @@ const Dashboard: React.FC = () => {
               <Button className="text-large rounded-full hover:bg-white transition duration-300 ease-in-out py-1 px-3 my-1" onClick={() => handleRowClick(dashboardData.worst_course, dashboardData)}> 
                 <div>{dashboardData && dashboardData.worst_course ? dashboardData.worst_course : ""}</div>
               </Button>
-              <div className={dashboardData && dashboardData.worst_course_change? `${priceChangeColor(dashboardData.worst_course_change.toString())} select-none` : "select-none"}>{dashboardData ? dashboardData.worst_course_change+ " %" : ""}</div>
+              <div className={dashboardData && dashboardData.worst_course_change? `${priceChangeColor(dashboardData.worst_course_change.toString())} select-none font-medium` : "select-none font-medium"}>{dashboardData ? dashboardData.worst_course_change+ " %" : ""}</div>
             </div>
 
           </div>
@@ -113,7 +117,7 @@ const Dashboard: React.FC = () => {
                         onClick={() => handleRowClick(dashboardData.best_portfolio_stock, dashboardData, true)}> 
                   <div>{dashboardData && dashboardData.best_portfolio_stock ? dashboardData.best_portfolio_stock : "N/A"}</div>
                 </Button>
-              <div className={dashboardData && dashboardData.best_portfolio_stock ? `${priceChangeColor(dashboardData.best_portfolio_stock_change.toString())}` : ""}>{dashboardData && dashboardData.best_portfolio_stock ? dashboardData.best_portfolio_stock_change+ " %" : ""}</div>
+              <div className={dashboardData && dashboardData.best_portfolio_stock ? `${priceChangeColor(dashboardData.best_portfolio_stock_change.toString())} font-medium` : "font-medium"}>{dashboardData && dashboardData.best_portfolio_stock ? dashboardData.best_portfolio_stock_change+ " %" : ""}</div>
             </div>
 
             <div className="flex-1 h-full flex flex-col justify-center rounded-lg bg-light-gray p-4 vscreen:text-smaller items-center">

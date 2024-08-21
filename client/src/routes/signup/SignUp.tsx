@@ -5,7 +5,7 @@ import Button from '../../components/button/Button';
 import TextField from '../../components/textfield/TextField';
 import { useNavigate } from 'react-router-dom';
 import PopupMessage from '../../components/popupMessage/PopupMessage';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuthContext } from '../../contexts/AuthContext';
 //import sendRequest from '../../utils/request';
 
@@ -27,7 +27,7 @@ const SignUp: React.FC = () => {
   const [password, setPassword] = useState('');
   const [repeatPassword, setRepeatPassword] = useState('');
 
-  const { signUp } = useAuthContext();
+  const { signUp, authTokens, user } = useAuthContext();
 
   const handleSignup = async () => {
 
@@ -59,7 +59,7 @@ const SignUp: React.FC = () => {
       return;
     }
 
-    const status = await signUp(username, email, password, repeatPassword);
+      const status = await signUp(username, email, password, repeatPassword);
 
       if (status === 201) {
         console.log('Successful sign-up:');
@@ -73,6 +73,13 @@ const SignUp: React.FC = () => {
         console.error('Sign-up failed:');
       }
   };
+
+  useEffect(() => {
+    if (authTokens && user) {
+      navigate('/dashboard');
+    }
+  }, [authTokens, user, navigate]);
+
   return (
     <>
       <div className="sign-in-container size-full bg-slate-100 flex flex-col justify-center items-center gap-y-2">
@@ -84,10 +91,10 @@ const SignUp: React.FC = () => {
             <TextField inputClassName="placeholder-slate-600" id="password_input" type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)}/>
             <TextField inputClassName="placeholder-slate-600" id="repeat_password_input" type="password" placeholder="Repeat password" value={repeatPassword} onChange={(e) => setRepeatPassword(e.target.value)}/>
 
-            <Button onClick={handleSignup} className='bg-primary-color w-full mt-2 self-center text-slate-50 uppercase p-3 rounded-md'>Sign up</Button>
+            <Button onClick={handleSignup} className='bg-primary-color w-full mt-2 self-center text-light-gray uppercase p-3 rounded-md hover:bg-primary-color-darker transition-all duration-300 ease-in-out'>Sign up</Button>
         </form>
         
-        <Button onClick={returnToSignIn} className='px-4 py-2 mt-1 bg-transparent text-slate-600 text-sm border-solid border rounded-full border-slate-600'>← Return to login</Button>
+        <Button onClick={returnToSignIn} className='px-4 py-2 mt-1 bg-transparent text-secondary-color text-sm border-solid border rounded-full border-secondary-color hover:bg-secondary-color hover:text-light-gray transition-all duration-300 ease-in-out'>← Return to login</Button>
         <PopupMessage message={popupMessage} show={showPopup} onClose={() => setShowPopup(false)} classColor={popupMessageClassName}/>
 
         

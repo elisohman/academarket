@@ -1,6 +1,6 @@
 import TopBar from '../topbar/TopBar';
 import { useState, useEffect } from 'react';
-import { Navigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { REFRESH_TOKEN, ACCESS_TOKEN } from '../../utils/constants';
 import { jwtDecode } from 'jwt-decode';
 import { Mutex } from 'async-mutex';
@@ -9,14 +9,10 @@ import { useUserContext } from '../../contexts/UserContext';
 //import { getToken } from '../../utils/network'
 interface PageWrapperProps {
     children: React.ReactNode;
-    className?: string;
-    
 }
 
-const mutex = new Mutex();
 
-
-const PageWrapper: React.FC<PageWrapperProps> = ({ children, className }) => {
+const PageWrapper: React.FC<PageWrapperProps> = ({ children }) => {
     const {authTokens} = useAuthContext();
     const {updateUserInfo} = useUserContext();
     useEffect(() => { 
@@ -25,6 +21,10 @@ const PageWrapper: React.FC<PageWrapperProps> = ({ children, className }) => {
             console.log("We're in!");
          }
     }, [authTokens]);
+
+    const location = useLocation();
+
+    const isProfileRoute = location.pathname === '/profile'; // Should maybe update this solution? Works for now
     /*const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [loading, setLoading] = useState(true);
 
@@ -95,12 +95,18 @@ const PageWrapper: React.FC<PageWrapperProps> = ({ children, className }) => {
         );
     }*/
     if (authTokens){
-        return (
-            <div className={'h-screen flex flex-col ' + className}>
-                <TopBar />
-                <div className='grow px-8 pb-8'>{children}</div>
-            </div>
-        );
+        if (!isProfileRoute) {
+            return (
+                <div className={'h-screen flex flex-col '}>
+                    {!isProfileRoute && <><TopBar /></>}
+                    <div className='grow'>{children}</div>
+                </div>
+            );
+        } else {
+            return (
+                <>{children}</>
+            )
+        }
     }else {
         return <>{children}</>
     }

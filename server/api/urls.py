@@ -24,6 +24,7 @@ urlpatterns = [
     # API endpoints
     path('sign_up/', SignUpView.as_view(), name='sign_up'),
     path('sign_in/', SignInView.as_view(), name='sign_in'),
+    path('change_password/', views.ChangePasswordView.as_view(), name='change_password'),
     path('user_info/', GetUserInfoView.as_view(), name='user_info'),
     path('all_courses/', GetAllCoursesView.as_view(), name='all_courses'),
     path('get_portfolio/', GetPortfolioStocksView.as_view(), name='get_portfolio'),

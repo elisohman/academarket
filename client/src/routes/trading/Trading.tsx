@@ -39,7 +39,7 @@ const Trading = () => {
     //const [balance, setBalance] = useState<string>('');
     const [isBuying, setIsBuying] = useState<boolean>(true);
     const {userInfo, updateUserInfo} = useUserContext();
-    const [ balance, setBalance ] = useState(userInfo.balance);
+    const [ balance, setBalance ] = useState("Loading...");
     const sendRequest = useAPI();
 
     const [candlestickData, setCandleStickData] = useState<any>(generateCandlestickData());
@@ -62,7 +62,7 @@ const Trading = () => {
         */
        try {
               const response = await sendRequest('/all_courses', 'GET');
-              if (response.status === 200) {
+              if (response && response.status === 200) {
                 const courseData = await response.data;
                 allCourses.current = courseData; // save all courses as a ref for searches
                 setCourses(allCourses.current);
@@ -84,7 +84,7 @@ const Trading = () => {
         try {
             const response = await sendRequest(courseTradeDataURL, 'GET');
 
-            if (!(response.status === 200)) {
+            if (!response || !(response.status === 200)) {
                 throw new Error('Network response was not ok');
             }
             const jsonData = await response.data;
@@ -157,8 +157,8 @@ const Trading = () => {
         const columnClassArguments = {
             0: "col-span-1 justify-self-start text-ellipsis overflow-hidden",
             1: "col-span-1 justify-self-start italic font-light line-clamp-2 mr-8 text-ellipsis overflow-hidden",
-            2: "col-span-1 justify-self-end pr-16 vscreen:pr-2 text-sky-400 font-light",
-            3: "col-span-1 justify-self-end pr-16 vscreen:pr-3 " + priceChangeColor(content.toString())
+            2: "col-span-1 justify-self-end pr-16 vscreen:pr-2 text-sky-400 font-medium",
+            3: "col-span-1 justify-self-end pr-16 vscreen:pr-3 font-medium " + priceChangeColor(content.toString())
         } as { [key: number]: string };  
 
         if (index in columnClassArguments){
@@ -211,6 +211,12 @@ const Trading = () => {
     useEffect(() => {
         fetchAllData();
     }, []);
+
+    useEffect(() => {
+        if (userInfo) {
+            setBalance(userInfo.balance)
+        }
+    }, [userInfo]);
 
     useEffect(() => {
         console.log(selectedCourseCode);
@@ -325,7 +331,7 @@ const Trading = () => {
             }
             if (isBuying) {
                 const response = await sendRequest('/buy_stock/', 'POST', requestBody);
-                if (response.status == 200) {
+                if (response && response.status == 200) {
                     console.log('Stock buy order placed successfully');
                     setPopupMessageColor('text-yellow-200');
                     if (amount === 1) {
@@ -336,7 +342,6 @@ const Trading = () => {
                     }
                     setShowPopup(true);
                     setAmount(0);
-                    updateUserInfo();
                     fetchAllData();
                     
 
@@ -346,7 +351,7 @@ const Trading = () => {
             }
             else {
                 const response = await sendRequest('/sell_stock/', 'POST', requestBody);
-                if (response.status == 200) {
+                if (response && response.status == 200) {
                     console.log('Stock sell order placed successfully');
                     setPopupMessageColor('text-yellow-200');
                     setPopupMessage(`Sold ${amount} stock of ${courseCode}!`);
@@ -356,7 +361,7 @@ const Trading = () => {
                     updateUserInfo();
                     fetchAllData();
                 } else {
-                    console.error('Error selling stock: ' + response.status);
+                    console.error('Error selling stock');
                 }
             }
     };
@@ -370,7 +375,7 @@ const Trading = () => {
         return (
             //<PageWrapper>
                 <div className="vscreen:text-small">
-                    <div className="overflow-auto bg-sky-50 rounded flex flex-col p-4 ">
+                    <div className="overflow-auto bg-light-gray rounded flex flex-col p-8 ">
                         <div className="flex flex-row">
                             <div className="flex flex-col">
                                 <p className="vscreen:text-small ">Available funds</p>
@@ -394,10 +399,10 @@ const Trading = () => {
 
         return (
             //<PageWrapper>
-                <div className="size-full flex flex-row rounded-3xl">
+                <div className="size-full flex flex-row rounded-3xl px-8">
                 <div id="graph_window" className="bg-light-gray rounded-3xl mr-5 flex-1 flex flex-col">
-                        <div className="self-start pt-4">
-                            <Button className="size-10 pl-2" onClick={() => returnToList()}>
+                        <div className="self-start pt-4 pl-5">
+                            <Button className="size-10" onClick={() => returnToList()}>
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 15.75 3 12m0 0 3.75-3.75M3 12h18" />
                             </svg>

@@ -40,7 +40,7 @@ const Portfolio: React.FC = () => {
     const fetchEconomics = async () => {
         const response = await sendRequest('/user_info', 'GET');
 
-        if (response.status === 200) {
+        if (response && response.status === 200) {
             const responseData = await response.data;
             setBalance(responseData.balance);
         } else {
@@ -92,7 +92,7 @@ const Portfolio: React.FC = () => {
             try {
                 const response = await sendRequest('/get_portfolio', 'GET');
         
-                if (response.status === 200) {
+                if (response && response.status === 200) {
                     const courseData = await response.data;
                     allCourses.current = courseData; // save all courses as a ref for searches
                     setCourses(allCourses.current);
@@ -114,9 +114,9 @@ const Portfolio: React.FC = () => {
         const columnClassArguments = {
             0: "col-span-1 justify-self-start text-ellipsis overflow-hidden",
             1: "col-span-1 justify-self-start italic font-light line-clamp-2 mr-8 text-ellipsis overflow-hidden",
-            2: "col-span-1 justify-self-end text-slate-400",
-            3: "col-span-1 justify-self-end text-sky-400 font-light mr-2",
-            4: "col-span-1 justify-self-end pr-16 vscreen:pr-3 " + priceChangeColor(content.toString())
+            2: "col-span-1 justify-self-end text-slate-500",
+            3: "col-span-1 justify-self-end text-sky-400 font-medium mr-2",
+            4: "col-span-1 justify-self-end pr-16 vscreen:pr-3 font-medium " + priceChangeColor(content.toString())
         } as { [key: number]: string };  
 
         if (index in columnClassArguments){
@@ -151,7 +151,7 @@ const Portfolio: React.FC = () => {
     return (
         //<PageWrapper>
         <div className="vscreen:text-smaller">
-            <div className="overflow-auto bg-slate-100 rounded flex flex-col p-4 ">
+            <div className="overflow-auto bg-light-gray rounded flex flex-col p-8 ">
                 <div className="flex flex-row">
                     <div className="flex flex-col">
                         

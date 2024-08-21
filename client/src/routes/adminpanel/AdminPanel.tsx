@@ -73,7 +73,7 @@ const AdminPanel: React.FC = () => {
   
 
   return (
-    <div className="w-screen h-screen flex flex-row bg-white justify-center items-center">
+    <div className="flex flex-row bg-white justify-center items-center">
         <div className="size-full flex flex-col gap-2 p-4 bg-blue-200 rounded justify-center items-center">
             <div className={isLoading ? "animate-pulse h-6 text-large text-blue-600" : "hidden"}>
                 {isLoading ? "Executing command..." : ""}

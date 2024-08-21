@@ -34,3 +34,13 @@ class SignInSerializer(serializers.Serializer):
     class Meta:
         model = User
         fields = ['username', 'password']
+
+class ChangePasswordSerializer(serializers.Serializer):
+    old_password = serializers.CharField(write_only=True)
+    new_password = serializers.CharField(write_only=True)
+    rpt_new_password = serializers.CharField(write_only=True)
+
+    def validate(self, data):
+        if data['new_password'] != data['rpt_new_password']:
+            raise serializers.ValidationError({'new_password': 'Passwords must match.'})
+        return data

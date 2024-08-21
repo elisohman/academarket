@@ -7,6 +7,7 @@ import Dashboard from './routes/dashboard/Dashboard';
 import Portfolio from './routes/portfolio/Portfolio';
 import Trading from './routes/trading/Trading';
 import AdminPanel from './routes/adminpanel/AdminPanel';
+import Profile from './routes/profile/Profile';
 
 import UserContext, { UserProvider } from './contexts/UserContext'
 
@@ -34,6 +35,7 @@ root.render(
                 <Route path="/portfolio" element={<ProtectedRoute><Portfolio /></ProtectedRoute>} />
                 <Route path="/trading" element={<ProtectedRoute><Trading /></ProtectedRoute>} />
                 <Route path="/admin" element={<ProtectedRoute><AdminPanel /></ProtectedRoute>} />
+                <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
               </Routes>
             </PageWrapper>
           </UserProvider>

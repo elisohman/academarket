@@ -8,7 +8,7 @@ from rest_framework import permissions, status
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import status
 
-from .serializers import SignUpSerializer, SignInSerializer
+from .serializers import SignUpSerializer, SignInSerializer, ChangePasswordSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from django.contrib.auth import authenticate
 
@@ -52,7 +52,7 @@ class SignUpView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class SignInView(APIView):
+class SignInView(APIView): # To be removed?
     """
     API view for user sign-in, handles POST request for user sign-in. Expects a JSON payload
     with username and password fields.
@@ -85,6 +85,31 @@ class SignInView(APIView):
             return Response({'error': 'Invalid Credentials'}, status=status.HTTP_401_UNAUTHORIZED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+class ChangePasswordView(APIView):
+    """
+    API view for changing user password. Handles the HTTP PUT request for changing user password and expects a JSON payload
+    with old_password, new_password and rpt_new_password fields.
+
+    Methods:
+        put(request): Handles the PUT request for changing user password.
+
+    Returns:
+        A response with the success message and HTTP status code 200 if the password is changed successfully.
+        A response with the validation errors and HTTP status code 400 if the password change is unsuccessful.
+    """
+    permission_classes = [permissions.IsAuthenticated]
+    def put(self, request):
+        user = request.user
+        print(user)
+        print(request.data)
+        serializer = ChangePasswordSerializer(data=request.data)
+        if serializer.is_valid():
+            if user.check_password(serializer.validated_data['old_password']):
+                user.set_password(serializer.validated_data['new_password'])
+                user.save()
+                return Response({'message': 'Password changed successfully'}, status=status.HTTP_200_OK)
+            return Response({'error': 'Invalid old password'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class GetUserInfoView(APIView):
     """

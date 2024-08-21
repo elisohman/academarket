@@ -81,8 +81,12 @@ const useAPI = () => {
             data: body,
             headers: headers
         };
-        const response = await instance.request(options);
-        return response;
+        try {
+            const response = await instance.request(options);
+            return response;
+        } catch (error: any) {
+            return error.response;
+        }
     };
 
     return sendRequest;
