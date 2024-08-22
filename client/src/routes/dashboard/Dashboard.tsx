@@ -101,7 +101,7 @@ const Dashboard: React.FC = () => {
             </div>
 
             <div className={"flex-1 h-full flex flex-col justify-center items-center rounded-lg bg-light-gray p-4"}>
-              <div className="font-light text-gray-600 select-none">WORST COURSE ON MARKET (24)</div>
+              <div className="font-light text-gray-600 select-none">WORST COURSE ON MARKET (24H)</div>
               <Button className="text-large rounded-full hover:bg-white transition duration-300 ease-in-out py-1 px-3 my-1" onClick={() => handleRowClick(dashboardData.worst_course, dashboardData)}> 
                 <div>{dashboardData && dashboardData.worst_course ? dashboardData.worst_course : ""}</div>
               </Button>
