@@ -83,8 +83,12 @@ def apply_course_price_update(course, new_price, new_base):
     course.base_price = new_base
     course.price = new_price
     # course.daily_change = calculate_daily_course_price_change(course) # Should update daily change here
+    new_daily_change = calculate_daily_course_price_change(course)
+    new_daily_change_percent = calculate_daily_course_price_change(course, percent=True)
+    course.daily_change = new_daily_change
+    course.daily_change_percent = new_daily_change_percent
     course.save()
-    # save_price_point(course) # After updating the course, you should save a new price point here. 
+    save_price_point(course, calculate_price(new_base)) # After updating the course, you should save a new price point here. 
 
 
 def chained_calculate_price(base_price, amount, is_buying=True):
@@ -164,8 +168,12 @@ def price_algorithm(base_price, k, alpha, scale):
 def get_course_price(course):
     return course.price
 
-def save_price_point(course):
-    price = course.price
+def save_price_point(course, new_price=None):
+    price = 0
+    if new_price is None:
+        price = course.price
+    else:
+        price = new_price
     timestamp = datetime.now().timestamp()
     price_point = PricePoint(course=course, price=price, timestamp=timestamp)
     price_point.save()

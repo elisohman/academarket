@@ -257,10 +257,13 @@ const Trading = () => {
             const basePrices: number[] = [];
             
             if (isBuying) {
+                
                 for (let i = basePrice; i < basePrice + amount; i++) {
+                    
                     basePrices.push(i);
                 }
             } else {
+                basePrice -= 1;
                 for (let i = basePrice; i > basePrice - amount; i--) {
                     basePrices.push(i);
                 }
@@ -276,11 +279,13 @@ const Trading = () => {
             // const diffValue = iterationPrices.reduce((acc, price) => acc + (originalPrice - price), 0);
             
             const totalTradeValue = iterationPrices.reduce((sum, price) => sum + price, 0);
-        
+            //if(isBuying) {
+            //    basePrice += 1;
+            //}
             return Math.abs(totalTradeValue);
         }
         const base_price = courseTradeData.base_price;
-        return calculateCoursePriceUpdate(base_price, trade_amount, isBuying);
+        return parseFloat(calculateCoursePriceUpdate(base_price, trade_amount, isBuying).toFixed(2));
     }
 
     const getMaxBuyAmount = () => {
@@ -296,9 +301,10 @@ const Trading = () => {
             const TRADE_VALUE : number = 250.0;
             if (isBuying) { 
                 let newPrice = 0
-                if (TRADE_VALUE*amount <= parseFloat(balance)) {
-                    newPrice = TRADE_VALUE*amount;
-                    newPrice = parseFloat(newPrice.toFixed(2));
+                let possibleNewPrice = calculateEstimatedPrice(amount, isBuying);
+
+                if (possibleNewPrice <= parseFloat(balance)) {
+                    newPrice = possibleNewPrice;    
                 }
                 setEstimatedPrice(newPrice);
                 
@@ -306,10 +312,12 @@ const Trading = () => {
             else{
                 let newPrice = 0;
 
-                if (courseTradeData.stock_amount >= amount && amount > 0) {
-            
-                    newPrice = TRADE_VALUE*amount;
-                }
+                //if (courseTradeData.stock_amount >= amount && amount > 0) {
+                //
+                //    newPrice = TRADE_VALUE*amount;
+                //}
+                newPrice = calculateEstimatedPrice(amount, isBuying);
+
                 setEstimatedPrice(newPrice);
             }
         }
