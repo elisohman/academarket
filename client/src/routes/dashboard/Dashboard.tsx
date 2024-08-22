@@ -134,7 +134,7 @@ const Dashboard: React.FC = () => {
                           <span className="w-36 truncate text-left text-gray-600 group-hover:text-emerald-500 transition duration-300 ease-in-out">{val}</span>
                         </div>
                         <div className="flex flex-row mb-0.5 text-mediumsmall ml-1">
-                          <span className="truncate text-light-gray group-hover:text-sky-500 transition duration-300 ease-in-out">{bestUsersBalances ? bestUsersBalances[index].toFixed(2) : ""}</span>
+                          <span className="truncate text-light-gray group-hover:text-sky-500 transition duration-300 ease-in-out">{bestUsersBalances[index] ? bestUsersBalances[index].toFixed(2) : ""}</span>
                           <span className="pl-1 font-light text-light-gray group-hover:text-sky-500 transition duration-300 ease-in-out"> APE</span>
                         </div>
                       </div>
