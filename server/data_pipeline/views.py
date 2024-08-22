@@ -155,6 +155,18 @@ def fill_courses_database(_request: HttpRequest) -> HttpResponse:
     fill_database(data)
     return HttpResponse(status=202, content="Script to fill database with courses executed.")
 
+def flush_courses_database(_request: HttpRequest) -> HttpResponse:
+    """
+    Fill the local database with course data. Calls script in database_utils.py.
+    
+    Returns:
+    - HttpResponse: HTTP response indicating that the script has been executed.
+
+    """
+    Course.objects.all().delete()
+    return HttpResponse(status=200, content="All courses in database removed.")
+
+
 
 def buy_course_test(_request: HttpRequest, course_code: str, user: str) -> JsonResponse:
     """
@@ -266,8 +278,7 @@ def fix_course_prices(_request: HttpRequest) -> HttpResponse:
     courses = Course.objects.all()
     for course in courses:
         ri = random.randint(50, 200)
-        course.base_price = ri
-        course.price = stock_manager.the_algorithm(ri)
+        course.price = ri
         course.save()
     return HttpResponse(status=200, content="Prices fixed.")
 
@@ -280,11 +291,17 @@ def fix_balances(_request: HttpRequest) -> HttpResponse:
         user.save()
     return HttpResponse(status=200, content="Balances fixed.")
 
+from api import scheduler
+
 def start_scheduler(_request: HttpRequest) -> HttpResponse:
     print("Starting scheduler...")
-    from api import scheduler
     scheduler.start()
     return HttpResponse(status=200, content="Scheduler started.")
+
+def stop_scheduler(_request: HttpRequest) -> HttpResponse:
+    print("Stopping scheduler...")
+    scheduler.stop()
+    return HttpResponse(status=200, content="Scheduler stopped.")
 
 def kill_all_bots(_request: HttpRequest) -> HttpResponse:
     print("Killing all bots...")
@@ -293,7 +310,7 @@ def kill_all_bots(_request: HttpRequest) -> HttpResponse:
 
 def test_percentage_data(_request: HttpRequest) -> HttpResponse:
     course = Course.objects.filter(course_code="723G80").first()
-    stock_manager.calculate_daily_course_price_change(course)
+    stock_manager.calculate_daily_course_price_change_percent(course)
     return HttpResponse(status=200, content="Prices multiplied by 100.")
 
 def update_all_daily_changes(_request: HttpRequest) -> HttpResponse:
@@ -301,5 +318,7 @@ def update_all_daily_changes(_request: HttpRequest) -> HttpResponse:
     for course in courses:
         new_daily_change = stock_manager.calculate_daily_course_price_change(course)
         course.daily_change = new_daily_change
+        new_daily_change_percent = stock_manager.calculate_daily_course_price_change(course, percent=True)
+        course.daily_change_percent = new_daily_change_percent
         course.save()
     return HttpResponse(status=200, content="All daily changes updated.")

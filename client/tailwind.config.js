@@ -5,10 +5,13 @@ module.exports = {
     extend: {
       colors: {
         'primary-color': '#4ADE80',
-        'light-gray': '#EEF2EF',
+        'primary-color-darker': '#41BF6F',
+        'light-gray': '#f5f6fa',
+        'light-gray-darker': '#e7e8ed',
         'secondary-color': '#1D212F',
         'lavender': '#7950EE',
         'coral': '#F34F81', 
+        'coral-darker': '#E04A78',
       },
       fontSize: {
         'smallerer': '0.4em',

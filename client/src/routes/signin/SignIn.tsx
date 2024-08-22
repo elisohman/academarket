@@ -6,7 +6,8 @@ import TextField from '../../components/textfield/TextField';
 import PopupMessage from '../../components/popupMessage/PopupMessage';
 import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
-import sendRequest from '../../utils/request';
+import {useAuthContext} from '../../contexts/AuthContext';
+import { useUserContext } from '../../contexts/UserContext';
 
 const monkey = './assets/images/bg-monkeys.jpg';
 
@@ -22,6 +23,7 @@ const SignIn: React.FC = () => {
   const [popupMessageColor, setPopupMessageColor] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const {signIn, authTokens, user} = useAuthContext();
   
   // This useEffect part is to correctly show the message (once!) after a new successful sign up has redirected the user here // Jack
   useEffect(() => {
@@ -32,26 +34,39 @@ const SignIn: React.FC = () => {
         localStorage.removeItem('signupSuccess');
         return () =>  setShowPopup(true);
     }
-  }, [showPopup]); 
-
-  const handleSignin = async () => {
-    if (username === '') {
-      setPopupMessageColor('text-red-500');
-      setPopupMessage('Please enter a username');
-      setShowPopup(true);
-      return;
+  }, [showPopup]);
+  
+  useEffect(() => {
+    if (authTokens && user) {
+      navigate('/dashboard');
     }
-    if (password === '') {
-      setPopupMessageColor('text-red-500');
-      setPopupMessage('Please enter a password');
-      setShowPopup(true);
-      return;
-    }
+  }, [authTokens, user, navigate]);
 
-    const data = {
-      username: username,
-      password: password
-    };
+const handleSignin = async () => {
+  if (username === '') {
+    setPopupMessageColor('text-red-500');
+    setPopupMessage('Please enter a username');
+    setShowPopup(true);
+    return;
+  }
+  if (password === '') {
+    setPopupMessageColor('text-red-500');
+    setPopupMessage('Please enter a password');
+    setShowPopup(true);
+    return;
+  }
+
+  const status = await signIn(username, password);
+  console.log('status:', status);
+  if (status === 200) {
+    setShowPopup(false);
+  } else {
+    setPopupMessageColor('text-red-500');
+    setPopupMessage('Please enter valid credentials');
+    setShowPopup(true);
+  }
+}
+/*
 
     try {
       const response = await sendRequest('/sign_in/', 'POST', data);
@@ -73,7 +88,7 @@ const SignIn: React.FC = () => {
       console.error('Error during sign-in:', error);
     }
   };
-  
+  */
 
   return (
     <>
@@ -83,11 +98,11 @@ const SignIn: React.FC = () => {
         <form className="flex flex-col gap-y-1">
           <TextField inputClassName="placeholder-slate-600" id="uname_input" type="text" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)}/>
           <TextField inputClassName="placeholder-slate-600" id="password_input" type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)}/>
-          <Button className='bg-primary-color w-full mt-2 self-center text-slate-50 uppercase p-3 rounded-md' onClick={handleSignin}>Sign in</Button>
+          <Button className='bg-primary-color w-full mt-2 self-center text-light-gray uppercase p-3 rounded-md hover:bg-primary-color-darker transition-all duration-300 ease-in-out' onClick={handleSignin}>Sign in</Button>
         </form>
 
         <div className=''>
-          <Button onClick={goToSignUp} className='px-4 py-2 mt-1 bg-transparent text-slate-600 text-sm border-solid border rounded-full border-slate-600'>Sign up here →</Button>
+          <Button onClick={goToSignUp} className='px-4 py-2 mt-1 bg-transparent text-secondary-color text-sm border-solid border rounded-full border-secondary-color hover:bg-secondary-color hover:text-light-gray transition-all duration-300 ease-in-out'>Sign up here →</Button>
         </div>
         <PopupMessage message={popupMessage} show={showPopup} onClose={() => setShowPopup(false)} classColor={popupMessageColor}/>
       </div>

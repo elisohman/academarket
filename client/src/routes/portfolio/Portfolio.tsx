@@ -4,9 +4,10 @@ import SearchBar from "../../components/searchBar/SearchBar";
 import ModularList from "../../components/modularList/ModularList";
 
 import { useState, useEffect, useRef } from "react";
-import sendRequest from "../../utils/request";
+//import sendRequest from "../../utils/request";
 import { ACCESS_TOKEN } from "../../utils/constants";
-import { getToken } from "../../utils/network";
+//import { getToken } from "../../utils/network";
+import useAPI from "../../utils/network";
 
 
 
@@ -21,6 +22,8 @@ const coursesExampleData = { // Proposed structure for courses (backend should r
 const Portfolio: React.FC = () => {
     const allCourses = useRef<any>(); // keeps track of all courses while making multiple searches;
     const [courses, setCourses] = useState<any>({headers: [], items: []});
+    const [dailyChange, setDailyChange] = useState<number>(0);
+    const [totalFunds, setTotalFunds] = useState<number>(0);
 
     const navigate = useNavigate();
     
@@ -32,11 +35,13 @@ const Portfolio: React.FC = () => {
     }
     const [balance, setBalance] = useState<string>('');
 
-    const fetchEconomics = async (access_token : string) => {
-        const response = await sendRequest('/user_info', 'GET', undefined, access_token);
+    const sendRequest = useAPI();
 
-        if (response.ok) {
-            const responseData = await response.json();
+    const fetchEconomics = async () => {
+        const response = await sendRequest('/user_info', 'GET');
+
+        if (response && response.status === 200) {
+            const responseData = await response.data;
             setBalance(responseData.balance);
         } else {
             console.log("Error when getting user info");
@@ -45,7 +50,7 @@ const Portfolio: React.FC = () => {
     }
 
     const handleRowClick = (course: any) => {
-        navigate(`/trading?course=${course[0]}&fromPortfolio=true`, { state: { course } });
+        navigate(`/trading?course=${course[0]}`, { state: { course } });
     };
     
     function handleSearch () {
@@ -69,50 +74,49 @@ const Portfolio: React.FC = () => {
     };
 
     const fetchData = async () => {
-        const fetchEconomics = async (accessToken : string) => {
-            const response = await sendRequest('/user_info', 'GET', undefined, accessToken);
-            if (response.ok) {
-                const responseData = await response.json();
+        /*const fetchEconomics = async () => {
+            const response = await sendRequest('/user_info', 'GET');
+            if (response.status === 200) {
+                const responseData = await response.data;
                 setBalance(responseData.balance);
             } else {
                 console.log("Error when getting user info");
             }
-        }
+        }*/
     
-        const fetchPortfolioStocks = async (accessToken : string) => {
+        const fetchPortfolioStocks = async () => {
             /*
                 There exists a race condition, if access token needs to be refreshed at the same time as get requests
                 then access token is unathorized. Minor problem though when access token has a lifetime that isn't super short (15 seconds)
             */
-            const requestBody = {
-                'username': localStorage.getItem('username')        
-            }
-            const response = await sendRequest('/get_portfolio', 'GET', requestBody, accessToken);
-    
-            if (response.ok) {
-                const courseData = await response.json();
-                allCourses.current = courseData; // save all courses as a ref for searches
-                setCourses(allCourses.current);
-            }
-            else {
-                console.log(accessToken);
-                console.log("Error when getting course data");
+            try {
+                const response = await sendRequest('/get_portfolio', 'GET');
+        
+                if (response && response.status === 200) {
+                    const courseData = await response.data;
+                    allCourses.current = courseData; // save all courses as a ref for searches
+                    setCourses(allCourses.current);
+                    setDailyChange(courseData['daily_portfolio_change']);
+                    setTotalFunds(courseData['total_portfolio_value']);
+                }
+                else {
+                    console.log("Error when getting course data");
+                }
+            } catch (error) {
+                console.error('Error fetching data:', error);
             }
         }
-        const token = await getToken();
-        if (token) {
-            fetchEconomics(token);
-            fetchPortfolioStocks(token);
-        }
+        //fetchEconomics();
+        fetchPortfolioStocks();
     };
 
     const checkColumnContent = (index: number, content: any) => {
         const columnClassArguments = {
             0: "col-span-1 justify-self-start text-ellipsis overflow-hidden",
             1: "col-span-1 justify-self-start italic font-light line-clamp-2 mr-8 text-ellipsis overflow-hidden",
-            2: "col-span-1 justify-self-end text-slate-400",
-            3: "col-span-1 justify-self-end text-sky-400 font-light mr-2",
-            4: "col-span-1 justify-self-end pr-16 vscreen:pr-3 " + priceChangeColor(content.toString())
+            2: "col-span-1 justify-self-end text-slate-500",
+            3: "col-span-1 justify-self-end text-sky-400 font-medium mr-2",
+            4: "col-span-1 justify-self-end pr-16 vscreen:pr-3 font-medium " + priceChangeColor(content.toString())
         } as { [key: number]: string };  
 
         if (index in columnClassArguments){
@@ -133,27 +137,32 @@ const Portfolio: React.FC = () => {
 
 
     useEffect(() => {
-        fetchData();
+        try {
+            fetchData();
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
     }, []);
 
     const itemsContentAddon = {
         3: " APE",
+        4: " %"
     }
 
     return (
-        <PageWrapper>
-        <div className="vscreen:text-smaller">
-            <div className="overflow-auto bg-slate-100 rounded flex flex-col p-4 ">
+        //<PageWrapper>
+        <div className="vscreen:text-smaller h-full">
+            <div className="min-h-full overflow-auto bg-light-gray rounded flex flex-col p-8 ">
                 <div className="flex flex-row">
                     <div className="flex flex-col">
                         
                         <p className="vscreen:text-small ">Total funds</p>
                         <div className="flex flex-row py-1.5">  
                             <p className="text-4xl vscreen:text-large font-extralight decoration-0">APE</p>
-                            <p className="text-4xl vscreen:text-large font-medium ml-2">{balance}</p>
+                            <p className="text-4xl vscreen:text-large font-medium ml-2">{totalFunds}</p>
                         </div>
                         <div className="flex flex-row vscreen:text-small">  
-                            <p className="font-semibold text-green-400">+42</p>
+                            <p className="font-semibold text-green-400">{dailyChange > 0 ? "+ APE " + dailyChange : "APE " + dailyChange}</p>
                             <p className="px-1.5 "> since yesterday</p>
                         </div>
 
@@ -168,7 +177,7 @@ const Portfolio: React.FC = () => {
             </div>
              
         </div>
-        </PageWrapper>
+        //</PageWrapper>
     );
 };
 

@@ -63,7 +63,8 @@
 
 
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import ArrowIcon from '../../style/icons/ArrowIcon';
 
 
 interface ModularListProps{
@@ -78,35 +79,88 @@ interface ModularListProps{
 
 
 const ModularList: React.FC<ModularListProps> = ({content, itemsColumnClassFunc = () => "", itemsColumnContentAddon = {}, headerColumnClassName = {}, headerColumnContentAddon = {}, onItemClick = () => {}, className}) => {
+    
+    const [sortConfig, setSortConfig] = React.useState<{key: number | null, direction: 'ascending' | 'descending' | null}>({
+        key: null,
+        direction: null
+    });
+
+    const [sortedItems, setSortedItems] = useState(content.items || []);
+
     let headers: any[] = [];
     let items: any[] = [];
     if (content.headers && content.items){
         headers = content.headers;
         items = content.items;
     }
+
+    const getContentType = (content: any) => {
+        if (typeof content === 'number') {
+            return 'number';
+        }
+        if (typeof content === 'string') {
+            return 'string';
+        }
+        return 'string';
+    }
+
+    const sortItems = (columnIndex: number) => {
+        let direction: 'ascending' | 'descending' = 'ascending';
+        if (sortConfig.key === columnIndex && sortConfig.direction === 'ascending') {
+            direction = 'descending';
+        }
+
+        const sortedItems = [...items].sort((a, b) => {
+            const aValue = a[columnIndex];
+            const bValue = b[columnIndex];
+
+            const aType = getContentType(aValue);
+            const bType = getContentType(bValue);
+
+            console.log(aType, bType);
+
+            if (aType === 'number' && bType === 'number') {
+                return direction === 'ascending' ? bValue - aValue : aValue - bValue;
+            } else if(aType === 'string' && bType === 'string'){
+                return direction === 'ascending' ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
+            } else {
+                return 0;
+            }
+        });
+
+        setSortConfig({ key: columnIndex, direction });
+        setSortedItems(sortedItems);
+    }
+
+    useEffect(() => {
+        setSortedItems(content.items);
+    }, [content.items]);
     
     return (
         <div className={`bg-slate-100 bg-transparent vscreen:text-smallerer my-2 ${className}`}>
-            <div className="grid px-2 pb-2 items-center " style={{ gridTemplateColumns: `repeat(${headers.length}, minmax(0, 1fr))` }}>                            
+            <div className="grid px-2 pb-3 items-center " style={{ gridTemplateColumns: `repeat(${headers.length}, minmax(0, 1fr))` }}>                            
                 {headers.map((header, index) => (
-                            <div key={`header-${index}`} // Added unique key for headers
-                             className={`${index in headerColumnClassName ? headerColumnClassName[index] : ""}`}>
+                            <div 
+                                key={`header-${index}`} // Added unique key for headers
+                                className={`cursor-pointer hover:bg-light-gray-darker rounded-md px-2 ${index in headerColumnClassName ? headerColumnClassName[index] : ""}` + `${sortConfig.key === index ? " bg-light-gray-darker" : ""}`}
+                                onClick={() => sortItems(index)}>
                                 {headerColumnContentAddon[index] ? header+headerColumnContentAddon[index] : header}
+                                {sortConfig.key === index && (sortConfig.direction === 'ascending' ? <ArrowIcon className="ml-1 w-4 h-4 inline"/> : <ArrowIcon className="ml-1 w-4 h-4 inline transform rotate-180" />)}
                             </div>
                         ))}
 
             </div>
             <div className="bg-white rounded-lg shadow-md border overflow-hidden">
-            {items.map((item, itemIndex) => (
+            {sortedItems.map((item, itemIndex) => (
                 <div
                     key={item.id || itemIndex} // Ensure each row has a unique key
-                    className="grid px-2 py-2 border-b last:border-none cursor-pointer hover:bg-gray-100 items-center content-center vscreen:text-smaller vscreen:truncate transition duration-200 ease-in-out"
+                    className={`odd:bg-white even:bg-light-gray hover:bg-light-gray-darker grid px-2 h-16 border-b last:border-none cursor-pointer hover:bg-gray-100 items-center content-center vscreen:text-smaller vscreen:truncate transition duration-300 ease-in-out`}
                     style={{ gridTemplateColumns: `repeat(${headers.length}, minmax(0, 1fr))` }} 
                     onClick={() => onItemClick(item)}
                 >
                     {headers.map((header, index) => (
                     <div key={`cell-${itemIndex}-${index}`} // Added unique key for cells
-                     className={`${itemsColumnClassFunc(index, item[index])}`}>
+                     className={`px-2 ${itemsColumnClassFunc(index, item[index])}`}>
                         {itemsColumnContentAddon[index] ? item[index]+itemsColumnContentAddon[index] : item[index]}
                     </div>
                     ))}

@@ -7,52 +7,40 @@ import Dashboard from './routes/dashboard/Dashboard';
 import Portfolio from './routes/portfolio/Portfolio';
 import Trading from './routes/trading/Trading';
 import AdminPanel from './routes/adminpanel/AdminPanel';
+import Profile from './routes/profile/Profile';
 
-import { BalanceProvider } from './components/topbar/useBalanceContext'
+import UserContext, { UserProvider } from './contexts/UserContext'
 
 import reportWebVitals from './reportWebVitals';
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-
-const router = createBrowserRouter([
-  {
-    path: '/',
-    element: <SignIn />
-  },
-  {
-    path: '/signin',
-    element: <SignIn />
-  },
-  {
-    path: '/signup',
-    element: <SignUp />
-  },
-  {
-    path: '/dashboard',
-    element: <Dashboard />
-  },
-  {
-    path: '/portfolio',
-    element: <Portfolio />
-  },
-  {
-    path: '/trading',
-    element: <Trading />
-  },
-  {
-    path: '/admin',
-    element: <AdminPanel />
-  }
-]);
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import ProtectedRoute from './components/protectedroute/ProtectedRoute';
+import { AuthProvider } from './contexts/AuthContext';
+import PageWrapper from './components/pagewrapper/PageWrapper';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 
 root.render(
-  <React.StrictMode>
-    <BalanceProvider> 
-    <RouterProvider router={router} />
-    </BalanceProvider>
+  <React.StrictMode> 
+      <Router>
+        <AuthProvider>
+          <UserProvider>
+            <PageWrapper>
+              <Routes>
+                <Route path="/" element={<SignIn />} />
+                <Route path="/signin" element={<SignIn />} />
+                <Route path="/signup" element={<SignUp />} />
+                <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+                <Route path="/portfolio" element={<ProtectedRoute><Portfolio /></ProtectedRoute>} />
+                <Route path="/trading" element={<ProtectedRoute><Trading /></ProtectedRoute>} />
+                <Route path="/admin" element={<ProtectedRoute><AdminPanel /></ProtectedRoute>} />
+                <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+              </Routes>
+            </PageWrapper>
+          </UserProvider>
+        </AuthProvider>
+      </Router>
   </React.StrictMode>
 );
 

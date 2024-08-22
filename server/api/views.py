@@ -8,13 +8,15 @@ from rest_framework import permissions, status
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import status
 
-from .serializers import SignUpSerializer, SignInSerializer
+from .serializers import SignUpSerializer, SignInSerializer, ChangePasswordSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from django.contrib.auth import authenticate
 
 from collections import OrderedDict
 
 import api.utils.stock_manager as stock_manager
+
+from django.db.models import Sum, F, FloatField
 
 
 #-- Views! --#
@@ -50,7 +52,7 @@ class SignUpView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class SignInView(APIView):
+class SignInView(APIView): # To be removed?
     """
     API view for user sign-in, handles POST request for user sign-in. Expects a JSON payload
     with username and password fields.
@@ -83,6 +85,31 @@ class SignInView(APIView):
             return Response({'error': 'Invalid Credentials'}, status=status.HTTP_401_UNAUTHORIZED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+class ChangePasswordView(APIView):
+    """
+    API view for changing user password. Handles the HTTP PUT request for changing user password and expects a JSON payload
+    with old_password, new_password and rpt_new_password fields.
+
+    Methods:
+        put(request): Handles the PUT request for changing user password.
+
+    Returns:
+        A response with the success message and HTTP status code 200 if the password is changed successfully.
+        A response with the validation errors and HTTP status code 400 if the password change is unsuccessful.
+    """
+    permission_classes = [permissions.IsAuthenticated]
+    def put(self, request):
+        user = request.user
+        print(user)
+        print(request.data)
+        serializer = ChangePasswordSerializer(data=request.data)
+        if serializer.is_valid():
+            if user.check_password(serializer.validated_data['old_password']):
+                user.set_password(serializer.validated_data['new_password'])
+                user.save()
+                return Response({'message': 'Password changed successfully'}, status=status.HTTP_200_OK)
+            return Response({'error': 'Invalid old password'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class GetUserInfoView(APIView):
     """
@@ -230,13 +257,18 @@ class GetPortfolioStocksView(APIView):
             if portfolio:
                 stocks = portfolio.stocks.all()
                 stock_data = []
+                daily_portfolio_change = 0
+                total_portfolio_value = 0
                 for stock in stocks:
                     formatted_price = round(stock.amount * stock.course.price)
-                    stock_data += [[stock.course.course_code, stock.course.name, stock.amount, formatted_price, str(stock.course.daily_change)+" %"]]        
-
+                    stock_data += [[stock.course.course_code, stock.course.name, stock.amount, formatted_price, stock.course.daily_change_percent]]        
+                    daily_portfolio_change += stock.course.daily_change
+                    total_portfolio_value += formatted_price
                 data_json = {
                     'headers': ['Course Code', 'Course Name', 'Amount', 'Total Value', 'Price Change (24h)'],
-                    'items': stock_data
+                    'items': stock_data,
+                    'daily_portfolio_change': round(daily_portfolio_change, 2),
+                    'total_portfolio_value': round(total_portfolio_value, 2)
                 }
                 return Response(data_json, status=status.HTTP_200_OK)
             else:
@@ -272,7 +304,7 @@ class GetAllCoursesView(APIView):
         for course in courses:
 
             formatted_price = round(course.price)
-            course_data += [[course.course_code, course.name, formatted_price, str(course.daily_change)+" %"]]        
+            course_data += [[course.course_code, course.name, formatted_price, course.daily_change_percent]]    
 
         data_json = {
             'headers': ['Course Code', 'Course Name', 'Price', 'Price Change (24h)'],
@@ -310,7 +342,7 @@ class GetCourseDataView(APIView):
                             "high": max(price_points_per_day[date_key]),
                             "low": min(price_points_per_day[date_key]),
                             "close": price_points_per_day[date_key][-1]
-                            })   
+                            })
                 formatted_price_history.append(day_info)
             sorted_formatted_price_history_on_timestamp_date_key = sorted(formatted_price_history, key=lambda x: x['time'])
             user = User.objects.get(username=request.user)
@@ -322,7 +354,7 @@ class GetCourseDataView(APIView):
                     if stock:
                         stock_amount = stock.amount
                         
-            formatted_price = round(stock_manager.the_algorithm(course.base_price), 2)
+            formatted_price = round(stock_manager.get_course_price(course), 2)
             course_data = {
                 'course_code': course.course_code,
                 'name': course.name,
@@ -341,35 +373,40 @@ class DashboardView(APIView):
     """
     permission = [permissions.IsAuthenticated]
     def get(self, request):
-        courses = Course.objects.all().order_by('-daily_change')
+        courses = Course.objects.all().order_by('-daily_change_percent')
         trending_course = courses.first()
         worst_course = courses.last()
-        best_users = User.objects.all().order_by('-balance')[:5]
+        best_users = User.objects.annotate(
+            total_portfolio_value=Sum(
+                F('portfolios__stocks__amount') * F('portfolios__stocks__course__price'),
+                output_field=FloatField()
+            )
+        ).order_by('-total_portfolio_value')[:5]
         best_users_names_only = [user.username for user in best_users]
-        best_users_balances = [user.balance for user in best_users]
+        best_users_balances = [user.total_portfolio_value for user in best_users]
         current_user = User.objects.get(username=request.user)
         if current_user:
             portfolio = Portfolio.objects.filter(user=current_user).first()
             if portfolio:
                 dashboard_data = {}
-                best_portfolio_stock = portfolio.stocks.all().order_by('-course__daily_change').first()
+                best_portfolio_stock = portfolio.stocks.all().order_by('-course__daily_change_percent').first()
                 if best_portfolio_stock:
                     dashboard_data = {
                         'best_course': trending_course.course_code,
-                        'best_course_change': trending_course.daily_change,
+                        'best_course_change': trending_course.daily_change_percent,
                         'worst_course': worst_course.course_code,
-                        'worst_course_change': worst_course.daily_change,
+                        'worst_course_change': worst_course.daily_change_percent,
                         'best_users': best_users_names_only,
                         'best_users_balances': best_users_balances,
                         'best_portfolio_stock': best_portfolio_stock.course.course_code,
-                        'best_portfolio_stock_change': best_portfolio_stock.course.daily_change
+                        'best_portfolio_stock_change': best_portfolio_stock.course.daily_change_percent
                         }
                 else:
                     dashboard_data = {
                         'best_course': trending_course.course_code,
-                        'best_course_change': trending_course.daily_change,
+                        'best_course_change': trending_course.daily_change_percent,
                         'worst_course': worst_course.course_code,
-                        'worst_course_change': worst_course.daily_change,
+                        'worst_course_change': worst_course.daily_change_percent,
                         'best_users': best_users_names_only,
                         'best_users_balances': best_users_balances,
                         'best_portfolio_stock': None,

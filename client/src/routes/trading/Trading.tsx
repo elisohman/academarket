@@ -9,13 +9,16 @@ import Switch from "../../components/switch/Switch";
 import TextField from "../../components/textfield/TextField";
 import SearchBar from "../../components/searchBar/SearchBar";
 import ModularList from "../../components/modularList/ModularList";
-import sendRequest from "../../utils/request";
+//import sendRequest from "../../utils/request";
 import { ACCESS_TOKEN } from "../../utils/constants";
-import { getToken } from "../../utils/network";
+//import { getToken } from "../../utils/network";
 import PopupMessage from "../../components/popupMessage/PopupMessage";
-import { useBalance } from "../../components/topbar/useBalanceContext";
+//import { useBalance } from "../../contexts/UserContext";
 import updateUserInfo from "../../components/topbar/TopBar"
 import constants from '../../algorithm_constants.json';
+import useAPI from "../../utils/network";
+import { useAuthContext } from "../../contexts/AuthContext";
+import { useUserContext } from "../../contexts/UserContext";
 
 const coursesExampleData = { // Proposed structure for courses (backend should return in a similar format) -Jack
     headers: ['Course Code', 'Course Name', 'Price', 'Price Change (24h)'],
@@ -28,19 +31,21 @@ const coursesExampleData = { // Proposed structure for courses (backend should r
 const Trading = () => {
     const urlParams = new URLSearchParams(window.location.search);
     const selectedCourseCode = urlParams.get('course');
-    const isFromPortfolioParam = urlParams.get('fromPortfolio');
+    //const isFromPortfolioParam = urlParams.get('fromPortfolio');
     // const [isFromPortfolio, setIsFromPortfolio] = useState<boolean>(isFromPortfolioParam === 'true');
     const allCourses = useRef<any>(); // keeps track of all courses while making multiple searches
     const [courses, setCourses] = useState<any>({headers: [], items: []});
     const navigate = useNavigate();
     //const [balance, setBalance] = useState<string>('');
     const [isBuying, setIsBuying] = useState<boolean>(true);
-    const { balance, setBalance } = useBalance();
+    const {userInfo, updateUserInfo} = useUserContext();
+    const [ balance, setBalance ] = useState("Loading...");
+    const sendRequest = useAPI();
 
     const [candlestickData, setCandleStickData] = useState<any>(generateCandlestickData());
     const [estimatedPrice, setEstimatedPrice] = useState<number>(0);
-    const fetchEconomics = async (accessToken : string) => {
-        const response = await sendRequest('/user_info', 'GET', undefined, accessToken);
+    /*const fetchEconomics = async (accessToken : string) => {
+        const response = await sendRequest('/user_info', 'GET');
         if (response.ok) {
             const responseData = await response.json();
             setBalance(responseData.balance);
@@ -48,55 +53,59 @@ const Trading = () => {
         } else {
             console.log("Error when getting user info");
         }
-    }
+    }*/
 
-    const fetchCourses = async (accessToken : string) => {
+    const fetchCourses = async () => {
         /*
             There exists a race condition, if access token needs to be refreshed at the same time as get requests
             then access token is unathorized. Minor problem though when access token has a lifetime that isn't super short (15 seconds)
         */
-        const response = await sendRequest('/all_courses', 'GET', undefined, accessToken);
-
-        if (response.ok) {
-            const courseData = await response.json();
-            allCourses.current = courseData; // save all courses as a ref for searches
-            setCourses(allCourses.current);
-        }
-        else {
-            console.log(accessToken);
-            console.log("Error when getting course data");
-        }
+       try {
+              const response = await sendRequest('/all_courses', 'GET');
+              if (response && response.status === 200) {
+                const courseData = await response.data;
+                allCourses.current = courseData; // save all courses as a ref for searches
+                setCourses(allCourses.current);
+              } else {
+                console.log("Error when getting course data");
+              }
+       } catch (error) {
+           console.error('Error fetching data:', error);
+       }
     }
 
     const callCourseFetchTradeData = async () => {
-        const token = await getToken();
-        fetchCourseTradeData(token);
+        fetchCourseTradeData();
     }
 
     const [courseTradeData, setCourseTradeData] = useState<any>(null);
-    const fetchCourseTradeData = async (accessToken : string) => {
+    const fetchCourseTradeData = async () => {
         const courseTradeDataURL = '/get_course_data?course='+selectedCourseCode // file in public directory
         try {
-            const response = await sendRequest(courseTradeDataURL, 'GET', undefined, accessToken);
+            const response = await sendRequest(courseTradeDataURL, 'GET');
 
-            if (!response.ok) {
+            if (!response || !(response.status === 200)) {
                 throw new Error('Network response was not ok');
             }
-            const jsonData = await response.json();
+            const jsonData = await response.data;
             console.log(jsonData);
             
             setCourseTradeData(jsonData);
             console.log(jsonData.price_history)
             setCandleStickData(jsonData.price_history) // Object { course_code: "SNOP20", name: "Hur man diskar en Pensel, med flerfaldigt prisbelönta Göran Östlund", price: 13013, price_history: null }
         } catch (error) {
-            console.error('Error fetching data:', error);
+            console.error('Error fetching course trade data:', error);
         }
         
     };
     
     const fetchAllData = async () => {
+        fetchCourses();
+        if (activeSection === 'trade') {
+            fetchCourseTradeData();
+        }
         //const token = localStorage.getItem(ACCESS_TOKEN);
-        const token = await getToken();
+        /*const token = await getToken();
         console.log("Awaited token (fetchAllData): "+token)
         if (token) {
             fetchEconomics(token);
@@ -105,7 +114,7 @@ const Trading = () => {
                 fetchCourseTradeData(token);
             }
 
-        }
+        }*/
     };
     
     const [searchText, setSearchText] = useState<string>('');
@@ -147,9 +156,9 @@ const Trading = () => {
         
         const columnClassArguments = {
             0: "col-span-1 justify-self-start text-ellipsis overflow-hidden",
-            1: "col-span-1 justify-self-start italic font-light line-clamp-2 mr-8 text-ellipsis overflow-hidden",
-            2: "col-span-1 justify-self-end pr-16 vscreen:pr-2 text-sky-400 font-light",
-            3: "col-span-1 justify-self-end pr-16 vscreen:pr-3 " + priceChangeColor(content.toString())
+            1: "col-span-1 justify-self-start italic font-light line-clamp-2 text-ellipsis overflow-hidden",
+            2: "col-span-1 justify-self-end text-sky-400 font-medium",
+            3: "col-span-1 justify-self-end pr-16 vscreen:pr-3 font-medium " + priceChangeColor(content.toString())
         } as { [key: number]: string };  
 
         if (index in columnClassArguments){
@@ -164,12 +173,13 @@ const Trading = () => {
     const columnHeaderClasses = {
         0: "col-span-1 justify-self-start text-center font-medium",
         1: "col-span-1 justify-self-start text-center font-medium",
-        2: "col-span-1 justify-self-end pr-16 vscreen:pr-2 text-center font-medium",
+        2: "col-span-1 justify-self-end text-center font-medium",
         3: "col-span-1 justify-self-end text-center font-medium",
     } as { [key: number]: string };
 
     const itemsContentAddon = {
         2: " APE",
+        3: " %"
     };
 
     const [activeSection, setActiveSection] = useState<string>('browse'); // State to switch sections
@@ -190,18 +200,24 @@ const Trading = () => {
         }
     };
 
-    const returnToList = () => {
+    /*const returnToList = () => {
 
         if (isFromPortfolioParam){
             navigate('/portfolio');
         } else {
             navigate('/trading');
         }
-    };
+    };*/
 
     useEffect(() => {
         fetchAllData();
     }, []);
+
+    useEffect(() => {
+        if (userInfo) {
+            setBalance(userInfo.balance)
+        }
+    }, [userInfo]);
 
     useEffect(() => {
         console.log(selectedCourseCode);
@@ -220,36 +236,79 @@ const Trading = () => {
         }
     }, [activeSection]);
 
+    
+
+    const calculateEstimatedPrice = (trade_amount: number, isBuying: boolean) => {
+        const priceUpdateAlgorithm = (basePrice: number): number => {
+            const K = constants.K;
+            const ALPHA = constants.ALPHA;
+            const SCALE = constants.SCALE;
+
+            return 1 + ((Math.pow(basePrice, ALPHA)) * (K - (K / basePrice))) * SCALE * (1 / basePrice);
+        }
+        
+        // Function to calculate the course price update
+        const calculateCoursePriceUpdate = (
+            basePrice: number, 
+            amount: number, 
+            isBuying: boolean = true
+        ): number => {
+            // Generate array of prices based on isBuying flag
+            const basePrices: number[] = [];
+            
+            if (isBuying) {
+                for (let i = basePrice; i < basePrice + amount; i++) {
+                    basePrices.push(i);
+                }
+            } else {
+                for (let i = basePrice; i > basePrice - amount; i--) {
+                    basePrices.push(i);
+                }
+            }
+            
+            
+            // Compute all iteration prices at once using array mapping
+            const iterationPrices = basePrices.map(price => priceUpdateAlgorithm(price));
+            
+            // Compute the original price once
+            //const originalPrice = priceUpdateAlgorithm(basePrice);
+            // Calculate the difference and average difference value
+            // const diffValue = iterationPrices.reduce((acc, price) => acc + (originalPrice - price), 0);
+            
+            const totalTradeValue = iterationPrices.reduce((sum, price) => sum + price, 0);
+        
+            return Math.abs(totalTradeValue);
+        }
+        const base_price = courseTradeData.base_price;
+        return calculateCoursePriceUpdate(base_price, trade_amount, isBuying);
+    }
+
+    const getMaxBuyAmount = () => {
+        if (courseTradeData) {
+            let k = Math.floor(parseFloat(balance) / courseTradeData.price);
+            return k;
+        }
+        return 0;
+    }
 
     useEffect(() => {
         if (courseTradeData) {
+            const TRADE_VALUE : number = 250.0;
             if (isBuying) { 
-                //APE 57576836.68
-                //APE 57576836.68
-                // 46.73
-                //APE 57576891.78
-                //APE 57576938.51
-                let newPrice = courseTradeData.price * amount;
-                if (newPrice <= parseFloat(balance)) {
+                let newPrice = 0
+                if (TRADE_VALUE*amount <= parseFloat(balance)) {
+                    newPrice = TRADE_VALUE*amount;
                     newPrice = parseFloat(newPrice.toFixed(2));
-                    setEstimatedPrice(newPrice);
                 }
-                else{
-                    setEstimatedPrice(0);
-                }
+                setEstimatedPrice(newPrice);
                 
             }
             else{
                 let newPrice = 0;
+
                 if (courseTradeData.stock_amount >= amount && amount > 0) {
-                    const K = constants.K;
-                    const ALPHA = constants.ALPHA;
-                    const SCALE = constants.SCALE;
-                    let base_price = courseTradeData.base_price
-                    base_price -= amount
-                    newPrice = (1 + ((base_price**ALPHA) * (K - (K/base_price)))*SCALE*(1/base_price))*amount
-                    
-                    newPrice = parseFloat(newPrice.toFixed(2));
+            
+                    newPrice = TRADE_VALUE*amount;
                 }
                 setEstimatedPrice(newPrice);
             }
@@ -257,15 +316,12 @@ const Trading = () => {
     }, [amount, courseTradeData, isBuying]);
 
     const buyStock = async () => {   
-        // await getToken();
-        const token = await getToken();
-        if (token) {
-            if (!courseTradeData) {
-                console.error('No course data');
-                return;
-            }
-            let courseCode: string = courseTradeData["course_code"];
-            let buyAmount: number = amount;
+        if (!courseTradeData) {
+            console.error('No course data');
+            return;
+        }
+        let courseCode: string = courseTradeData["course_code"];
+        let buyAmount: number = amount;
             if (buyAmount <= 0) {
                 console.error('Invalid amount');
                 return;
@@ -275,8 +331,8 @@ const Trading = () => {
                 amount: buyAmount,
             }
             if (isBuying) {
-                const response = await sendRequest('/buy_stock/', 'POST', requestBody, token);
-                if (response.ok) {
+                const response = await sendRequest('/buy_stock/', 'POST', requestBody);
+                if (response && response.status == 200) {
                     console.log('Stock buy order placed successfully');
                     setPopupMessageColor('text-yellow-200');
                     if (amount === 1) {
@@ -287,6 +343,7 @@ const Trading = () => {
                     }
                     setShowPopup(true);
                     setAmount(0);
+                    updateUserInfo();
                     fetchAllData();
                     
 
@@ -295,20 +352,20 @@ const Trading = () => {
                 }   
             }
             else {
-                const response = await sendRequest('/sell_stock/', 'POST', requestBody, token);
-                if (response.ok) {
+                const response = await sendRequest('/sell_stock/', 'POST', requestBody);
+                if (response && response.status == 200) {
                     console.log('Stock sell order placed successfully');
                     setPopupMessageColor('text-yellow-200');
                     setPopupMessage(`Sold ${amount} stock of ${courseCode}!`);
 
                     setShowPopup(true);
                     setAmount(0);
+                    updateUserInfo();
                     fetchAllData();
                 } else {
-                    console.error('Error selling stock: ' + response.status);
+                    console.error('Error selling stock');
                 }
             }
-        }
     };
 
     const [showPopup, setShowPopup] = useState(false);
@@ -318,9 +375,9 @@ const Trading = () => {
 
     if (activeSection === "browse"){
         return (
-            <PageWrapper>
-                <div className="vscreen:text-small">
-                    <div className="overflow-auto bg-sky-50 rounded flex flex-col p-4 ">
+            //<PageWrapper>
+                <div className="vscreen:text-small h-full">
+                    <div className="min-h-full overflow-auto bg-light-gray rounded flex flex-col p-8 ">
                         <div className="flex flex-row">
                             <div className="flex flex-col">
                                 <p className="vscreen:text-small ">Available funds</p>
@@ -334,20 +391,20 @@ const Trading = () => {
                                 <SearchBar input={searchText} setInput={updateSearchText} onButtonClick={handleSearch} placeholder="Search course code..." onChange={onSearchTextChange}></SearchBar>
                             </div>
                         </div>
-                        <ModularList content={courses} itemsColumnClassFunc={checkColumnContent} headerColumnClassName={columnHeaderClasses} itemsColumnContentAddon={itemsContentAddon} onItemClick={handleRowClick} ></ModularList>
+                        <ModularList className="py-4" content={courses} itemsColumnClassFunc={checkColumnContent} headerColumnClassName={columnHeaderClasses} itemsColumnContentAddon={itemsContentAddon} onItemClick={handleRowClick} ></ModularList>
                     </div>
                 </div>
-            </PageWrapper>
+            //</PageWrapper>
         )
     } else {
         // <div className="flex flex-col h-full">
 
         return (
-            <PageWrapper>
-                <div className="size-full flex flex-row rounded-3xl">
+            //<PageWrapper>
+                <div className="size-full flex flex-row rounded-3xl px-8">
                 <div id="graph_window" className="bg-light-gray rounded-3xl mr-5 flex-1 flex flex-col">
-                        <div className="self-start pt-4">
-                            <Button className="size-10 pl-2" onClick={() => returnToList()}>
+                        <div className="self-start pt-4 pl-5">
+                            <Button className="size-10" onClick={() => navigate(-1)}>
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 15.75 3 12m0 0 3.75-3.75M3 12h18" />
                             </svg>
@@ -412,7 +469,7 @@ const Trading = () => {
                                         className='flex px-3 rounded-full border-2 border-light-gray text-xs text-light-gray cursor-pointer hover:bg-white hover:text-[#4ADE80] transition duration-300 ease-in-out'
                                         onClick={() => handleButtonClick(courseTradeData 
                                                                             ? isBuying 
-                                                                                ? Math.floor((parseFloat(balance) / courseTradeData.price)) : courseTradeData.stock_amount
+                                                                                ? getMaxBuyAmount() : courseTradeData.stock_amount
                                                                             : 0)}
                                     >
                                         Max
@@ -427,7 +484,9 @@ const Trading = () => {
                                             <div className={"text-emerald-100 text-large italic"}>{estimatedPrice}</div>
                                             <div className={"text-emerald-100 text-small italic pl-1 pb-1 "}> APE</div>
                                         </div>
-                                        <div className={"text-emerald-100 italic text-small"}>total buy value</div>
+                                        <div className={"text-emerald-100 italic text-small"}>estimated buy value</div>
+                                        <div className={"text-emerald-100 italic text-smaller"}>after fees</div>
+
                                     </div>
                                 </div>
                                 <div className={isBuying? "hidden":""}>
@@ -437,6 +496,8 @@ const Trading = () => {
                                             <div className={"text-rose-200 text-small italic pl-1 pb-1 "}> APE</div>
                                         </div>
                                         <div className={"text-rose-200 italic text-small"}>estimated sell value</div>
+                                        <div className={"text-rose-200 italic text-smaller"}>after fees</div>
+
                                     </div>
                                 </div>
                                 <PopupMessage message={popupMessage} show={showPopup} onClose={() => setShowPopup(false)} classColor={popupMessageColor} tailwindPadding="p-2 pt-6"></PopupMessage>
@@ -450,7 +511,7 @@ const Trading = () => {
 
 
             </div>
-        </PageWrapper>
+        //</PageWrapper>
     );
     }
     

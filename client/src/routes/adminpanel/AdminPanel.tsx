@@ -2,7 +2,7 @@
 //import logo from './logo.svg';
 import { useState, useContext, useEffect } from "react";
 import sendRequest from "../../utils/request";
-import { getToken } from "../../utils/network";
+//import { getToken } from "../../utils/network";
 
 import './adminpanel.scss';
 import Button from '../../components/button/Button';
@@ -44,11 +44,15 @@ const AdminPanel: React.FC = () => {
         const url = '/initialize_all_data/' // file in public directory
         datapipelineRequest(url);
     }
-
     const updateAllDailyChanges = () => {
         const url = '/update_all_daily_changes/' // file in public directory
         datapipelineRequest(url);
     }
+    const stopScheduler = () => {
+        const url = '/stop_scheduler/' // file in public directory
+        datapipelineRequest(url);
+    }
+
     const datapipelineRequest = async (url : string) => {
         try {
             setIsLoading(true);
@@ -69,9 +73,9 @@ const AdminPanel: React.FC = () => {
   
 
   return (
-    <div className="flex flex-row bg-blue-200 gap-2 m-12 p-8 rounded justify-center items-center">
-        <div className="flex flex-col gap-2 p-4 rounded justify-center items-center">
-            <div className="animate-pulse h-6 text-large text-blue-600">
+    <div className="flex flex-row bg-white justify-center items-center">
+        <div className="size-full flex flex-col gap-2 p-4 bg-blue-200 rounded justify-center items-center">
+            <div className={isLoading ? "animate-pulse h-6 text-large text-blue-600" : "hidden"}>
                 {isLoading ? "Executing command..." : ""}
             </div>
 
@@ -84,7 +88,7 @@ const AdminPanel: React.FC = () => {
             <Button className="mt-2 font-medium text-secondary-color bg-white rounded-full p-2 px-4 hover:bg-black hover:text-white transition duration-300 ease-in-out" onClick={initializeAllData}>Initialize all course data</Button>
             <Button className="mt-2 font-medium text-secondary-color bg-white rounded-full p-2 px-4 hover:bg-black hover:text-white transition duration-300 ease-in-out" onClick={generatePriceHistories}>Regenerate price histories (may take a few minutes)</Button>
             <Button className="mt-2 font-medium text-secondary-color bg-white rounded-full p-2 px-4 hover:bg-black hover:text-white transition duration-300 ease-in-out" onClick={updateAllDailyChanges}>Update all daily changes</Button>
-
+            <Button className="mt-2 font-medium text-secondary-color bg-white rounded-full p-2 px-4 hover:bg-black hover:text-white transition duration-300 ease-in-out" onClick={stopScheduler}>Stop scheduler</Button>
         </div>
       </div>
   );

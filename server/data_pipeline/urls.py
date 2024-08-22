@@ -22,7 +22,8 @@ urlpatterns = [
     path('fix_balances/', views.fix_balances),
     path('update_all_daily_changes/', views.update_all_daily_changes),
     path('start_scheduler/', views.start_scheduler),
+    path('stop_scheduler/', views.stop_scheduler),
     path('kill_all_bots/', views.kill_all_bots),
     path('test/', views.test_percentage_data),
-
+    path('flush_courses_database/', views.flush_courses_database),
 ]
