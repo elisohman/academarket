@@ -17,7 +17,8 @@ def place_buy_order(user, course, amount):
     portfolio = Portfolio.objects.filter(user=user).first()
     if not portfolio:
         portfolio = Portfolio.objects.create(user=user)
-
+    if amount < 1:
+        return False
     new_price, new_base, buy_value = chained_calculate_price(course.base_price, amount, True)
     if user.balance >= buy_value:
 
@@ -43,7 +44,8 @@ def place_sell_order(user, stock, amount):
     Shows how functions need to be called, checked and passed for the algorithm to work when selling a stock.
     """
     #print("Finalizing sell order!")
-
+    if amount < 1:
+        return False
     if stock.amount >= amount:
         new_price, new_base, sell_value = chained_calculate_price(stock.course.base_price, amount, False)
         user.balance += sell_value
@@ -95,7 +97,6 @@ def chained_calculate_price(base_price, amount, is_buying=True):
     """
     Called when a user buys/sells a stock, correctly handles the amount so that the user may buy in stock.
     """
-    print(f'current base price: {base_price}')
     constants = {}
     algorithm_constants_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../client/src/algorithm_constants.json'))
     with open(algorithm_constants_path) as f:
@@ -105,7 +106,7 @@ def chained_calculate_price(base_price, amount, is_buying=True):
     S = constants['SCALE']
 
     # Create an array of prices decrementing from base_price
-    base_prices = np.array(0)
+    base_prices = []
     
     if is_buying:
         base_prices = np.arange(base_price, base_price + (amount), 1)
@@ -120,7 +121,6 @@ def chained_calculate_price(base_price, amount, is_buying=True):
     total_trade_value = np.sum(iteration_prices)
     new_price = iteration_prices[-1]
     new_base = base_prices[-1]
-
     if is_buying:
         new_base += 1 # Offset needed for correct behavior
 
@@ -195,7 +195,7 @@ def calculate_daily_course_price_change(course, percent=False):
         change = ((current_price - yesterday_price) / yesterday_price) * 100
     else:
         change = current_price - yesterday_price
-    return round(change, 2)
+    return np.round(change, 2)
 
 
 def calculate_daily_balance_change(user):
