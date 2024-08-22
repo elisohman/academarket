@@ -117,7 +117,7 @@ const Dashboard: React.FC = () => {
                         onClick={() => handleRowClick(dashboardData.best_portfolio_stock, dashboardData, true)}> 
                   <div>{dashboardData && dashboardData.best_portfolio_stock ? dashboardData.best_portfolio_stock : "N/A"}</div>
                 </Button>
-              <div className={dashboardData && dashboardData.best_portfolio_stock ? `${priceChangeColor(dashboardData.best_portfolio_stock_change.toString())} font-medium` : "font-medium"}>{dashboardData && dashboardData.best_portfolio_stock ? dashboardData.best_portfolio_stock_change+ " %" : ""}</div>
+              <div className={dashboardData && dashboardData.best_portfolio_stock_change ? `${priceChangeColor(dashboardData.best_portfolio_stock_change.toString())} font-medium` : "font-medium"}>{dashboardData && dashboardData.best_portfolio_stock_change ? dashboardData.best_portfolio_stock_change+ " %" : ""}</div>
             </div>
 
             <div className="flex-1 h-full flex flex-col justify-center rounded-lg bg-light-gray p-4 vscreen:text-smaller items-center">
