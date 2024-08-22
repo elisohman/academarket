@@ -218,7 +218,7 @@ def generate_price_histories(_request: HttpRequest) -> HttpResponse:
         current_price = course.price
         latest_price = course.price
         today = datetime.now()
-        for i in range(1, 150):
+        for i in range(1, 50):
             for j in range(1, 2):
                 idate = today - timedelta(days=i) 
                 idate = idate - timedelta(hours=j)
@@ -237,7 +237,7 @@ def generate_price_histories(_request: HttpRequest) -> HttpResponse:
                 new_price_point.date = idate
                 new_price_point.timestamp = timestamp
                 new_price_point.save()
-        stock_manager.save_price_point(course)
+        stock_manager.save_price_point(course, stock_manager.calculate_price(course.base_price))
         course.save()
     end_time = datetime.now()
     total_seconds = (end_time - start_time).total_seconds()
