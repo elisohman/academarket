@@ -56,7 +56,24 @@ def place_sell_order(user, stock, amount):
         return True
     return False
 
+def apply_course_price_update_simple(course, amount, is_buying=True):
+    new_price = 0
+    if is_buying:
+        new_price = course.price + amount*TRADE_VALUE
+    else:
+        new_price = course.price - amount*TRADE_VALUE
+    course.price = new_price
+    new_daily_change = calculate_daily_course_price_change(course)
+    new_daily_change_percent = calculate_daily_course_price_change(course, percent=True)
+    course.daily_change = new_daily_change
+    course.daily_change_percent = new_daily_change_percent
+    print("New price: ", new_price)
+    print("New daily change: ", new_daily_change)
+    print("New daily change percent: ", new_daily_change_percent)
+    course.save()
+    save_price_point(course)
 
+    
 def apply_course_price_update(course, new_price, new_base):
     if new_base < 1:
         new_base = 1 
@@ -141,22 +158,7 @@ def price_algorithm(base_price, k, alpha, scale):
 
 
 
-def apply_course_price_update(course, amount, is_buying=True):
-    new_price = 0
-    if is_buying:
-        new_price = course.price + amount*TRADE_VALUE
-    else:
-        new_price = course.price - amount*TRADE_VALUE
-    course.price = new_price
-    new_daily_change = calculate_daily_course_price_change(course)
-    new_daily_change_percent = calculate_daily_course_price_change(course, percent=True)
-    course.daily_change = new_daily_change
-    course.daily_change_percent = new_daily_change_percent
-    print("New price: ", new_price)
-    print("New daily change: ", new_daily_change)
-    print("New daily change percent: ", new_daily_change_percent)
-    course.save()
-    save_price_point(course)
+
 
 
 def get_course_price(course):
