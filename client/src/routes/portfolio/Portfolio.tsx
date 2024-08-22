@@ -50,7 +50,7 @@ const Portfolio: React.FC = () => {
     }
 
     const handleRowClick = (course: any) => {
-        navigate(`/trading?course=${course[0]}&fromPortfolio=true`, { state: { course } });
+        navigate(`/trading?course=${course[0]}`, { state: { course } });
     };
     
     function handleSearch () {
@@ -146,12 +146,13 @@ const Portfolio: React.FC = () => {
 
     const itemsContentAddon = {
         3: " APE",
+        4: " %"
     }
 
     return (
         //<PageWrapper>
-        <div className="vscreen:text-smaller">
-            <div className="overflow-auto bg-light-gray rounded flex flex-col p-8 ">
+        <div className="vscreen:text-smaller h-full">
+            <div className="min-h-full overflow-auto bg-light-gray rounded flex flex-col p-8 ">
                 <div className="flex flex-row">
                     <div className="flex flex-col">
                         

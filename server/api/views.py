@@ -261,7 +261,7 @@ class GetPortfolioStocksView(APIView):
                 total_portfolio_value = 0
                 for stock in stocks:
                     formatted_price = round(stock.amount * stock.course.price)
-                    stock_data += [[stock.course.course_code, stock.course.name, stock.amount, formatted_price, str(stock.course.daily_change_percent)+" %"]]        
+                    stock_data += [[stock.course.course_code, stock.course.name, stock.amount, formatted_price, stock.course.daily_change_percent]]        
                     daily_portfolio_change += stock.course.daily_change
                     total_portfolio_value += formatted_price
                 data_json = {
@@ -304,7 +304,7 @@ class GetAllCoursesView(APIView):
         for course in courses:
 
             formatted_price = round(course.price)
-            course_data += [[course.course_code, course.name, formatted_price, str(course.daily_change_percent)+" %"]]    
+            course_data += [[course.course_code, course.name, formatted_price, course.daily_change_percent]]    
 
         data_json = {
             'headers': ['Course Code', 'Course Name', 'Price', 'Price Change (24h)'],

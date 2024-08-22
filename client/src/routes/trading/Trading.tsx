@@ -31,7 +31,7 @@ const coursesExampleData = { // Proposed structure for courses (backend should r
 const Trading = () => {
     const urlParams = new URLSearchParams(window.location.search);
     const selectedCourseCode = urlParams.get('course');
-    const isFromPortfolioParam = urlParams.get('fromPortfolio');
+    //const isFromPortfolioParam = urlParams.get('fromPortfolio');
     // const [isFromPortfolio, setIsFromPortfolio] = useState<boolean>(isFromPortfolioParam === 'true');
     const allCourses = useRef<any>(); // keeps track of all courses while making multiple searches
     const [courses, setCourses] = useState<any>({headers: [], items: []});
@@ -156,8 +156,8 @@ const Trading = () => {
         
         const columnClassArguments = {
             0: "col-span-1 justify-self-start text-ellipsis overflow-hidden",
-            1: "col-span-1 justify-self-start italic font-light line-clamp-2 mr-8 text-ellipsis overflow-hidden",
-            2: "col-span-1 justify-self-end pr-16 vscreen:pr-2 text-sky-400 font-medium",
+            1: "col-span-1 justify-self-start italic font-light line-clamp-2 text-ellipsis overflow-hidden",
+            2: "col-span-1 justify-self-end text-sky-400 font-medium",
             3: "col-span-1 justify-self-end pr-16 vscreen:pr-3 font-medium " + priceChangeColor(content.toString())
         } as { [key: number]: string };  
 
@@ -173,12 +173,13 @@ const Trading = () => {
     const columnHeaderClasses = {
         0: "col-span-1 justify-self-start text-center font-medium",
         1: "col-span-1 justify-self-start text-center font-medium",
-        2: "col-span-1 justify-self-end pr-16 vscreen:pr-2 text-center font-medium",
+        2: "col-span-1 justify-self-end text-center font-medium",
         3: "col-span-1 justify-self-end text-center font-medium",
     } as { [key: number]: string };
 
     const itemsContentAddon = {
         2: " APE",
+        3: " %"
     };
 
     const [activeSection, setActiveSection] = useState<string>('browse'); // State to switch sections
@@ -199,14 +200,14 @@ const Trading = () => {
         }
     };
 
-    const returnToList = () => {
+    /*const returnToList = () => {
 
         if (isFromPortfolioParam){
             navigate('/portfolio');
         } else {
             navigate('/trading');
         }
-    };
+    };*/
 
     useEffect(() => {
         fetchAllData();
@@ -342,6 +343,7 @@ const Trading = () => {
                     }
                     setShowPopup(true);
                     setAmount(0);
+                    updateUserInfo();
                     fetchAllData();
                     
 
@@ -374,8 +376,8 @@ const Trading = () => {
     if (activeSection === "browse"){
         return (
             //<PageWrapper>
-                <div className="vscreen:text-small">
-                    <div className="overflow-auto bg-light-gray rounded flex flex-col p-8 ">
+                <div className="vscreen:text-small h-full">
+                    <div className="min-h-full overflow-auto bg-light-gray rounded flex flex-col p-8 ">
                         <div className="flex flex-row">
                             <div className="flex flex-col">
                                 <p className="vscreen:text-small ">Available funds</p>
@@ -389,7 +391,7 @@ const Trading = () => {
                                 <SearchBar input={searchText} setInput={updateSearchText} onButtonClick={handleSearch} placeholder="Search course code..." onChange={onSearchTextChange}></SearchBar>
                             </div>
                         </div>
-                        <ModularList content={courses} itemsColumnClassFunc={checkColumnContent} headerColumnClassName={columnHeaderClasses} itemsColumnContentAddon={itemsContentAddon} onItemClick={handleRowClick} ></ModularList>
+                        <ModularList className="py-4" content={courses} itemsColumnClassFunc={checkColumnContent} headerColumnClassName={columnHeaderClasses} itemsColumnContentAddon={itemsContentAddon} onItemClick={handleRowClick} ></ModularList>
                     </div>
                 </div>
             //</PageWrapper>
@@ -402,7 +404,7 @@ const Trading = () => {
                 <div className="size-full flex flex-row rounded-3xl px-8">
                 <div id="graph_window" className="bg-light-gray rounded-3xl mr-5 flex-1 flex flex-col">
                         <div className="self-start pt-4 pl-5">
-                            <Button className="size-10" onClick={() => returnToList()}>
+                            <Button className="size-10" onClick={() => navigate(-1)}>
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 15.75 3 12m0 0 3.75-3.75M3 12h18" />
                             </svg>
