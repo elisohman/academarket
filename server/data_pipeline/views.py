@@ -11,6 +11,8 @@ from django.utils import timezone
 import api.utils.bot_utils as bot_utils
 import api.utils.stock_manager as stock_manager
 import math
+
+
 # Views for robbing y-sektionen
 
 def get_course_stats(_request: HttpRequest, course_code: str) -> JsonResponse:

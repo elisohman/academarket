@@ -245,8 +245,20 @@ const Trading = () => {
 
     const getMaxBuyAmount = () => {
         if (courseTradeData) {
+            
             let k = Math.floor(parseFloat(balance) / courseTradeData.price);
+            let possibleNewPrice = calculateEstimatedPrice(k, isBuying);
+
+            while (k > 0) {
+                if(possibleNewPrice <= parseFloat(balance)) {
+                    break;
+                }
+                k = k - 1;
+                possibleNewPrice = calculateEstimatedPrice(k, isBuying);
+            }
+
             return k;
+
         }
         return 0;
     }

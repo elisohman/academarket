@@ -17,6 +17,7 @@ from collections import OrderedDict
 import api.utils.stock_manager as stock_manager
 
 from django.db.models import OuterRef, Subquery, F, FloatField, ExpressionWrapper, Sum
+from django.db.models.functions import Coalesce
 
 #--- Views! ---#
 
@@ -375,6 +376,7 @@ class DashboardView(APIView):
         courses = Course.objects.all().order_by('-daily_change_percent')
         trending_course = courses.first()
         worst_course = courses.last()
+
         # best_users = User.objects.annotate( 
         #     total_portfolio_value=Sum(
         #         F('portfolios__stocks__amount') * F('portfolios__stocks__course__price'),
@@ -390,7 +392,7 @@ class DashboardView(APIView):
         ).annotate(
             total_value=Sum(
                 ExpressionWrapper(
-                    F('stocks__amount') * F('stocks__course__price'),
+                    Coalesce(F('stocks__amount') * F('stocks__course__price'), 0),
                     output_field=FloatField()
                 )
             )
