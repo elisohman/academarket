@@ -138,7 +138,8 @@ def calculate_price(base_price):
     K = constants['K']
     A = constants['ALPHA']
     S = constants['SCALE']
-
+    if base_price < 1:
+        base_price = 1
     return price_algorithm(base_price, K, A, S)
 
 
@@ -158,6 +159,7 @@ def price_algorithm(base_price, k, alpha, scale):
     Note: Constants may not match those in algorithm_constants.json but the shape is the same,
           provided A (alpha) is greater than 1
     """
+
     return 1 + ((base_price**alpha) * (k - (k/base_price))) * (1/base_price) * scale
 
 

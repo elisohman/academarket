@@ -16,10 +16,9 @@ from collections import OrderedDict
 
 import api.utils.stock_manager as stock_manager
 
-from django.db.models import Sum, F, FloatField
+from django.db.models import OuterRef, Subquery, F, FloatField, ExpressionWrapper, Sum
 
-
-#-- Views! --#
+#--- Views! ---#
 
 
 def test(request: HttpRequest) -> HttpResponse:
@@ -303,7 +302,7 @@ class GetAllCoursesView(APIView):
         course_data = []
         for course in courses:
 
-            formatted_price = round(course.price)
+            formatted_price = round(course.price, 2)
             course_data += [[course.course_code, course.name, formatted_price, course.daily_change_percent]]    
 
         data_json = {
@@ -376,14 +375,34 @@ class DashboardView(APIView):
         courses = Course.objects.all().order_by('-daily_change_percent')
         trending_course = courses.first()
         worst_course = courses.last()
-        best_users = User.objects.annotate(
-            total_portfolio_value=Sum(
-                F('portfolios__stocks__amount') * F('portfolios__stocks__course__price'),
-                output_field=FloatField()
+        # best_users = User.objects.annotate( 
+        #     total_portfolio_value=Sum(
+        #         F('portfolios__stocks__amount') * F('portfolios__stocks__course__price'),
+        #         output_field=FloatField()
+        #     )
+        # ).order_by('-total_portfolio_value')[:5]
+        ## Note: The code above worked for SQLLITE but not for PostgreSQL, implemented code below worked for PostgreSQL
+
+        subquery = Portfolio.objects.filter(
+            user=OuterRef('pk')
+        ).values(
+            'user'
+        ).annotate(
+            total_value=Sum(
+                ExpressionWrapper(
+                    F('stocks__amount') * F('stocks__course__price'),
+                    output_field=FloatField()
+                )
             )
+        ).values('total_value')
+
+        # Main query to annotate users with the calculated total portfolio value
+        best_users = User.objects.annotate(
+            total_portfolio_value=Subquery(subquery)
         ).order_by('-total_portfolio_value')[:5]
         best_users_names_only = [user.username for user in best_users]
         best_users_balances = [user.total_portfolio_value for user in best_users]
+        print(best_users_balances)
         current_user = User.objects.get(username=request.user)
         if current_user:
             portfolio = Portfolio.objects.filter(user=current_user).first()

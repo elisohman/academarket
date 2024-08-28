@@ -137,7 +137,11 @@ def add_course_to_database(_request: HttpRequest, course_code: str) -> HttpRespo
         name = course_data['course_name']
         if Course.objects.filter(course_code=code).exists():
             return HttpResponse(status=403, content="Course already in the database.")
-        new_course = Course.objects.create(course_code=code, name=name, price=ipo_prize)
+        new_course = Course.objects.create(course_code=code, name=name)
+        new_course.base_price = ipo_prize
+        new_course.price = calculate_price(ipo_prize) # This might be a little inefficient because of the JSON file 
+                                                      # you have to open each time, but this will rarely be called
+                                                      # so we can deal with it
         new_course.save()
         return HttpResponse(status=201, content="Course added to the database.")
     return HttpResponse(status=404, content="Course not found in local JSON.")
@@ -153,6 +157,7 @@ def fill_courses_database(_request: HttpRequest) -> HttpResponse:
     """
     data = read_all_course_data()
     fill_database(data)
+
     return HttpResponse(status=202, content="Script to fill database with courses executed.")
 
 def flush_courses_database(_request: HttpRequest) -> HttpResponse:
@@ -230,6 +235,8 @@ def generate_price_histories(_request: HttpRequest) -> HttpResponse:
                     min_new_price = latest_price * 0.7
                 random_price = random.uniform(min_new_price, max_new_price)
                 latest_price = random_price
+                if random_price < 1:
+                    random_price = 1
                 new_price_point = PricePoint(course = course, price=random_price)
                 tz = timezone.get_current_timezone()
                 idate = idate.replace(tzinfo=tz)
@@ -278,7 +285,8 @@ def fix_course_prices(_request: HttpRequest) -> HttpResponse:
     courses = Course.objects.all()
     for course in courses:
         ri = random.randint(50, 200)
-        course.price = ri
+        course.base_price = ri
+        course.price = stock_manager.calculate_price(ri)
         course.save()
     return HttpResponse(status=200, content="Prices fixed.")
 

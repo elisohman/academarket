@@ -44,22 +44,8 @@ const Trading = () => {
 
     const [candlestickData, setCandleStickData] = useState<any>(generateCandlestickData());
     const [estimatedPrice, setEstimatedPrice] = useState<number>(0);
-    /*const fetchEconomics = async (accessToken : string) => {
-        const response = await sendRequest('/user_info', 'GET');
-        if (response.ok) {
-            const responseData = await response.json();
-            setBalance(responseData.balance);
-            
-        } else {
-            console.log("Error when getting user info");
-        }
-    }*/
 
     const fetchCourses = async () => {
-        /*
-            There exists a race condition, if access token needs to be refreshed at the same time as get requests
-            then access token is unathorized. Minor problem though when access token has a lifetime that isn't super short (15 seconds)
-        */
        try {
               const response = await sendRequest('/all_courses', 'GET');
               if (response && response.status === 200) {
@@ -88,10 +74,8 @@ const Trading = () => {
                 throw new Error('Network response was not ok');
             }
             const jsonData = await response.data;
-            console.log(jsonData);
             
             setCourseTradeData(jsonData);
-            console.log(jsonData.price_history)
             setCandleStickData(jsonData.price_history) // Object { course_code: "SNOP20", name: "Hur man diskar en Pensel, med flerfaldigt prisbelönta Göran Östlund", price: 13013, price_history: null }
         } catch (error) {
             console.error('Error fetching course trade data:', error);
@@ -104,17 +88,6 @@ const Trading = () => {
         if (activeSection === 'trade') {
             fetchCourseTradeData();
         }
-        //const token = localStorage.getItem(ACCESS_TOKEN);
-        /*const token = await getToken();
-        console.log("Awaited token (fetchAllData): "+token)
-        if (token) {
-            fetchEconomics(token);
-            fetchCourses(token);
-            if (activeSection === 'trade') {
-                fetchCourseTradeData(token);
-            }
-
-        }*/
     };
     
     const [searchText, setSearchText] = useState<string>('');
@@ -129,7 +102,6 @@ const Trading = () => {
     };
     
     function handleSearch () {
-        //alert(`Searching for: ${searchText}`);
         if (allCourses.current) {
 
             const filteredItems = allCourses.current.items.filter((item: any) => {
@@ -169,7 +141,6 @@ const Trading = () => {
         }
     };
 
-    // Can I make this function check the content of the div of which class it is part of?
     const columnHeaderClasses = {
         0: "col-span-1 justify-self-start text-center font-medium",
         1: "col-span-1 justify-self-start text-center font-medium",
@@ -200,14 +171,6 @@ const Trading = () => {
         }
     };
 
-    /*const returnToList = () => {
-
-        if (isFromPortfolioParam){
-            navigate('/portfolio');
-        } else {
-            navigate('/trading');
-        }
-    };*/
 
     useEffect(() => {
         fetchAllData();
@@ -220,7 +183,6 @@ const Trading = () => {
     }, [userInfo]);
 
     useEffect(() => {
-        console.log(selectedCourseCode);
         if (selectedCourseCode) {
             setActiveSection('trade');
             setIsBuying(true);
@@ -273,15 +235,8 @@ const Trading = () => {
             // Compute all iteration prices at once using array mapping
             const iterationPrices = basePrices.map(price => priceUpdateAlgorithm(price));
             
-            // Compute the original price once
-            //const originalPrice = priceUpdateAlgorithm(basePrice);
-            // Calculate the difference and average difference value
-            // const diffValue = iterationPrices.reduce((acc, price) => acc + (originalPrice - price), 0);
-            
+            // Sum it up            
             const totalTradeValue = iterationPrices.reduce((sum, price) => sum + price, 0);
-            //if(isBuying) {
-            //    basePrice += 1;
-            //}
             return Math.abs(totalTradeValue);
         }
         const base_price = courseTradeData.base_price;
@@ -312,10 +267,6 @@ const Trading = () => {
             else{
                 let newPrice = 0;
 
-                //if (courseTradeData.stock_amount >= amount && amount > 0) {
-                //
-                //    newPrice = TRADE_VALUE*amount;
-                //}
                 newPrice = calculateEstimatedPrice(amount, isBuying);
 
                 setEstimatedPrice(newPrice);
